@@ -1,6 +1,14 @@
+const actions = require("../constants/actions").SENSOR.ACTIONS;
+
 class SensorHandler {
-    process(data) {
-        return null;
+    process(jsonData) {
+        switch(jsonData.action.toString()){
+            case actions.MEASUREMENT:
+                console.log(jsonData.data);
+                break;
+            default:
+                console.log("Unknown action", jsonData.action);
+        }
     }
 }
 

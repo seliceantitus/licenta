@@ -1,30 +1,25 @@
-const commands = require("./constants/commands");
+const actions = require("./constants/actions");
 const SensorHandler = require('./handlers/sensorHandler');
-const MotorHandler = require('./handlers/motorHandler');
-const LedHandler = require('./handlers/ledHandler');
-const SwitchHandler = require('./handlers/switchHandler');
+const ProgramHandler = require('./handlers/programHandler');
+const ErrorHandler = require('./handlers/errorHandler');
 
 class Controller {
     constructor(){
         this.sensorHandler = new SensorHandler();
-        this.motorHandler = new MotorHandler();
-        this.ledHandler = new LedHandler();
-        this.switchHandler = new SwitchHandler();
+        this.programHandler = new ProgramHandler();
+        this.errorHandler = new ErrorHandler();
     }
 
     parse(jsonData) {
-        switch (jsonData.component) {
-            case commands.SENSOR:
+        switch (jsonData.component.toString()) {
+            case actions.SENSOR.ID:
                 return this.sensorHandler.process(jsonData);
-            case commands.SWITCH:
-                return this.switchHandler.process(jsonData);
-            case commands.MOTOR:
-                return this.motorHandler.process(jsonData);
-            case commands.LED:
-                return this.ledHandler.process(jsonData);
+            case actions.PROGRAM.ID:
+                return this.programHandler.process(jsonData);
+            case actions.ERROR.ID:
+                return this.errorHandler.process(jsonData);
             default:
-                console.log("Unknown command");
-                console.log(jsonData);
+                console.log("Unknown component", jsonData.component);
         }
     }
 }

@@ -1,8 +1,7 @@
 const http = require('http');
-const serverPort = 3000;
 const app = require('./api/app');
 const server = http.createServer(app);
-server.listen(serverPort);
+server.listen(3000);
 
 const SerialPort = require('serialport');
 const Readline = SerialPort.parsers.Readline;
@@ -13,11 +12,10 @@ const SerialController = require('./serial/controller');
 const serialController = new SerialController();
 
 parser.on('data', data => {
-    const response = serialController.parse(JSON.parse(data));
-    if (response){
-        console.log("ACK and got response: ", response);
-        // serialPort.write(response);
-    } else {
-        console.log("ACK");
+    try{
+        const jsonData = JSON.parse(data);
+        serialController.parse(jsonData);
+    } catch (e) {
+        console.log("Error: ", e);
     }
 });
