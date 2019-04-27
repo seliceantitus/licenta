@@ -12,6 +12,7 @@
   "dependencies": {
     "express": "^4.16.4",
     "install": "^0.12.2",
-    "npm": "^6.9.0"
+    "npm": "^6.9.0",
+    "serialport": "^7.1.4"
   }
 }
