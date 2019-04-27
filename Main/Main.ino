@@ -56,5 +56,5 @@ void start(){
 void loop() {
   Serial.println(digitalRead(iPin));
   Serial.println(interruptCount);
-  delay(500);
+  delay(1000);
 }
