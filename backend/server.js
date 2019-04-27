@@ -12,6 +12,7 @@ const SerialController = require('./serial/controller');
 const serialController = new SerialController();
 
 parser.on('data', data => {
+    console.log(JSON.parse(data));
     try{
         const jsonData = JSON.parse(data);
         serialController.parse(jsonData);
