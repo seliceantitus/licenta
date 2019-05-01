@@ -5,7 +5,7 @@ server.listen(3000);
 
 const SerialPort = require('serialport');
 const Readline = SerialPort.parsers.Readline;
-const serialPort = new SerialPort('COM4', { baudRate: 9600 });
+const serialPort = new SerialPort('COM5', { baudRate: 9600 });
 const parser = serialPort.pipe(new Readline());
 
 const SerialController = require('./serial/controller');
@@ -16,7 +16,6 @@ parser.on('open', function() {
 });
 
 parser.on('data', data => {
-    console.log(JSON.parse(data));
     try{
         const jsonData = JSON.parse(data);
         serialController.parse(jsonData);

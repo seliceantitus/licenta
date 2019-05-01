@@ -8,6 +8,7 @@ class SensorHandler {
                 break;
             default:
                 console.log("Unknown action", jsonData.action);
+                break;
         }
     }
 }

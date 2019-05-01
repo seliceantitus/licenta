@@ -5,7 +5,9 @@
 
 JsonSerial::JsonSerial() {}
 
-void JsonSerial::parseJson() {}
+void JsonSerial::parseJson() {
+
+}
 
 void recursiveSubNode(JsonObject *parent, JsonSerial::JsonNode node) {
   JsonObject subNest = parent->createNestedObject(node.key);
@@ -13,7 +15,8 @@ void recursiveSubNode(JsonObject *parent, JsonSerial::JsonNode node) {
     if ((node.children[i])->isNested) {
       recursiveSubNode(&subNest, *node.children[i]);
     } else {
-      subNest[(node.children[i])->key] = (node.children[i])->value;
+      if (node.children[i]->value == NULL) subNest[(node.children[i])->key] = (node.children[i])->fValue;
+      else subNest[(node.children[i])->key] = (node.children[i])->value;
     }
   }
 }
@@ -24,7 +27,8 @@ void createSubNode(StaticJsonDocument<1024> *document, JsonSerial::JsonNode *par
     if ((parent->children[j])->isNested) {
       recursiveSubNode(&nest, *parent->children[j]);
     } else {
-      nest[(parent->children[j])->key] = (parent->children[j])->value;
+      if (parent->children[j]->value == NULL) nest[(parent->children[j])->key] = (parent->children[j])->fValue;
+      else  nest[(parent->children[j])->key] = (parent->children[j])->value;
     }
   }
 }
@@ -37,7 +41,8 @@ void JsonSerial::sendJson(JsonSerial::JsonNode *data[], int dataSize) {
     if (node->isNested) {
       createSubNode(&document, node);
     } else {
-      document[node->key] = node->value;
+      if (node->value == NULL) document[node->key] = node->fValue;
+      else document[node->key] = node->value;
     }
   }
 
@@ -47,8 +52,13 @@ void JsonSerial::sendJson(JsonSerial::JsonNode *data[], int dataSize) {
   Serial.println(toSendChar);
 }
 
-JsonSerial::JsonNode JsonSerial::createNode(char *key, char *value, bool isNested, int childrenCount, JsonSerial::JsonNode **children) {
-  JsonSerial::JsonNode node = {key, value, isNested, childrenCount, children};
+JsonSerial::JsonNode JsonSerial::createStringNode(char *key, char *value, bool isNested, int childrenCount, JsonNode **children){
+  JsonSerial::JsonNode node = {key, value, NULL, isNested, childrenCount, children};
+  return node;
+}
+
+JsonSerial::JsonNode JsonSerial::createFloatNode(char *key, float fValue, bool isNested, int childrenCount, JsonNode **children){
+  JsonSerial::JsonNode node = {key, NULL, fValue, isNested, childrenCount, children};
   return node;
 }
 

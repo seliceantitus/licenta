@@ -20,6 +20,7 @@ class Controller {
                 return this.errorHandler.process(jsonData);
             default:
                 console.log("Unknown component", jsonData.component);
+                break;
         }
     }
 }
