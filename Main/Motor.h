@@ -19,11 +19,21 @@ class Motor {
     void setDirection(int dir);
     void turn();
     void turn(int numberOfSteps);
-    int getStepPin(){ return _stepPin; };
-    int getDirPin(){ return _dirPin; };
-    int getEnablePin(){ return _enablePin; };
-    int getSleepPin(){ return _sleepPin; };
-    int getResetPin(){ return _resetPin; };
+    int getStepPin() {
+      return _stepPin;
+    };
+    int getDirPin() {
+      return _dirPin;
+    };
+    int getEnablePin() {
+      return _enablePin;
+    };
+    int getSleepPin() {
+      return _sleepPin;
+    };
+    int getResetPin() {
+      return _resetPin;
+    };
   private:
     int _stepPin;
     int _dirPin;

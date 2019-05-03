@@ -39,7 +39,7 @@ bool LCD::getTouch() {
 }
 
 LCD::LCD() {
-    
+
 }
 
 LCD::LCD(int rotation) {
@@ -80,29 +80,29 @@ void LCD::moveCursor(int x, int y) {
   tft.setCursor(x, y);
 }
 
-void LCD::textColor(uint16_t color, uint16_t bg){
+void LCD::textColor(uint16_t color, uint16_t bg) {
   if (bg == -1) tft.setTextColor(color);
   else tft.setTextColor(color, bg);
 }
 
-void LCD::textSize(uint8_t s){
+void LCD::textSize(uint8_t s) {
   tft.setTextSize(s);
 }
 
-void LCD::printText(char *text){
+void LCD::printText(char *text) {
   tft.print(text);
 }
 
-void  LCD::fastLine(int dir, int x, int y, int l, uint16_t color){
+void  LCD::fastLine(int dir, int x, int y, int l, uint16_t color) {
   if (dir == 0) tft.drawFastHLine(x, y, l, color);
   else tft.drawFastVLine(x, y, l, color);
 }
 
-void LCD::line(int x0, int y0, int x1, int y1, uint16_t color){
+void LCD::line(int x0, int y0, int x1, int y1, uint16_t color) {
   tft.drawLine(x0, y0, x1, y1, color);
 }
 
-void LCD::rect(bool fill, int x, int y, int w, int h, uint16_t color){
+void LCD::rect(bool fill, int x, int y, int w, int h, uint16_t color) {
   if (fill) tft.fillRect(x, y, w, h, color);
   else tft.drawRect(x, y, w, h, color);
 }

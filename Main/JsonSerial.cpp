@@ -52,12 +52,12 @@ void JsonSerial::sendJson(JsonSerial::JsonNode *data[], int dataSize) {
   Serial.println(toSendChar);
 }
 
-JsonSerial::JsonNode JsonSerial::createStringNode(char *key, char *value, bool isNested, int childrenCount, JsonNode **children){
+JsonSerial::JsonNode JsonSerial::createStringNode(char *key, char *value, bool isNested, int childrenCount, JsonNode **children) {
   JsonSerial::JsonNode node = {key, value, NULL, isNested, childrenCount, children};
   return node;
 }
 
-JsonSerial::JsonNode JsonSerial::createFloatNode(char *key, float fValue, bool isNested, int childrenCount, JsonNode **children){
+JsonSerial::JsonNode JsonSerial::createFloatNode(char *key, float fValue, bool isNested, int childrenCount, JsonNode **children) {
   JsonSerial::JsonNode node = {key, NULL, fValue, isNested, childrenCount, children};
   return node;
 }

@@ -5,10 +5,14 @@
 #include "Switch.h"
 #include "Constants.h"
 #include "JsonSerial.h"
-#include <ArduinoJson.h>
-#include<stdio.h> 
-LCD screen;
 
+#include <ArduinoJson.h>
+#include<stdio.h>
+#include <Thread.h>
+#include <ThreadController.h>
+#include <TimerOne.h>
+
+LCD screen;
 LED gLed = LED(GLED);
 LED yLed = LED(YLED);
 LED rLed = LED(RLED);
@@ -19,16 +23,67 @@ Motor sensorAxis = Motor(23, 31, 33, 35, 37);
 Motor turntable = Motor(22, 30, 32, 34, 36);
 JsonSerial jSerial = JsonSerial();
 
+Thread *lcdThread = new Thread();
+ThreadController threadController = ThreadController();
+
+volatile int activeScreen = 0;
+volatile bool isRunning = false;
+
+int turntableTurns = 0;
+int turntableStep = 20;
+int turntableFullRotations = 0;
+int sensorAxisTurns = 0;
+int sensorAxisStep = 50;
+void checkTouchInput() {
+  if (!isRunning) {
+    screen.updatePressState(START_BUTTON);
+    if (screen.getJustPressedState(START_BUTTON)) {
+      screen.drawButton(START_BUTTON, true);
+    } else if (screen.getJustReleasedState(START_BUTTON)) {
+      screen.drawButton(CANCEL_BUTTON, false);
+      isRunning = true;
+    }
+  } else {
+    screen.updatePressState(CANCEL_BUTTON);
+    if (screen.getJustPressedState(CANCEL_BUTTON)) {
+      screen.drawButton(CANCEL_BUTTON, true);
+    } else if (screen.getJustReleasedState(CANCEL_BUTTON)) {
+      screen.drawButton(START_BUTTON, false);
+      isRunning = false;
+    }
+  }
+}
+
+void timerCallback() {
+  threadController.run();
+}
+
 void setup() {
+  rLed.on();
+
   Serial.begin(9600);
   analogReference(EXTERNAL);
 
   screen = LCD(LANDSCAPE);
-
-  gLed.on();
+  screen.fill(WHITE);
+  screen.initButton(START_BUTTON, 60, 120, 100, 200, RED, BLACK, WHITE, "Start", 3);
+  screen.initButton(CANCEL_BUTTON, 60, 120, 100, 200, BLACK, RED, WHITE, "Stop", 3);
+  screen.drawButton(START_BUTTON, false);
 
   sensorAxis.enable();
   turntable.enable();
+  sensorAxis.setDirection(RIGHT);
+  turntable.setDirection(LEFT);
+
+  lcdThread->onRun(checkTouchInput);
+  lcdThread->setInterval(20);
+  threadController.add(lcdThread);
+
+  Timer1.initialize(5000);
+  Timer1.attachInterrupt(timerCallback);
+  Timer1.start();
+
+  rLed.off();
 }
 
 void portOpen() {
@@ -66,9 +121,42 @@ void fetchSerialData() {
 }
 
 void loop() {
+  long s = millis();
   if (Serial.available()) {
     fetchSerialData();
   }
-  sensor.measure();
-  sendSensorData();
+  if (limSw1.active() && !isRunning) {
+    isRunning = true;
+    delay(1000);
+  }
+  if (isRunning) {
+    if (turntableTurns == 200) {
+      turntableFullRotations += 1;
+      turntableTurns = 0; 
+      sensorAxis.turn(sensorAxisStep);
+      sensorAxisTurns += sensorAxisStep;
+    }
+    noInterrupts();
+    sensor.measure();
+    interrupts();
+    sendSensorData();
+    noInterrupts();
+    turntable.turn(turntableStep);
+    turntableTurns += turntableStep;
+    interrupts();
+    if (limSw1.active()) {
+      noInterrupts();
+      sensorAxis.setDirection(LEFT);
+      sensorAxis.turn(sensorAxisTurns);
+      sensorAxis.setDirection(RIGHT);
+      interrupts();
+      isRunning = false;
+      sensorAxisTurns = 0;
+      turntableTurns = 0;
+      turntableFullRotations = 0;
+      delay(2000);
+    }
+  }
+  long e = millis();
+  Serial.println(e - s);
 }

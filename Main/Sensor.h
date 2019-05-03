@@ -12,8 +12,12 @@ class Sensor {
     float getADCValue();
     float getVoltage();
     float getDistance();
-    int getDataPin(){ return _dataPin; };
-    int getSampleSize(){ return _sampleSize; };
+    int getDataPin() {
+      return _dataPin;
+    };
+    int getSampleSize() {
+      return _sampleSize;
+    };
   private:
     int _dataPin;
     float _adcValue;

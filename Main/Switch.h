@@ -7,7 +7,9 @@ class Switch {
   public:
     Switch(int pin);
     bool active();
-    int getPin(){ return _pin; };
+    int getPin() {
+      return _pin;
+    };
   private:
     int _pin;
 };

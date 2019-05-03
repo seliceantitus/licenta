@@ -2,15 +2,15 @@
 #include "LED.h"
 #include "Constants.h"
 
-LED::LED(int pin){
+LED::LED(int pin) {
   _pin = pin;
   pinMode(_pin, OUTPUT);
 }
 
-void LED::on(){
+void LED::on() {
   digitalWrite(_pin, HIGH);
 }
 
-void LED::off(){
+void LED::off() {
   digitalWrite(_pin, LOW);
 }
