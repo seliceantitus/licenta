@@ -27,7 +27,7 @@ Thread *lcdThread = new Thread();
 ThreadController threadController = ThreadController();
 
 volatile int activeScreen = 0;
-volatile bool isRunning = false;
+volatile bool isRunning = true;
 
 int turntableTurns = 0;
 int turntableStep = 20;
@@ -79,9 +79,9 @@ void setup() {
   lcdThread->setInterval(20);
   threadController.add(lcdThread);
 
-  Timer1.initialize(5000);
-  Timer1.attachInterrupt(timerCallback);
-  Timer1.start();
+//  Timer1.initialize(5000);
+//  Timer1.attachInterrupt(timerCallback);
+//  Timer1.start();
 
   rLed.off();
 }
@@ -158,5 +158,6 @@ void loop() {
     }
   }
   long e = millis();
-  Serial.println(e - s);
+//  delay(2000);
+//  Serial.println(e - s);
 }

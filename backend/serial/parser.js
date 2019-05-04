@@ -3,7 +3,7 @@ const SensorHandler = require('./handlers/sensorHandler');
 const ProgramHandler = require('./handlers/programHandler');
 const ErrorHandler = require('./handlers/errorHandler');
 
-class Controller {
+class Parser {
     constructor(){
         this.sensorHandler = new SensorHandler();
         this.programHandler = new ProgramHandler();
@@ -25,4 +25,4 @@ class Controller {
     }
 }
 
-module.exports = Controller;
+module.exports = Parser;
