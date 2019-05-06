@@ -158,6 +158,5 @@ void loop() {
     }
   }
   long e = millis();
-//  delay(2000);
 //  Serial.println(e - s);
 }

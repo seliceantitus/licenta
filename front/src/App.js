@@ -1,13 +1,15 @@
 import React from 'react';
 import './App.css';
-import ClientTest from "./ClientTest";
+import TopNav from './Nav/TopNav';
+import Content from "./Pages/Content";
 
 function App() {
-  return (
-    <div>
-      <ClientTest/>
-    </div>
-  );
+    return (
+        <>
+            <TopNav/>
+            <Content/>
+        </>
+    );
 }
 
 export default App;
