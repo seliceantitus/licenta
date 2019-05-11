@@ -1,8 +1,21 @@
 module.exports = {
+    MOTOR: {
+        ID: "motor",
+        ACTIONS: {
+            TURN: "turn"
+        }
+    },
     SENSOR: {
         ID: "sensor",
         ACTIONS: {
             MEASUREMENT: "measurement"
+        }
+    },
+    PORT: {
+        ID: "port",
+        ACTIONS: {
+            OPEN: "open",
+            CLOSE: "close"
         }
     },
     PROGRAM: {
@@ -11,5 +24,5 @@ module.exports = {
             START: "start",
             END: "end"
         }
-    }
+    },
 };
