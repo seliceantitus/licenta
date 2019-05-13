@@ -35,7 +35,7 @@ class CommunicationController {
 
         socket.on('client_data', (message) => {
             this.sendSerialData(message);
-        })
+        });
     }
 
     sendSerialData(data) {

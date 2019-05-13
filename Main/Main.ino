@@ -7,10 +7,7 @@
 #include "JsonSerial.h"
 
 #include <ArduinoJson.h>
-#include<stdio.h>
-#include <Thread.h>
-#include <ThreadController.h>
-#include <TimerOne.h>
+#include <stdio.h>
 
 LCD screen;
 LED gLed = LED(GLED);
@@ -23,9 +20,6 @@ Motor sensorAxis = Motor(23, 31, 33, 35, 37);
 Motor turntable = Motor(22, 30, 32, 34, 36);
 JsonSerial jSerial = JsonSerial();
 
-Thread *lcdThread = new Thread();
-ThreadController threadController = ThreadController();
-
 volatile int activeScreen = 0;
 volatile bool isRunning = true;
 
@@ -34,29 +28,6 @@ int turntableStep = 20;
 int turntableFullRotations = 0;
 int sensorAxisTurns = 0;
 int sensorAxisStep = 50;
-void checkTouchInput() {
-  if (!isRunning) {
-    screen.updatePressState(START_BUTTON);
-    if (screen.getJustPressedState(START_BUTTON)) {
-      screen.drawButton(START_BUTTON, true);
-    } else if (screen.getJustReleasedState(START_BUTTON)) {
-      screen.drawButton(CANCEL_BUTTON, false);
-      isRunning = true;
-    }
-  } else {
-    screen.updatePressState(CANCEL_BUTTON);
-    if (screen.getJustPressedState(CANCEL_BUTTON)) {
-      screen.drawButton(CANCEL_BUTTON, true);
-    } else if (screen.getJustReleasedState(CANCEL_BUTTON)) {
-      screen.drawButton(START_BUTTON, false);
-      isRunning = false;
-    }
-  }
-}
-
-void timerCallback() {
-  threadController.run();
-}
 
 void setup() {
   rLed.on();
@@ -75,14 +46,6 @@ void setup() {
   sensorAxis.setDirection(RIGHT);
   turntable.setDirection(LEFT);
 
-  lcdThread->onRun(checkTouchInput);
-  lcdThread->setInterval(20);
-  threadController.add(lcdThread);
-
-//  Timer1.initialize(5000);
-//  Timer1.attachInterrupt(timerCallback);
-//  Timer1.start();
-
   rLed.off();
 }
 
@@ -90,10 +53,14 @@ void portOpen() {
 
 }
 
+void portClose() {
+
+}
+
 void sendSensorData() {
   JsonSerial::JsonNode component = jSerial.createStringNode("component", "sensor", false, 0, NULL);
   JsonSerial::JsonNode action = jSerial.createStringNode("action", "measurement", false, 0, NULL);
-  JsonSerial::JsonNode data_adc = jSerial.createFloatNode("adc", sensor.getADCValue(), false, 0, NULL);
+  JsonSerial::JsonNode data_adc = jSerial.createFloatNode("analog", sensor.getADCValue(), false, 0, NULL);
   JsonSerial::JsonNode data_voltage = jSerial.createFloatNode("voltage", sensor.getVoltage(), false, 0, NULL);
   JsonSerial::JsonNode data_distance = jSerial.createFloatNode("distance", sensor.getDistance(), false, 0, NULL);
   JsonSerial::JsonNode *data_children[] = { &data_adc, &data_voltage, &data_distance };
@@ -104,8 +71,18 @@ void sendSensorData() {
   jSerial.sendJson(list, 3);
 }
 
-void portClose() {
+void sendMotorData(int steps, int rotations, char *locationValue){
+  JsonSerial::JsonNode component = jSerial.createStringNode("component", "motor", false, 0, NULL);
+  JsonSerial::JsonNode location = jSerial.createStringNode("location", locationValue, false, 0, NULL);
+  JsonSerial::JsonNode action = jSerial.createStringNode("action", "turn", false, 0, NULL);
+  JsonSerial::JsonNode data_steps = jSerial.createFloatNode("steps", steps, false, 0, NULL);
+  JsonSerial::JsonNode data_rotations = jSerial.createFloatNode("turns", rotations, false, 0, NULL);
+  JsonSerial::JsonNode *data_children[] = { &data_steps, &data_rotations };
+  JsonSerial::JsonNode data = jSerial.createStringNode("data", "", true, 2, data_children);
 
+  JsonSerial::JsonNode *list[] = { &component, &location, &action, &data };
+
+  jSerial.sendJson(list, 4);
 }
 
 void fetchSerialData() {

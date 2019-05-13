@@ -1,14 +1,8 @@
 import React from 'react';
 import {Nav, Navbar} from "react-bootstrap";
-import NavLink from "react-bootstrap/NavLink";
 import {LinkContainer} from "react-router-bootstrap";
 
 class TopNav extends React.Component {
-
-    constructor(props, context) {
-        super(props, context);
-    }
-
     render() {
         return (
             <Navbar bg={'dark'} variant={'dark'} style={{marginBottom: 40}}>

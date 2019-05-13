@@ -16,7 +16,8 @@ void recursiveSubNode(JsonObject *parent, JsonSerial::JsonNode node) {
       recursiveSubNode(&subNest, *node.children[i]);
     } else {
       if (node.children[i]->value == NULL) subNest[(node.children[i])->key] = (node.children[i])->fValue;
-      else subNest[(node.children[i])->key] = (node.children[i])->value;
+      else if (node.children[i]->iValue == NULL) subNest[(node.children[i])->key] = (node.children[i])->value;
+      else subNest[(node.children[i])->key] = (node.children[i])->iValue;
     }
   }
 }
@@ -28,7 +29,8 @@ void createSubNode(StaticJsonDocument<1024> *document, JsonSerial::JsonNode *par
       recursiveSubNode(&nest, *parent->children[j]);
     } else {
       if (parent->children[j]->value == NULL) nest[(parent->children[j])->key] = (parent->children[j])->fValue;
-      else  nest[(parent->children[j])->key] = (parent->children[j])->value;
+      else  if (parent->children[j]->iValue == NULL) nest[(parent->children[j])->key] = (parent->children[j])->value;
+      else nest[(parent->children[j])->key] = (parent->children[j])->iValue;
     }
   }
 }
@@ -53,12 +55,17 @@ void JsonSerial::sendJson(JsonSerial::JsonNode *data[], int dataSize) {
 }
 
 JsonSerial::JsonNode JsonSerial::createStringNode(char *key, char *value, bool isNested, int childrenCount, JsonNode **children) {
-  JsonSerial::JsonNode node = {key, value, NULL, isNested, childrenCount, children};
+  JsonSerial::JsonNode node = {key, value, NULL, NULL, isNested, childrenCount, children};
   return node;
 }
 
 JsonSerial::JsonNode JsonSerial::createFloatNode(char *key, float fValue, bool isNested, int childrenCount, JsonNode **children) {
-  JsonSerial::JsonNode node = {key, NULL, fValue, isNested, childrenCount, children};
+  JsonSerial::JsonNode node = {key, NULL, fValue, NULL, isNested, childrenCount, children};
+  return node;
+}
+
+JsonSerial::JsonNode JsonSerial::createIntNode(char *key, int iValue, bool isNested, int childrenCount, JsonNode **children) {
+  JsonSerial::JsonNode node = {key, NULL, NULL, iValue, isNested, childrenCount, children};
   return node;
 }
 

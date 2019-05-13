@@ -5,12 +5,6 @@ module.exports = {
             TURN: "turn"
         }
     },
-    SENSOR: {
-        ID: "sensor",
-        ACTIONS: {
-            MEASUREMENT: "measurement"
-        }
-    },
     PORT: {
         ID: "port",
         ACTIONS: {
@@ -25,4 +19,10 @@ module.exports = {
             END: "end"
         }
     },
+    SENSOR: {
+        ID: "sensor",
+        ACTIONS: {
+            MEASUREMENT: "measurement"
+        }
+    }
 };
