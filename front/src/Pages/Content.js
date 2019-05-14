@@ -1,9 +1,11 @@
 import React from 'react';
 import {Route, Switch} from "react-router-dom";
-import Dashboard from "./Dash/Dashboard";
-
 import openSocket from 'socket.io-client';
-import ErrorBoundary from "./ErrorBoundary";
+
+import Dashboard from "./Dash/Dashboard";
+import ErrorBoundary from "./Error/ErrorBoundary";
+import History from "./History/History";
+import Scan from "./Scan/Scan";
 
 class Content extends React.Component {
 
@@ -21,12 +23,11 @@ class Content extends React.Component {
     render() {
         return (
             <Switch>
-                <Route exact path={'/'} component={() =>
-                    <ErrorBoundary>
-                        <Dashboard socket={this.socket}/>
-                    </ErrorBoundary>
-                }/>
-                <Route path={'/scan'} component={() => <h1>Test</h1>}/>
+                {/*<ErrorBoundary>*/}
+                    <Route exact path={'/'} component={() => <Dashboard socket={this.socket}/>}/>
+                    <Route path={'/scan'} component={() => <Scan socket={this.socket}/>}/>
+                    <Route path={'/history'} component={() => <History socket={this.socket}/>}/>
+                {/*</ErrorBoundary>*/}
             </Switch>
         );
     }

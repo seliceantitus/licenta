@@ -1,7 +1,9 @@
 // SERIAL PORT DEPENDENCIES
+const constants = require("../constants/Constants");
+
 const SerialPort = require('serialport');
 const ReadLine = SerialPort.parsers.Readline;
-const serialPort = new SerialPort('COM5', {baudRate: 9600});
+const serialPort = new SerialPort('COM5', {baudRate: 9600, autoOpen: false});
 const parser = serialPort.pipe(new ReadLine());
 
 // SOCKET DEPENDENCIES
@@ -31,10 +33,54 @@ class CommunicationController {
         socket.on('disconnect', () => {
             this.connections.splice(this.connections.indexOf(socket), 1);
             console.log('Disconnected: %s sockets connected', this.connections.length);
+            serialPort.close(function (err) {
+                console.log("Closing serial port...");
+                if (err) {
+                    //TODO Send error as response
+                    console.log("Error closing serial port.");
+                } else {
+                    console.log("Serial port closed");
+                    const response = {
+                        component: 'port',
+                        action: 'close'
+                    };
+                    socket.emit('broadcast', response);
+                }
+            });
         });
 
-        socket.on('client_data', (message) => {
-            this.sendSerialData(message);
+        socket.on(constants.OPEN_PORT, () => {
+            serialPort.open(function (err) {
+                console.log("Opening serial port...");
+                if (err) {
+                    //TODO Send error as response
+                    console.log("Error opening serial port.");
+                } else {
+                    console.log("Serial port opened");
+                    const response = {
+                        component: 'port',
+                        action: 'open'
+                    };
+                    socket.emit('broadcast', response);
+                }
+            });
+        });
+
+        socket.on(constants.CLOSE_PORT, () => {
+            serialPort.close(function (err) {
+                console.log("Closing serial port...");
+                if (err) {
+                    //TODO Send error as response
+                    console.log("Error closing serial port.");
+                } else {
+                    console.log("Serial port closed");
+                    const response = {
+                        component: 'port',
+                        action: 'close'
+                    };
+                    socket.emit('broadcast', response);
+                }
+            });
         });
     }
 

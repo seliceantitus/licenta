@@ -1,4 +1,13 @@
-//Parser.js
+export const OPEN_PORT = "open_port";
+export const CLOSE_PORT = "close_port";
+export const START_PROGRAM = "start_program";
+export const STOP_PROGRAM = "stop_program";
+
+//TODO Define structure for error response
+export const ERROR = {
+    ID: "error",
+};
+
 export const MOTOR = {
     ID: "motor",
     LOCATION: ["axis", "turntable"],
@@ -31,8 +40,8 @@ export const PROGRAM = {
             ID: "start",
             DATA: null
         },
-        END: {
-            ID: "end",
+        STOP: {
+            ID: "stop",
             DATA: null
         }
     }

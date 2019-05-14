@@ -1,29 +1,36 @@
-import * as Constants from '../Constants/ParserConstants';
+import motorParse from "./ComponentHandlers/MotorHandler";
+import portParse from "./ComponentHandlers/PortHandler";
+import programParse from "./ComponentHandlers/ProgramHandler";
 import sensorParse from './ComponentHandlers/SensorHandler';
+
+import * as Constants from '../Constants/ParserConstants';
 import InvalidJsonException from "../Exceptions/InvalidJsonException";
 import {INVALID_COMPONENT_ID, MISSING_COMPONENT_ID} from "../Constants/Errors";
 
-function parse(component, data){
-    switch (data.component) {
+function parse(component, json) {
+    switch (json.component) {
         case Constants.MOTOR.ID:
-            console.log('MOTOR');
+            motorParse(component, json);
             break;
+
         case Constants.PORT.ID:
-            console.log('PORT');
+            portParse(component, json);
             break;
+
         case Constants.PROGRAM.ID:
-            console.log('PROGRAM');
+            programParse(component, json);
             break;
+
         case Constants.SENSOR.ID:
-            try{
-                sensorParse(component, data);
-            } catch (exception) {
-                throw exception;
-            }
+            sensorParse(component, json);
             break;
+
         case undefined:
+            console.log('Parser.js', json);
             throw new InvalidJsonException(MISSING_COMPONENT_ID);
+
         default:
+            console.log('Parser.js', json);
             throw new InvalidJsonException(INVALID_COMPONENT_ID);
     }
 }

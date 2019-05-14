@@ -1,11 +1,27 @@
 import React from "react";
-import Chart from "react-apexcharts";
 import ReactJson from "react-json-view";
-import {toast, ToastContainer, Zoom} from 'react-toastify';
-import {Card, Col, Container, ListGroup, ListGroupItem, Row} from "react-bootstrap";
+import {Slide, toast, ToastContainer} from 'react-toastify';
+import {Card, Col, Container, Row} from "react-bootstrap";
 
 import parse from '../../Parser/Parser';
 import StepperMotor from "../../Utils/StepperMotor";
+import {CLOSE_PORT, OPEN_PORT, START_PROGRAM, STOP_PROGRAM} from "../../Constants/ParserConstants";
+import {STATUS_ERROR, STATUS_OK, TOAST_ERROR, TOAST_INFO, TOAST_SUCCESS, TOAST_WARN} from "../../Constants/UI";
+import {
+    PROGRAM_START,
+    PROGRAM_STOP,
+    SERIAL_CONNECTION_CLOSING,
+    SERIAL_CONNECTION_OPEN,
+    SOCKET_CONNECTION_FAIL,
+    SOCKET_CONNECTION_RETRY,
+    SOCKET_CONNECTION_SUCCESS
+} from "../../Constants/Messages";
+import {Divider, ListItemText, ListSubheader, List, ListItem, ListItemIcon} from "@material-ui/core";
+import Paper from "@material-ui/core/Paper";
+import Tooltip from "@material-ui/core/Tooltip";
+import ListItemAvatar from "@material-ui/core/ListItemAvatar";
+import {ImportExport, Usb} from "@material-ui/icons";
+
 
 class Dashboard extends React.Component {
 
@@ -15,29 +31,30 @@ class Dashboard extends React.Component {
         this.socket = this.props.socket;
         this.reconnectAttempts = 1;
         this.socket.on('connect', () => {
-            toast.success("Established connection to backend.", {
-                position: toast.POSITION.TOP_RIGHT
-            });
+            this.showToast(TOAST_SUCCESS, SOCKET_CONNECTION_SUCCESS);
+            this.setState({connections: {...this.state.connections, socket: true}});
             this.reconnectAttempts = 1;
         });
 
         this.socket.on('reconnecting', () => {
-            toast.warn(`Attempting to reconnect [${this.reconnectAttempts}] to backend socket...`, {
-                position: toast.POSITION.TOP_RIGHT,
-            });
+            this.showToast(TOAST_WARN, SOCKET_CONNECTION_RETRY(this.reconnectAttempts));
+            this.setState({connections: {...this.state.connections, socket: false}});
             this.reconnectAttempts += 1;
         });
 
         this.socket.on('reconnect_failed', () => {
-            toast.error("Could not establish connection to backend.", {
-                position: toast.POSITION.TOP_RIGHT
-            });
+            this.showToast(TOAST_ERROR, SOCKET_CONNECTION_FAIL);
+            this.setState({connections: {...this.state.connections, socket: false}});
             this.setState({enabled: false});
         });
 
-        const labels = new StepperMotor(1.8, 4).getRadarLabels();
+        this.labels = new StepperMotor(1.8, 4).getRadarLabels();
         this.state = {
             enabled: this.socket.connected,
+            connections: {
+                socket: false,
+                serial: false
+            },
             sensorData: {
                 distance: 0,
                 analog: 0,
@@ -53,18 +70,24 @@ class Dashboard extends React.Component {
             },
             rawData: [],
             counter: 0,
-            stepsLimit: labels.length,
+            stepsLimit: this.labels.length,
             options: {
-                labels: labels,
+                labels: this.labels,
             },
             series: [{
                 name: 'Distance',
-                data: new Array(labels.length).fill(0)
-            }]
+                data: new Array(this.labels.length).fill(0)
+            }],
+            test: undefined
         };
 
         this.handleOutboundData = this.handleOutboundData.bind(this);
         this.handleInboundData = this.handleInboundData.bind(this);
+        this.toggleSerialPort = this.toggleSerialPort.bind(this);
+        this.startProgram = this.startProgram.bind(this);
+        this.stopProgram = this.stopProgram.bind(this);
+        this.showToast = this.showToast.bind(this);
+        this.showConnectionsStatus = this.showConnectionsStatus.bind(this);
     }
 
     componentDidMount() {
@@ -75,77 +98,125 @@ class Dashboard extends React.Component {
         try {
             parse(this, json);
         } catch (parseException) {
-            //TODO HANDLE EXCEPTION
+            //TODO Stop the program
+            console.log("Caught", parseException);
         }
 
-        this.setState(state => {
-            const seriesData = state.series[0].data;
-            if (state.counter > state.stepsLimit - 1) return {state};
-            seriesData[state.counter] = json.data.distance;
-            return {
-                rawData: [...state.rawData, json],
-                series: [{
-                    ...state.series,
-                    data: seriesData
-                }],
-                counter: state.counter + 1,
-                data: json.data.distance
-            }
-        })
+        if (json.component === "sensor") {
+            this.setState(state => {
+                const seriesData = state.series[0].data;
+                if (state.counter > state.stepsLimit - 1) return {state};
+                seriesData[state.counter] = json.data.distance;
+                return {
+                    rawData: [...state.rawData, json],
+                    series: [{
+                        ...state.series,
+                        data: seriesData
+                    }],
+                    counter: state.counter + 1,
+                    data: json.data.distance
+                }
+            })
+        }
     }
 
     handleOutboundData(json) {
         this.socket.emit('client_data', JSON.stringify(json));
     }
 
+    toggleSerialPort() {
+        if (!this.state.connections.serial) {
+            this.showToast(TOAST_INFO, SERIAL_CONNECTION_OPEN);
+            this.socket.emit(OPEN_PORT);
+            this.setState({connections: {...this.state.connections, serial: true}});
+        } else {
+            this.showToast(TOAST_INFO, SERIAL_CONNECTION_CLOSING);
+            this.socket.emit(CLOSE_PORT);
+            this.setState({connections: {...this.state.connections, serial: false}});
+        }
+    }
+
+    startProgram() {
+        this.showToast(TOAST_INFO, PROGRAM_START);
+        this.socket.emit(START_PROGRAM);
+    }
+
+    stopProgram() {
+        this.showToast(TOAST_INFO, PROGRAM_STOP);
+        this.socket.emit(STOP_PROGRAM);
+    }
+
+    showToast(type, message) {
+        toast(message, {type: type});
+    }
+
+    showConnectionsStatus() {
+        if (this.state.connections.socket) {
+            return STATUS_OK();
+        } else {
+            return STATUS_ERROR();
+        }
+    }
+
     render() {
         return (
             <Container>
                 <ToastContainer
-                    autoClose={8000}
+                    autoClose={2000}
                     closeOnClick={true}
                     pauseOnHover={false}
                     draggable
-                    transition={Zoom}
+                    transition={Slide}
+                    position={'top-right'}
+                    pauseOnFocusLoss={false}
                 />
                 <Row>
-                    <Col xs={8}>
-                        <Chart
-                            options={this.state.options}
-                            series={this.state.series}
-                            type="radar"
-                            height="650"
-                        />
+                    <Col xs={12}>
+
+
                     </Col>
-                    <Col xs={4}>
-                        <Card>
-                            <Card.Header style={{backgroundColor: 'rgb(67, 219, 80)'}}>
-                                <h6>IR Sensor Data</h6>
-                            </Card.Header>
-                            <ListGroup className="list-group-flush">
-                                <ListGroupItem>Distance: {this.state.sensorData.distance}</ListGroupItem>
-                                <ListGroupItem>Analog: {this.state.sensorData.analog}</ListGroupItem>
-                                <ListGroupItem>Voltage: {this.state.sensorData.voltage}</ListGroupItem>
-                            </ListGroup>
-                        </Card>
-                        <Card>
-                            <Card.Header style={{backgroundColor: 'rgb(67, 178, 219)'}}>
-                                <h6>Turntable motor</h6>
-                            </Card.Header>
-                            <ListGroup className="list-group-flush">
-                                <ListGroupItem>Steps: {this.state.turntableMotorData.steps}</ListGroupItem>
-                                <ListGroupItem>Turns: {this.state.turntableMotorData.turns}</ListGroupItem>
-                            </ListGroup>
-                        </Card>
-                        <Card>
-                            <Card.Header style={{backgroundColor: 'rgb(247, 228, 81)'}}>
-                                <h6>Sensor axis motor</h6>
-                            </Card.Header>
-                            <ListGroup className="list-group-flush">
-                                <ListGroupItem>Steps: {this.state.zAxisMotorData.steps}</ListGroupItem>
-                                <ListGroupItem>Turns: {this.state.zAxisMotorData.turns}</ListGroupItem>
-                            </ListGroup>
-                        </Card>
+                    <Col xs={2}>
+                        <Paper elevation={2}>
+                            {/*<h3>Components</h3>*/}
+                            <List component="nav">
+                                <ListSubheader component="div">
+                                    Connection status
+                                </ListSubheader>
+                                <Tooltip
+                                    title={this.state.connections.socket ? "Click to disconnect" : "Click to connect"}
+                                    placement="left"
+                                >
+                                    <ListItem button>
+                                        <ListItemAvatar>
+                                            <ImportExport color={'action'}/>
+                                        </ListItemAvatar>
+                                        <ListItemText>
+                                            Socket
+                                        </ListItemText>
+                                        <ListItemIcon>
+                                            {this.state.connections.socket ? STATUS_OK() : STATUS_ERROR()}
+                                        </ListItemIcon>
+                                    </ListItem>
+                                </Tooltip>
+                                <Divider/>
+                                <Tooltip
+                                    title={this.state.connections.serial ? "Click to disconnect" : "Click to connect"}
+                                    placement="left"
+                                >
+                                    <ListItem button onClick={this.toggleSerialPort}>
+                                        <ListItemAvatar>
+                                            <Usb color={'action'}/>
+                                        </ListItemAvatar>
+                                        <ListItemText>
+                                            Serial
+                                        </ListItemText>
+                                        <ListItemIcon>
+                                            {this.state.connections.serial ? STATUS_OK(true) : STATUS_ERROR()}
+                                        </ListItemIcon>
+                                    </ListItem>
+                                </Tooltip>
+                            </List>
+                        </Paper>
                     </Col>
                 </Row>
                 <Row>

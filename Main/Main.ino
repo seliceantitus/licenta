@@ -49,14 +49,6 @@ void setup() {
   rLed.off();
 }
 
-void portOpen() {
-
-}
-
-void portClose() {
-
-}
-
 void sendSensorData() {
   JsonSerial::JsonNode component = jSerial.createStringNode("component", "sensor", false, 0, NULL);
   JsonSerial::JsonNode action = jSerial.createStringNode("action", "measurement", false, 0, NULL);

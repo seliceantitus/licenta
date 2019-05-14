@@ -14,12 +14,12 @@ class TopNav extends React.Component {
                                 Dashboard
                             </Nav.Link>
                         </LinkContainer>
-                        <LinkContainer to={'/scan'}>
+                        <LinkContainer to={'scan'}>
                             <Nav.Link>
                                 New scan
                             </Nav.Link>
                         </LinkContainer>
-                        <LinkContainer to={'/my_scans'}>
+                        <LinkContainer to={'history'}>
                             <Nav.Link>
                                 My scans
                             </Nav.Link>
