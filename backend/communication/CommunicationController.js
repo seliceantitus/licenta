@@ -29,24 +29,9 @@ class CommunicationController {
     handleClientConnection(socket) {
         this.connections.push(socket);
         console.log('Connected: %s sockets connected', this.connections.length);
-
         socket.on('disconnect', () => {
             this.connections.splice(this.connections.indexOf(socket), 1);
             console.log('Disconnected: %s sockets connected', this.connections.length);
-            serialPort.close(function (err) {
-                console.log("Closing serial port...");
-                if (err) {
-                    //TODO Send error as response
-                    console.log("Error closing serial port.");
-                } else {
-                    console.log("Serial port closed");
-                    const response = {
-                        component: 'port',
-                        action: 'close'
-                    };
-                    socket.emit('broadcast', response);
-                }
-            });
         });
 
         socket.on(constants.OPEN_PORT, () => {
@@ -81,6 +66,14 @@ class CommunicationController {
                     socket.emit('broadcast', response);
                 }
             });
+        });
+
+        socket.on(constants.START_PROGRAM, () => {
+            console.log('Program starting...');
+        });
+
+        socket.on(constants.STOP_PROGRAM, () => {
+            console.log('Program stopping...');
         });
     }
 

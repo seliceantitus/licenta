@@ -1,14 +1,13 @@
 import React from 'react';
 import './App.css';
-import TopNav from './Nav/TopNav';
 import Content from "./Pages/Content";
+import ErrorBoundary from "./Pages/Error/ErrorBoundary";
 
 function App() {
     return (
-        <>
-            <TopNav/>
+        <ErrorBoundary>
             <Content/>
-        </>
+        </ErrorBoundary>
     );
 }
 

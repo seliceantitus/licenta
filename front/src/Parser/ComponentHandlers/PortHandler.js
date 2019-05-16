@@ -1,6 +1,6 @@
-import {PORT} from '../../Constants/ParserConstants';
+import {PORT} from '../../Constants/Communication';
 import InvalidJsonException from "../../Exceptions/InvalidJsonException";
-import {INVALID_COMPONENT_ACTION, MISSING_COMPONENT_ACTION} from "../../Constants/Errors";
+import {INVALID_COMPONENT_ACTION, MISSING_COMPONENT_ACTION} from "../../Constants/Messages";
 import {TOAST_SUCCESS} from "../../Constants/UI";
 import {SERIAL_CONNECTION_SUCCESS, SERIAL_CONNECTION_CLOSED} from "../../Constants/Messages";
 

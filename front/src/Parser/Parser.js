@@ -3,9 +3,9 @@ import portParse from "./ComponentHandlers/PortHandler";
 import programParse from "./ComponentHandlers/ProgramHandler";
 import sensorParse from './ComponentHandlers/SensorHandler';
 
-import * as Constants from '../Constants/ParserConstants';
+import * as Constants from '../Constants/Communication';
 import InvalidJsonException from "../Exceptions/InvalidJsonException";
-import {INVALID_COMPONENT_ID, MISSING_COMPONENT_ID} from "../Constants/Errors";
+import {INVALID_COMPONENT_ID, MISSING_COMPONENT_ID} from "../Constants/Messages";
 
 function parse(component, json) {
     switch (json.component) {

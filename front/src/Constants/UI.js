@@ -10,3 +10,6 @@ export const STATUS_WARNING = (pulse) => pulse ? <status-indicator intermediary 
 export const STATUS_OK = (pulse) => pulse ? <status-indicator positive pulse/> : <status-indicator positive/>;
 export const STATUS_DEFAULT = (pulse) => pulse ? <status-indicator active pulse/> : <status-indicator active/>;
 export const STATUS_UNKNOWN = (pulse) => pulse ? <status-indicator pulse/> : <status-indicator/>;
+
+export const DEFAULT_XS_COL_WIDTH = 10;
+export const DEFAULT_MD_COL_WIDTH = 10;

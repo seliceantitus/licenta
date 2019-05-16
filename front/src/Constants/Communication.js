@@ -1,11 +1,17 @@
+export const ERROR_DATA = "error";
+export const MOTOR_DATA = "motor";
+export const PORT_DATA = "port";
+export const PROGRAM_DATA = "program";
+export const SENSOR_DATA = "sensor";
+
 export const OPEN_PORT = "open_port";
 export const CLOSE_PORT = "close_port";
 export const START_PROGRAM = "start_program";
 export const STOP_PROGRAM = "stop_program";
 
-//TODO Define structure for error response
 export const ERROR = {
     ID: "error",
+    DATA: ["code", "message"]
 };
 
 export const MOTOR = {

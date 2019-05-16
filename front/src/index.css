@@ -7,40 +7,10 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
 }
 
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;
 }
-
-/*
-Dashboard Styling
- */
-
-.card {
-  margin-bottom: 20px;
-  box-shadow: 0 0 5px 0 rgba(0,0,0,0.2);
-}
-
-.card:last-child {
-  margin-bottom: auto;
-}
-
-h6 {
-  margin-bottom: 0 !important;
-}
-
-.logger {
-  max-height: 400px;
-  height: 400px;
-  overflow: auto;
-}
-
-@media(min-width: 1200px) {
-  .container {
-    max-width: 1600px !important;
-  }
-}
-
-.mat-button:focus .mat-button-focus-overlay { background-color: transparent; }

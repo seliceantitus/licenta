@@ -1,11 +1,11 @@
-import {SENSOR} from '../../Constants/ParserConstants';
+import {SENSOR} from '../../Constants/Communication';
 import InvalidJsonException from "../../Exceptions/InvalidJsonException";
 import {
     INVALID_COMPONENT_ACTION,
     INVALID_COMPONENT_ACTION_DATA,
     MISSING_COMPONENT_ACTION,
     MISSING_COMPONENT_ACTION_DATA
-} from "../../Constants/Errors";
+} from "../../Constants/Messages";
 
 function extractData(json, dataKeys) {
     if (!json)
