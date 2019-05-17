@@ -1,6 +1,4 @@
 // SERIAL PORT DEPENDENCIES
-const constants = require("../constants/Constants");
-
 const SerialPort = require('serialport');
 const ReadLine = SerialPort.parsers.Readline;
 const serialPort = new SerialPort('COM5', {baudRate: 9600, autoOpen: false});
@@ -8,6 +6,9 @@ const parser = serialPort.pipe(new ReadLine());
 
 // SOCKET DEPENDENCIES
 const io = require('socket.io').listen(3002);
+
+// USER DEPENDENCIES
+const constants = require("../constants/Constants");
 
 class CommunicationController {
     constructor() {
@@ -36,10 +37,11 @@ class CommunicationController {
 
         socket.on(constants.OPEN_PORT, () => {
             serialPort.open(function (err) {
-                console.log("Opening serial port...");
                 if (err) {
+                    console.log("Error opening serial port");
                     //TODO Send error as response
-                    console.log("Error opening serial port.");
+                    console.log(err.message);
+                    console.log(err.name);
                 } else {
                     console.log("Serial port opened");
                     const response = {

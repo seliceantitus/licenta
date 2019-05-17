@@ -6,12 +6,21 @@ export const SENSOR_DATA = "sensor";
 
 export const OPEN_PORT = "open_port";
 export const CLOSE_PORT = "close_port";
+
 export const START_PROGRAM = "start_program";
 export const STOP_PROGRAM = "stop_program";
 
+export const SOCKET_EVENTS = {
+    CONNECT: 'connect',
+    CONNECTING: 'connecting',
+    RECONNECTING: 'reconnecting',
+    RECONNECT_FAILED: 'reconnect_failed',
+    DISCONNECT: 'disconnect',
+};
+
 export const ERROR = {
     ID: "error",
-    DATA: ["code", "message"]
+    DATA: ["code", "message"],
 };
 
 export const MOTOR = {
@@ -20,9 +29,9 @@ export const MOTOR = {
     ACTIONS: {
         TURN: {
             ID: "turn",
-            DATA: ["steps", "turns"]
-        }
-    }
+            DATA: ["steps", "turns"],
+        },
+    },
 };
 
 export const PORT = {
@@ -30,13 +39,13 @@ export const PORT = {
     ACTIONS: {
         OPEN: {
             ID: "open",
-            DATA: null
+            DATA: null,
         },
         CLOSE: {
             ID: "close",
-            DATA: null
-        }
-    }
+            DATA: null,
+        },
+    },
 };
 
 export const PROGRAM = {
@@ -44,13 +53,13 @@ export const PROGRAM = {
     ACTIONS: {
         START: {
             ID: "start",
-            DATA: null
+            DATA: null,
         },
         STOP: {
             ID: "stop",
-            DATA: null
-        }
-    }
+            DATA: null,
+        },
+    },
 };
 
 export const SENSOR = {
@@ -58,7 +67,7 @@ export const SENSOR = {
     ACTIONS: {
         MEASUREMENT: {
             ID: "measurement",
-            DATA: ["analog", "voltage", "distance"]
-        }
-    }
+            DATA: ["analog", "voltage", "distance"],
+        },
+    },
 };

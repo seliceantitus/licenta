@@ -6,8 +6,24 @@ import PropTypes from "prop-types";
 import Scan from "./Scan/Scan";
 import History from "./History/History";
 import Dashboard from "./Dash/Dashboard";
-import {STATUS_ERROR, STATUS_OK, STATUS_WARNING, TOAST_ERROR, TOAST_SUCCESS, TOAST_WARN} from "../Constants/UI";
-import {SOCKET_CONNECTION_FAIL, SOCKET_CONNECTION_RETRY, SOCKET_CONNECTION_SUCCESS} from "../Constants/Messages";
+import {
+    STATUS_ERROR,
+    STATUS_OK,
+    STATUS_WARNING,
+    TOAST_ERROR,
+    TOAST_INFO,
+    TOAST_SUCCESS,
+    TOAST_WARN
+} from "../Constants/UI";
+import {
+    SOCKET_CONNECTING,
+    SOCKET_CONNECTION_EXISTING,
+    SOCKET_CONNECTION_FAIL,
+    SOCKET_CONNECTION_RETRY,
+    SOCKET_CONNECTION_SUCCESS,
+    SOCKET_DISCONNECT,
+    SOCKET_NOT_CONNECTED
+} from "../Constants/Messages";
 import ConnectionManager from "../Utils/ConnectionManager";
 import {Slide, toast, ToastContainer} from "react-toastify";
 import {
@@ -122,6 +138,9 @@ class Content extends React.Component {
                 }
             });
         });
+        this.connectionManager.addConnectingHandler(() => {
+            this.showToast(TOAST_INFO, SOCKET_CONNECTING);
+        });
         this.connectionManager.addReconnectingHandler(() => {
             this.showToast(TOAST_WARN, SOCKET_CONNECTION_RETRY);
             this.setState({
@@ -139,6 +158,15 @@ class Content extends React.Component {
                     status: STATUS_ERROR()
                 }
             });
+        });
+        this.connectionManager.addDisconnectHandler(() => {
+            this.showToast(TOAST_ERROR, SOCKET_DISCONNECT);
+            this.setState({
+                socket: {
+                    connected: false,
+                    status: STATUS_ERROR()
+                }
+            })
         });
 
         this.state = {
@@ -158,12 +186,38 @@ class Content extends React.Component {
         };
     }
 
+    componentWillUnmount() {
+        if (this.state.serial.connected) this.connectionManager.closeSerial();
+        if (this.state.socket.connected) this.connectionManager.closeSocket()
+    }
+
     handleDrawerOpen = () => {
         this.setState({open: true});
     };
 
     handleDrawerClose = () => {
         this.setState({open: false});
+    };
+
+    handleSocketClick = () => {
+        if (this.state.socket.connected) {
+            this.showToast(TOAST_INFO, SOCKET_CONNECTION_EXISTING);
+        } else {
+            this.connectionManager.openSocket();
+        }
+    };
+
+    handleSerialClick = () => {
+        if (!this.state.socket.connected) {
+            this.showToast(TOAST_ERROR, SOCKET_NOT_CONNECTED);
+        } else {
+            if (this.state.serial.connected) {
+                this.connectionManager.closeSerial();
+            } else {
+                this.setState({serial: {connected: false, status: STATUS_WARNING(true)}});
+                this.connectionManager.openSerial();
+            }
+        }
     };
 
     renderAppBar = (classes) => (
@@ -205,7 +259,7 @@ class Content extends React.Component {
                 title={this.state.socket.connected ? "Socket" : "Click to connect"}
                 placement="right"
             >
-                <ListItem button onClick={null}>
+                <ListItem button onClick={this.handleSocketClick}>
                     <ListItemIcon>
                         {this.state.socket.connected ?
                             <ImportExport color={'action'}/>
@@ -227,7 +281,7 @@ class Content extends React.Component {
                 title={this.state.serial.connected ? "Click to disconnect" : "Click to connect"}
                 placement="right"
             >
-                <ListItem button>
+                <ListItem button onClick={this.handleSerialClick}>
                     <ListItemIcon>
                         {this.state.serial.connected ?
                             <Usb color={'action'}/>
