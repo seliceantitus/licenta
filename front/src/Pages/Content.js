@@ -1,11 +1,11 @@
 import React from 'react';
 import {Link, Route, Switch} from "react-router-dom";
-import classNames from 'classnames';
 import PropTypes from "prop-types";
-
 import Scan from "./Scan/Scan";
 import History from "./History/History";
 import Dashboard from "./Dash/Dashboard";
+import NavigationAppBar from "./NavigationAppBar/NavigationAppBar";
+import ErrorBoundary from "./Error/ErrorBoundary";
 import {
     STATUS_ERROR,
     STATUS_OK,
@@ -16,6 +16,11 @@ import {
     TOAST_WARN
 } from "../Constants/UI";
 import {
+    SERIAL_CONNECTION_CLOSE,
+    SERIAL_CONNECTION_CLOSE_ERROR,
+    SERIAL_CONNECTION_FAIL,
+    SERIAL_CONNECTION_OPEN,
+    SERIAL_CONNECTION_OPEN_ERROR,
     SOCKET_CONNECTING,
     SOCKET_CONNECTION_EXISTING,
     SOCKET_CONNECTION_FAIL,
@@ -24,34 +29,31 @@ import {
     SOCKET_DISCONNECT,
     SOCKET_NOT_CONNECTED
 } from "../Constants/Messages";
-import ConnectionManager from "../Utils/ConnectionManager";
+import CommunicationManager from "../Utils/CommunicationManager";
 import {Slide, toast, ToastContainer} from "react-toastify";
 import {
-    AppBar,
     Badge,
     CssBaseline,
     Divider,
-    Drawer,
-    IconButton,
     List,
     ListItem,
     ListItemIcon,
     ListItemText,
-    Toolbar,
     Tooltip,
-    Typography,
     withStyles,
 } from "@material-ui/core";
 
-import {ChevronLeft, Help, ImportExport, Menu, ThreeDRotation, Usb} from "@material-ui/icons/index";
+import {Help, ImportExport, ThreeDRotation, Usb} from "@material-ui/icons/index";
 import DashboardIcon from '@material-ui/icons/Dashboard';
 import HistoryIcon from '@material-ui/icons/History';
+
 
 const drawerWidth = 220;
 
 const styles = theme => ({
     root: {
         display: 'flex',
+        flexGrow: 1,
     },
     appBar: {
         zIndex: theme.zIndex.drawer + 1,
@@ -127,46 +129,61 @@ class Content extends React.Component {
     constructor(props, context) {
         super(props, context);
 
-        this.connectionManager = new ConnectionManager();
-        this.connectionManager.createSocket();
-        this.connectionManager.addConnectHandler(() => {
+        this.communicationManager = new CommunicationManager();
+        this.communicationManager.createSocket();
+        //Socket connected
+        this.communicationManager.addConnectHandler(() => {
             this.showToast(TOAST_SUCCESS, SOCKET_CONNECTION_SUCCESS);
-            this.setState({
-                socket: {
-                    connected: true,
-                    status: STATUS_OK()
-                }
-            });
+            this.setState({socket: {connected: true, status: STATUS_OK()}});
         });
-        this.connectionManager.addConnectingHandler(() => {
+        //Socket connecting
+        this.communicationManager.addConnectingHandler(() => {
             this.showToast(TOAST_INFO, SOCKET_CONNECTING);
         });
-        this.connectionManager.addReconnectingHandler(() => {
+        //Socket connection retry
+        this.communicationManager.addReconnectingHandler(() => {
             this.showToast(TOAST_WARN, SOCKET_CONNECTION_RETRY);
-            this.setState({
-                socket: {
-                    connected: false,
-                    status: STATUS_WARNING(true)
-                }
-            });
+            this.setState({socket: {connected: false, status: STATUS_WARNING(true)}});
         });
-        this.connectionManager.addReconnectFailedHandler(() => {
+        //Socket connection failed
+        this.communicationManager.addReconnectFailedHandler(() => {
             this.showToast(TOAST_ERROR, SOCKET_CONNECTION_FAIL);
-            this.setState({
-                socket: {
-                    connected: false,
-                    status: STATUS_ERROR()
-                }
-            });
+            this.setState({socket: {connected: false, status: STATUS_ERROR()}});
         });
-        this.connectionManager.addDisconnectHandler(() => {
+        //Socket disconnecting
+        this.communicationManager.addDisconnectHandler(() => {
             this.showToast(TOAST_ERROR, SOCKET_DISCONNECT);
-            this.setState({
-                socket: {
-                    connected: false,
-                    status: STATUS_ERROR()
-                }
-            })
+            this.setState({socket: {connected: false, status: STATUS_ERROR()}});
+        });
+
+        //Serial connected
+        this.communicationManager.addSerialConnectHandler(() => {
+            this.showToast(TOAST_SUCCESS, SERIAL_CONNECTION_OPEN);
+            this.setState({serial: {connected: true, status: STATUS_OK(true)}});
+        });
+
+        //Serial connect failed
+        this.communicationManager.addSerialConnectErrorHandler((error) => {
+            this.showToast(TOAST_ERROR, `${SERIAL_CONNECTION_OPEN_ERROR} ${error}`);
+            this.setState({serial: {connected: false, status: STATUS_ERROR()}});
+        });
+
+        //Serial disconnect
+        this.communicationManager.addSerialDisconnectHandler(() => {
+            this.showToast(TOAST_SUCCESS, SERIAL_CONNECTION_CLOSE);
+            this.setState({serial: {connected: false, status: STATUS_ERROR()}});
+        });
+
+        //Serial disconnect failed
+        this.communicationManager.addSerialDisconnectErrorHandler((error) => {
+            this.showToast(TOAST_ERROR, `${SERIAL_CONNECTION_CLOSE_ERROR} ${error}`);
+            this.setState({serial: {connected: false, status: STATUS_ERROR()}});
+        });
+
+        //Serial error
+        this.communicationManager.addSerialErrorHandler((error) => {
+            this.showToast(TOAST_ERROR, `${SERIAL_CONNECTION_FAIL} ${error}`);
+            this.setState({serial: {connected: false, status: STATUS_ERROR()}});
         });
 
         this.state = {
@@ -182,28 +199,20 @@ class Content extends React.Component {
         };
 
         this.showToast = (type, message) => {
-            toast(message, {type: type})
+            toast(message, {type: type, containerId: 'Content'})
         };
     }
 
     componentWillUnmount() {
-        if (this.state.serial.connected) this.connectionManager.closeSerial();
-        if (this.state.socket.connected) this.connectionManager.closeSocket()
+        if (this.state.serial.connected) this.communicationManager.closeSerial();
+        if (this.state.socket.connected) this.communicationManager.closeSocket()
     }
-
-    handleDrawerOpen = () => {
-        this.setState({open: true});
-    };
-
-    handleDrawerClose = () => {
-        this.setState({open: false});
-    };
 
     handleSocketClick = () => {
         if (this.state.socket.connected) {
             this.showToast(TOAST_INFO, SOCKET_CONNECTION_EXISTING);
         } else {
-            this.connectionManager.openSocket();
+            this.communicationManager.openSocket();
         }
     };
 
@@ -212,31 +221,13 @@ class Content extends React.Component {
             this.showToast(TOAST_ERROR, SOCKET_NOT_CONNECTED);
         } else {
             if (this.state.serial.connected) {
-                this.connectionManager.closeSerial();
+                this.communicationManager.closeSerial();
             } else {
-                this.setState({serial: {connected: false, status: STATUS_WARNING(true)}});
-                this.connectionManager.openSerial();
+                this.setState({serial: {...this.state.serial, status: STATUS_WARNING(true)}});
+                this.communicationManager.openSerial();
             }
         }
     };
-
-    renderAppBar = (classes) => (
-        <AppBar position="fixed" className={classNames(classes.appBar, {[classes.appBarShift]: this.state.open,})}>
-            <Toolbar disableGutters={!this.state.open}>
-                <IconButton
-                    color="inherit"
-                    aria-label="Open drawer"
-                    onClick={this.handleDrawerOpen}
-                    className={classNames(classes.menuButton, {[classes.hide]: this.state.open,})}
-                >
-                    <Menu/>
-                </IconButton>
-                <Typography variant="h6" color="inherit" noWrap>
-                    3Duino
-                </Typography>
-            </Toolbar>
-        </AppBar>
-    );
 
     renderMenuList = () => (
         <List>
@@ -312,49 +303,26 @@ class Content extends React.Component {
         return (
             <div className={classes.root}>
                 <CssBaseline/>
-                <ToastContainer
-                    autoClose={3000}
-                    closeOnClick={true}
-                    pauseOnHover={false}
-                    draggable
-                    transition={Slide}
-                    position={'top-right'}
-                    pauseOnFocusLoss={false}
-                />
-                {this.renderAppBar(classes)}
-                <Drawer
-                    variant="permanent"
-                    className={classNames(classes.drawer, {
-                        [classes.drawerOpen]: this.state.open,
-                        [classes.drawerClose]: !this.state.open,
-                    })}
-                    classes={{
-                        paper: classNames({
-                            [classes.drawerOpen]: this.state.open,
-                            [classes.drawerClose]: !this.state.open,
-                        }),
-                    }}
-                    open={this.state.open}
-                >
-                    <div className={classes.toolbar}>
-                        <IconButton onClick={this.handleDrawerClose}>
-                            <ChevronLeft/>
-                        </IconButton>
-                    </div>
-                    <Divider/>
+                <ToastContainer enableMultiContainer autoClose={3000} pauseOnHover={false} transition={Slide}
+                                pauseOnFocusLoss={false} containerId={'Content'}/>
+                <NavigationAppBar>
                     {this.renderMenuList(classes)}
-                </Drawer>
+                </NavigationAppBar>
                 <main className={classes.content}>
                     <div className={classes.toolbar}/>
-                    <Switch>
-                        <Route exact path={'/'}
-                               component={() => <Dashboard socket={this.connectionManager.getSocket()}
-                                                           drawerState={this.state.open}/>}/>
-                        <Route path={'/scan'}
-                               component={() => <Scan socket={this.connectionManager.getSocket()}/>}/>
-                        <Route path={'/history'}
-                               component={() => <History socket={this.connectionManager.getSocket()}/>}/>
-                    </Switch>
+                    <ErrorBoundary>
+                        <Switch>
+                            <Route exact path={'/'}
+                                   component={() => <Dashboard communicationManager={this.communicationManager}/>}
+                            />
+                            <Route path={'/scan'}
+                                   component={() => <Scan communicationManager={this.communicationManager}/>}
+                            />
+                            <Route path={'/history'}
+                                   component={() => <History communicationManager={this.communicationManager}/>}
+                            />
+                        </Switch>
+                    </ErrorBoundary>
                 </main>
             </div>
         );

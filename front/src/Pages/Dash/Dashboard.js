@@ -20,9 +20,6 @@ import {
 import {ExpandMore} from "@material-ui/icons";
 
 const styles = theme => ({
-    root: {
-        flexGrow: 1,
-    },
     paper: {
         textAlign: 'center',
         color: theme.palette.text.secondary,
@@ -69,8 +66,9 @@ class Dashboard extends React.Component {
 
     constructor(props, context) {
         super(props, context);
-
-        this.socket = this.props.socket;
+        console.log('[DASH] Const');
+        this.communicationManager = this.props.communicationManager;
+        this.socket = this.communicationManager.getSocket();
         this.state = {
             // //TODO Disable page elements if socket is not enabled
             // enabled: this.socket.connected,
@@ -104,7 +102,7 @@ class Dashboard extends React.Component {
     }
 
     renderMotorData = (classes) => (
-        <Grid item xs={DEFAULT_XS_COL_WIDTH} md={DEFAULT_MD_COL_WIDTH} lg={5} xl={5}>
+        <Grid item>
             <Card>
                 <CardHeader
                     title={<Typography variant={"h5"}>Stepper motors</Typography>}
@@ -145,7 +143,7 @@ class Dashboard extends React.Component {
     );
 
     renderSensorData = (classes) => (
-        <Grid item xs={DEFAULT_XS_COL_WIDTH} md={DEFAULT_MD_COL_WIDTH} lg={5} xl={5}>
+        <Grid item>
             <Card>
                 <CardHeader
                     title={<Typography variant={"h5"}>Infrared sensor</Typography>}
@@ -169,14 +167,14 @@ class Dashboard extends React.Component {
     );
 
     renderConfigurePanel = (classes) => (
-        <Grid item xs={DEFAULT_XS_COL_WIDTH} md={DEFAULT_MD_COL_WIDTH} lg={10} xl={10}>
+        <Grid item>
             <Card>
                 <CardHeader
                     title={<Typography variant={"h5"}>Configuration</Typography>}
                     subheader=""
                     avatar={
                         <MuiThemeProvider theme={avatarTheme}>
-                            <Avatar aria-label="Infrared Sensor"
+                            <Avatar aria-label="Arduino Mega"
                                     src={require('../../assets/img/png/ArduinoMega.png')}
                                     className={classes.avatar}
                             />
@@ -197,14 +195,29 @@ class Dashboard extends React.Component {
 
     render() {
         const {classes} = this.props;
+        //TODO Redesign page header
         return (
-            <div className={classes.root}>
-                <Grid container justify="center" alignItems="flex-start" spacing={8}>
+            <Grid container justify="center" alignItems="flex-start" spacing={8}>
+                <Grid container item spacing={8} justify={"center"} alignItems={"flex-start"}
+                      xs={DEFAULT_XS_COL_WIDTH} md={DEFAULT_MD_COL_WIDTH} lg={10} xl={10}
+                >
+
+                    <Typography variant={"h2"}>
+                        Dashboard
+                    </Typography>
+                </Grid>
+                <Grid container item spacing={8} direction={"column"} justify={"center"} alignItems={"stretch"}
+                      xs={DEFAULT_XS_COL_WIDTH} md={DEFAULT_MD_COL_WIDTH} lg={4} xl={4}
+                >
                     {this.renderMotorData(classes)}
                     {this.renderSensorData(classes)}
+                </Grid>
+                <Grid container item spacing={8} direction={"column"} justify={"center"} alignItems={"stretch"}
+                      xs={DEFAULT_XS_COL_WIDTH} md={DEFAULT_MD_COL_WIDTH} lg={6} xl={6}
+                >
                     {this.renderConfigurePanel(classes)}
                 </Grid>
-            </div>
+            </Grid>
         );
     }
 }

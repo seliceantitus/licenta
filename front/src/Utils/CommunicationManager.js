@@ -1,8 +1,8 @@
 import openSocket from "socket.io-client";
 import {SOCKET_URL} from "../Constants/URL";
-import {CLOSE_PORT, OPEN_PORT, SOCKET_EVENTS} from "../Constants/Communication";
+import {SOCKET_EVENTS} from "../Constants/Communication";
 
-class ConnectionManager {
+class CommunicationManager {
 
     constructor() {
         this.socket = {
@@ -68,6 +68,26 @@ class ConnectionManager {
         this.socket.component.on(SOCKET_EVENTS.DISCONNECT, func);
     }
 
+    addSerialConnectHandler(func) {
+        this.socket.component.on(SOCKET_EVENTS.SERIAL_CONNECT, func);
+    }
+
+    addSerialConnectErrorHandler(func) {
+        this.socket.component.on(SOCKET_EVENTS.SERIAL_CONNECT_ERROR, (error) => func(error));
+    }
+
+    addSerialDisconnectHandler(func) {
+        this.socket.component.on(SOCKET_EVENTS.SERIAL_DISCONNECT, func)
+    }
+
+    addSerialDisconnectErrorHandler(func) {
+        this.socket.component.on(SOCKET_EVENTS.SERIAL_DISCONNECT_ERROR, (error) => func(error));
+    }
+
+    addSerialErrorHandler(func) {
+        this.socket.component.on(SOCKET_EVENTS.SERIAL_ERROR, (error) => func(error));
+    }
+
     openSocket() {
         this.socket.component.open();
     }
@@ -77,11 +97,11 @@ class ConnectionManager {
     }
 
     openSerial() {
-        this.socket.component.emit(OPEN_PORT);
+        this.socket.component.emit(SOCKET_EVENTS.SERIAL_CONNECT);
     }
 
     closeSerial() {
-        this.socket.component.emit(CLOSE_PORT);
+        this.socket.component.emit(SOCKET_EVENTS.SERIAL_DISCONNECT);
     }
 
     isSocketConnected() {
@@ -93,4 +113,4 @@ class ConnectionManager {
     }
 }
 
-export default ConnectionManager;
+export default CommunicationManager;

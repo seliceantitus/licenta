@@ -1,5 +1,5 @@
 class InvalidJsonException {
-    constructor(message){
+    constructor(message) {
         this.message = message;
     }
 }

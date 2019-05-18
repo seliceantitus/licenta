@@ -3,14 +3,12 @@ import PropTypes from 'prop-types';
 import {Redirect} from "react-router-dom";
 import {Grid, Paper, withStyles} from "@material-ui/core";
 
-const styles = theme => ({
-
-});
+const styles = theme => ({});
 
 class ErrorBoundary extends React.Component {
     constructor(props) {
         super(props);
-        console.log(props);
+
         this.state = {
             hasError: false,
             error: null,

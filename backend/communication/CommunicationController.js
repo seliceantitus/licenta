@@ -8,7 +8,8 @@ const parser = serialPort.pipe(new ReadLine());
 const io = require('socket.io').listen(3002);
 
 // USER DEPENDENCIES
-const constants = require("../constants/Constants");
+const SOCKET_EVENTS = require("../constants/Constants");
+// const SOCKET_EVENTS = Constants.SOCKET_EVENTS;
 
 class CommunicationController {
     constructor() {
@@ -35,48 +36,38 @@ class CommunicationController {
             console.log('Disconnected: %s sockets connected', this.connections.length);
         });
 
-        socket.on(constants.OPEN_PORT, () => {
+        socket.on(SOCKET_EVENTS.SERIAL_CONNECT, () => {
             serialPort.open(function (err) {
                 if (err) {
                     console.log("Error opening serial port");
-                    //TODO Send error as response
-                    console.log(err.message);
-                    console.log(err.name);
+                    socket.emit(SOCKET_EVENTS.SERIAL_CONNECT_ERROR, err.message);
                 } else {
                     console.log("Serial port opened");
-                    const response = {
-                        component: 'port',
-                        action: 'open'
-                    };
-                    socket.emit('broadcast', response);
+                    socket.emit(SOCKET_EVENTS.SERIAL_CONNECT);
                 }
             });
         });
 
-        socket.on(constants.CLOSE_PORT, () => {
+        socket.on(SOCKET_EVENTS.SERIAL_DISCONNECT, () => {
             serialPort.close(function (err) {
                 console.log("Closing serial port...");
                 if (err) {
-                    //TODO Send error as response
                     console.log("Error closing serial port.");
+                    socket.emit(SOCKET_EVENTS.SERIAL_DISCONNECT_ERROR, err.message);
                 } else {
                     console.log("Serial port closed");
-                    const response = {
-                        component: 'port',
-                        action: 'close'
-                    };
-                    socket.emit('broadcast', response);
+                    socket.emit(SOCKET_EVENTS.SERIAL_DISCONNECT);
                 }
             });
         });
 
-        socket.on(constants.START_PROGRAM, () => {
-            console.log('Program starting...');
-        });
-
-        socket.on(constants.STOP_PROGRAM, () => {
-            console.log('Program stopping...');
-        });
+        // socket.on(constants.START_PROGRAM, () => {
+        //     console.log('Program starting...');
+        // });
+        //
+        // socket.on(constants.STOP_PROGRAM, () => {
+        //     console.log('Program stopping...');
+        // });
     }
 
     sendSerialData(data) {

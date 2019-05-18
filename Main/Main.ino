@@ -21,7 +21,7 @@ Motor turntable = Motor(22, 30, 32, 34, 36);
 JsonSerial jSerial = JsonSerial();
 
 volatile int activeScreen = 0;
-volatile bool isRunning = true;
+volatile bool isRunning = false;
 
 int turntableTurns = 0;
 int turntableStep = 20;

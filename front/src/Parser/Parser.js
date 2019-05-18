@@ -1,5 +1,4 @@
 import motorParse from "./ComponentHandlers/MotorHandler";
-import portParse from "./ComponentHandlers/PortHandler";
 import programParse from "./ComponentHandlers/ProgramHandler";
 import sensorParse from './ComponentHandlers/SensorHandler';
 
@@ -11,10 +10,6 @@ function parse(component, json) {
     switch (json.component) {
         case Constants.MOTOR.ID:
             motorParse(component, json);
-            break;
-
-        case Constants.PORT.ID:
-            portParse(component, json);
             break;
 
         case Constants.PROGRAM.ID:

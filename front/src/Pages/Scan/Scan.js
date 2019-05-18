@@ -1,30 +1,30 @@
 import React from "react";
 import PropTypes from 'prop-types';
 import parse from "../../Parser/Parser";
-import {Slide, ToastContainer} from "react-toastify";
 import Chart from 'react-apexcharts';
-import {Button, Divider, Grid, Paper, withStyles} from "@material-ui/core";
+import {Button, Grid, Paper, withStyles} from "@material-ui/core";
+import {Block, PlayArrow} from "@material-ui/icons";
 import {DEFAULT_MD_COL_WIDTH, DEFAULT_XS_COL_WIDTH, TOAST_INFO} from "../../Constants/UI";
 import {PROGRAM_START, PROGRAM_STOP} from "../../Constants/Messages";
 import {START_PROGRAM, STOP_PROGRAM} from "../../Constants/Communication";
 import StepperMotor from "../../Utils/StepperMotor";
 
 const styles = theme => ({
-    root: {
-        flexGrow: 1
-    },
     margin: {
         margin: theme.spacing.unit,
     },
     paper: {
         elevation: 2,
-        paddingTop: theme.spacing.unit * 3,
-        paddingBottom: theme.spacing.unit * 3,
-        paddingLeft: theme.spacing.unit * 6,
-        paddingRight: theme.spacing.unit * 6,
+        paddingTop: theme.spacing.unit * 2,
+        paddingBottom: theme.spacing.unit * 2,
+        paddingLeft: theme.spacing.unit * 4,
+        paddingRight: theme.spacing.unit * 4,
     },
     button: {
-        width: '100%',
+        margin: theme.spacing.unit,
+    },
+    buttonRightIcon: {
+        marginLeft: theme.spacing.unit,
     },
     //Table style
     table: {
@@ -54,10 +54,10 @@ const styles = theme => ({
 class Scan extends React.Component {
     constructor(props) {
         super(props);
-
-        this.socket = this.props.socket;
+        console.log('[SCAN] Const');
+        this.communicationManager = this.props.communicationManager;
+        this.socket = this.communicationManager.getSocket();
         this.stepperMotor = new StepperMotor(1.8, 4);
-
         this.state = {
             stepsLimit: this.stepperMotor.getRadarLabels().length,
             counter: 0,
@@ -88,7 +88,7 @@ class Scan extends React.Component {
             //TODO Stop the program on exception
             console.log("Caught", parseException);
         }
-        if (json.component === 'sensor'){
+        if (json.component === 'sensor') {
             this.setState(state => {
                 const seriesData = state.series[0].data;
                 if (state.counter > state.stepsLimit - 1) return {state};
@@ -107,12 +107,10 @@ class Scan extends React.Component {
 
     startProgram() {
         this.showToast(TOAST_INFO, PROGRAM_START);
-        this.socket.emit(START_PROGRAM);
     }
 
     stopProgram() {
         this.showToast(TOAST_INFO, PROGRAM_STOP);
-        this.socket.emit(STOP_PROGRAM);
     }
 
     showToast(type, message) {
@@ -122,29 +120,29 @@ class Scan extends React.Component {
     render() {
         const {classes} = this.props;
         return (
-            <div className={classes.root}>
-                <ToastContainer
-                    autoClose={3000}
-                    closeOnClick={true}
-                    pauseOnHover={false}
-                    draggable
-                    transition={Slide}
-                    position={'top-right'}
-                    pauseOnFocusLoss={false}
-                />
-                <Grid container justify="center" alignItems="flex-start" spacing={8}>
-                    <Grid item xs={DEFAULT_XS_COL_WIDTH} md={DEFAULT_MD_COL_WIDTH} lg={2} xl={2}>
+            <Grid container justify="center" alignItems="flex-start" spacing={8}>
+                <Grid container item spacing={8} direction={"column"} justify={"center"} alignItems={"stretch"}
+                      xs={DEFAULT_XS_COL_WIDTH} md={DEFAULT_MD_COL_WIDTH} lg={3} xl={3}
+                >
+                    <Grid item>
                         <Paper className={classes.paper}>
-                            <Button variant={"contained"} color={"primary"} className={classes.button} onClick={this.startProgram}>
+                            <Button variant={"contained"} color={"primary"} className={classes.button}
+                                    onClick={this.startProgram}>
                                 Start
+                                <PlayArrow className={classes.buttonRightIcon}/>
                             </Button>
-                            <Divider/>
-                            <Button variant={"contained"} color={"secondary"} className={classes.button} onClick={this.stopProgram}>
+                            <Button variant={"contained"} color={"secondary"} className={classes.button}
+                                    onClick={this.stopProgram}>
                                 Stop
+                                <Block className={classes.buttonRightIcon}/>
                             </Button>
                         </Paper>
                     </Grid>
-                    <Grid item xs={DEFAULT_XS_COL_WIDTH} md={DEFAULT_MD_COL_WIDTH} lg={6} xl={6}>
+                </Grid>
+                <Grid container item spacing={8} direction={"column"} justify={"center"} alignItems={"stretch"}
+                      xs={DEFAULT_XS_COL_WIDTH} md={DEFAULT_MD_COL_WIDTH} lg={7} xl={7}
+                >
+                    <Grid item>
                         <Paper className={classes.paper}>
                             <Chart
                                 options={this.state.options}
@@ -154,13 +152,9 @@ class Scan extends React.Component {
                             />
                         </Paper>
                     </Grid>
-                    <Grid item xs={DEFAULT_XS_COL_WIDTH} md={DEFAULT_MD_COL_WIDTH} lg={3} xl={3}>
-                        <Paper className={classes.paper}>
-
-                        </Paper>
-                    </Grid>
                 </Grid>
-            </div>
+
+            </Grid>
         );
     }
 }
