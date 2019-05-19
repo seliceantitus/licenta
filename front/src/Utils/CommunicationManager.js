@@ -84,6 +84,13 @@ class CommunicationManager {
         this.socket.component.on(SOCKET_EVENTS.SERIAL_DISCONNECT_ERROR, (error) => func(error));
     }
 
+    addSerialPortsHandler(func) {
+        this.socket.component.on(SOCKET_EVENTS.SERIAL_PORTS, (serialPorts) => {
+            console.log('[COMM MNGR] Ports: ', serialPorts);
+            func(serialPorts)
+        });
+    }
+
     addSerialErrorHandler(func) {
         this.socket.component.on(SOCKET_EVENTS.SERIAL_ERROR, (error) => func(error));
     }
@@ -96,8 +103,8 @@ class CommunicationManager {
         this.socket.component.close();
     }
 
-    openSerial() {
-        this.socket.component.emit(SOCKET_EVENTS.SERIAL_CONNECT);
+    openSerial(port) {
+        this.socket.component.emit(SOCKET_EVENTS.SERIAL_CONNECT, port);
     }
 
     closeSerial() {

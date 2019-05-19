@@ -16,7 +16,7 @@ import {
     SERIAL_CONNECTION_CLOSE_ERROR,
     SERIAL_CONNECTION_FAIL,
     SERIAL_CONNECTION_OPEN,
-    SERIAL_CONNECTION_OPEN_ERROR,
+    SERIAL_CONNECTION_OPEN_ERROR, SERIAL_NO_PORT_SELECTED, SERIAL_PORT_SELECTED,
     SOCKET_CONNECTING,
     SOCKET_CONNECTION_EXISTING,
     SOCKET_CONNECTION_FAIL,
@@ -28,12 +28,12 @@ import {
 import CommunicationManager from "../Utils/CommunicationManager";
 import {Slide, toast, ToastContainer} from "react-toastify";
 import {CssBaseline, withStyles,} from "@material-ui/core";
-import Menu from "../Components/Navigation/Menu";
 import {Route, Switch} from "react-router-dom";
 import Dashboard from "./Dash/Dashboard";
 import Scan from "./Scan/Scan";
 import History from "./History/History";
-
+import Help from './Help/Help';
+import MenuList from "../Components/Navigation/MenuList";
 
 const drawerWidth = 220;
 
@@ -162,6 +162,10 @@ class Content extends React.Component {
             this.showToast(TOAST_ERROR, `${SERIAL_CONNECTION_CLOSE_ERROR} ${error}`);
             this.setState({serial: {connected: false, status: STATUS_ERROR()}});
         });
+        //Serial list available ports
+        this.communicationManager.addSerialPortsHandler((serialPorts) => {
+            this.setState({serialPorts: JSON.parse(serialPorts)});
+        });
         //Serial error
         this.communicationManager.addSerialErrorHandler((error) => {
             this.showToast(TOAST_ERROR, `${SERIAL_CONNECTION_FAIL} ${error}`);
@@ -177,6 +181,8 @@ class Content extends React.Component {
                 connected: false,
                 status: STATUS_ERROR()
             },
+            serialPorts: [],
+            selectedSerialPort: null,
         };
 
         this.showToast = (type, message) => {
@@ -195,13 +201,22 @@ class Content extends React.Component {
     handleSerialClick = () => {
         if (!this.state.socket.connected) {
             this.showToast(TOAST_ERROR, SOCKET_NOT_CONNECTED);
+        } else if (this.state.selectedSerialPort === null) {
+            this.showToast(TOAST_WARN, SERIAL_NO_PORT_SELECTED);
         } else {
             if (this.state.serial.connected) {
                 this.communicationManager.closeSerial();
             } else {
                 this.setState({serial: {...this.state.serial, status: STATUS_WARNING(true)}});
-                this.communicationManager.openSerial();
+                this.communicationManager.openSerial(this.state.selectedSerialPort);
             }
+        }
+    };
+
+    handleSerialPortsSelect = (port) => {
+        if (port) {
+            this.setState({selectedSerialPort: port});
+            this.showToast(TOAST_SUCCESS, SERIAL_PORT_SELECTED(port));
         }
     };
 
@@ -213,10 +228,12 @@ class Content extends React.Component {
                 <ToastContainer enableMultiContainer autoClose={3000} pauseOnHover={false} transition={Slide}
                                 pauseOnFocusLoss={false} containerId={'Content'}/>
                 <NavigationFrame>
-                    <Menu socket={this.state.socket}
+                    <MenuList socket={this.state.socket}
                           serial={this.state.serial}
+                          serialPorts={this.state.serialPorts}
                           socketHandler={this.handleSocketClick}
                           serialHandler={this.handleSerialClick}
+                          serialPortsHandler={this.handleSerialPortsSelect}
                     />
                 </NavigationFrame>
                 <main className={classes.content}>
@@ -232,6 +249,7 @@ class Content extends React.Component {
                             <Route path={'/history'}
                                    component={() => <History communicationManager={this.communicationManager}/>}
                             />
+                            <Route path={'/help'} component={Help}/>
                         </Switch>
                     </ErrorBoundary>
                 </main>

@@ -10,6 +10,7 @@ module.exports = SOCKET_EVENTS = {
     SERIAL_CONNECT_ERROR: 'serial_connect_error',
     SERIAL_DISCONNECT: 'serial_disconnect',
     SERIAL_DISCONNECT_ERROR: 'serial_disconnect_error',
+    SERIAL_PORTS: 'serial_ports',
     SERIAL_ERROR: 'serial_error',
     //Arduino program constants
     CONFIG: 'config',
