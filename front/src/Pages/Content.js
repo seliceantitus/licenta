@@ -16,7 +16,9 @@ import {
     SERIAL_CONNECTION_CLOSE_ERROR,
     SERIAL_CONNECTION_FAIL,
     SERIAL_CONNECTION_OPEN,
-    SERIAL_CONNECTION_OPEN_ERROR, SERIAL_NO_PORT_SELECTED, SERIAL_PORT_SELECTED,
+    SERIAL_CONNECTION_OPEN_ERROR,
+    SERIAL_NO_PORT_SELECTED,
+    SERIAL_PORT_SELECTED,
     SOCKET_CONNECTING,
     SOCKET_CONNECTION_EXISTING,
     SOCKET_CONNECTION_FAIL,
@@ -33,7 +35,7 @@ import Dashboard from "./Dash/Dashboard";
 import Scan from "./Scan/Scan";
 import History from "./History/History";
 import Help from './Help/Help';
-import MenuList from "../Components/Navigation/MenuList";
+import NavigationList from "../Components/Navigation/NavigationList";
 
 const drawerWidth = 220;
 
@@ -148,9 +150,18 @@ class Content extends React.Component {
             this.setState({serial: {connected: true, status: STATUS_OK(true)}});
         });
         //Serial connect failed
-        this.communicationManager.addSerialConnectErrorHandler((error) => {
-            this.showToast(TOAST_ERROR, `${SERIAL_CONNECTION_OPEN_ERROR} ${error}`);
-            this.setState({serial: {connected: false, status: STATUS_ERROR()}});
+        this.communicationManager.addSerialConnectErrorHandler((response) => {
+            this.showToast(TOAST_ERROR, `${SERIAL_CONNECTION_OPEN_ERROR} ${response.error}`);
+            this.setState(state => {
+                const filteredPorts = state.serialPorts.filter((port) => port !== response.port);
+                return {
+                    serial: {
+                        connected: false,
+                        status: STATUS_ERROR()
+                    },
+                    serialPorts: filteredPorts
+                };
+            });
         });
         //Serial disconnect
         this.communicationManager.addSerialDisconnectHandler(() => {
@@ -164,6 +175,7 @@ class Content extends React.Component {
         });
         //Serial list available ports
         this.communicationManager.addSerialPortsHandler((serialPorts) => {
+            console.log(serialPorts);
             this.setState({serialPorts: JSON.parse(serialPorts)});
         });
         //Serial error
@@ -228,12 +240,12 @@ class Content extends React.Component {
                 <ToastContainer enableMultiContainer autoClose={3000} pauseOnHover={false} transition={Slide}
                                 pauseOnFocusLoss={false} containerId={'Content'}/>
                 <NavigationFrame>
-                    <MenuList socket={this.state.socket}
-                          serial={this.state.serial}
-                          serialPorts={this.state.serialPorts}
-                          socketHandler={this.handleSocketClick}
-                          serialHandler={this.handleSerialClick}
-                          serialPortsHandler={this.handleSerialPortsSelect}
+                    <NavigationList socket={this.state.socket}
+                                    serial={this.state.serial}
+                                    serialPorts={this.state.serialPorts}
+                                    socketHandler={this.handleSocketClick}
+                                    serialHandler={this.handleSerialClick}
+                                    serialPortsHandler={this.handleSerialPortsSelect}
                     />
                 </NavigationFrame>
                 <main className={classes.content}>

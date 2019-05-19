@@ -14,25 +14,6 @@ class CommunicationManager {
             component: null,
             connected: false
         };
-
-        this.createSocket = this.createSocket.bind(this);
-
-        this.getSocket = this.getSocket.bind(this);
-
-        this.addConnectHandler = this.addConnectHandler.bind(this);
-        this.addConnectingHandler = this.addConnectingHandler.bind(this);
-        this.addReconnectingHandler = this.addReconnectingHandler.bind(this);
-        this.addReconnectFailedHandler = this.addReconnectFailedHandler.bind(this);
-        this.addDisconnectHandler = this.addDisconnectHandler.bind(this);
-
-        this.openSocket = this.openSocket.bind(this);
-        this.closeSocket = this.closeSocket.bind(this);
-
-        this.openSerial = this.openSerial.bind(this);
-        this.closeSerial = this.closeSerial.bind(this);
-
-        this.isSocketConnected = this.isSocketConnected.bind(this);
-        this.isSerialConnected = this.isSerialConnected.bind(this);
     }
 
     createSocket() {
@@ -85,10 +66,7 @@ class CommunicationManager {
     }
 
     addSerialPortsHandler(func) {
-        this.socket.component.on(SOCKET_EVENTS.SERIAL_PORTS, (serialPorts) => {
-            console.log('[COMM MNGR] Ports: ', serialPorts);
-            func(serialPorts)
-        });
+        this.socket.component.on(SOCKET_EVENTS.SERIAL_PORTS, (serialPorts) => func(serialPorts));
     }
 
     addSerialErrorHandler(func) {

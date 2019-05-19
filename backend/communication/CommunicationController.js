@@ -12,6 +12,7 @@ const SOCKET_EVENTS = require("../constants/Constants");
 class CommunicationController {
     constructor() {
         this.serialPorts = [];
+        this.getSerialPortsList().then(ports => this.serialPorts = ports);
 
         this.connections = [];
         io.sockets.on('connection', (socket) => this.handleClientConnection(socket));
@@ -51,11 +52,12 @@ class CommunicationController {
         this.parser.on('data', data => {
             try {
                 const jsonData = JSON.parse(data);
-                console.log(jsonData);
-                io.sockets.emit('broadcast', jsonData);
+                console.log(Date.now(), jsonData);
+                io.sockets.emit(data.component, jsonData);
             } catch (e) {
                 console.log(data);
                 console.log("Error: ", e);
+                io.sockets.emit(SOCKET_EVENTS.ERROR, e);
             }
         });
     }
@@ -70,7 +72,10 @@ class CommunicationController {
     handleClientConnection(socket) {
         this.connections.push(socket);
         this.getSerialPortsList()
-            .then(ports => this.serialPorts = ports);
+            .then(ports => {
+                socket.emit(SOCKET_EVENTS.SERIAL_PORTS, JSON.stringify(ports));
+                this.serialPorts = ports;
+        });
 
         socket.on(SOCKET_EVENTS.DISCONNECT, () => this.handleSocketDisconnect(socket));
         socket.on(SOCKET_EVENTS.SERIAL_CONNECT, (port) => this.handleSerialConnect(socket, port));
@@ -79,7 +84,6 @@ class CommunicationController {
         });
         socket.on(SOCKET_EVENTS.STOP_SCAN, () => {
         });
-        socket.emit(SOCKET_EVENTS.SERIAL_PORTS, JSON.stringify(this.serialPorts));
     }
 
     handleSocketDisconnect(socket) {
@@ -97,7 +101,7 @@ class CommunicationController {
         this.createSerialPort(port);
         this.serialPort.open((err) => {
             if (err) {
-                socket.emit(SOCKET_EVENTS.SERIAL_CONNECT_ERROR, err.message);
+                socket.emit(SOCKET_EVENTS.SERIAL_CONNECT_ERROR, {error: err.message, port: port});
             } else {
                 this.serial.connected = true;
                 socket.emit(SOCKET_EVENTS.SERIAL_CONNECT);
