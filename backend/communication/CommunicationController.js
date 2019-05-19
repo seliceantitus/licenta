@@ -9,14 +9,13 @@ const io = require('socket.io').listen(3002);
 
 // USER DEPENDENCIES
 const SOCKET_EVENTS = require("../constants/Constants");
-// const SOCKET_EVENTS = Constants.SOCKET_EVENTS;
 
 class CommunicationController {
     constructor() {
         parser.on('data', data => {
             try {
                 const jsonData = JSON.parse(data);
-                this.sendSocketData(jsonData);
+                io.sockets.emit('broadcast', jsonData);
             } catch (e) {
                 console.log(data);
                 console.log("Error: ", e);
@@ -25,57 +24,75 @@ class CommunicationController {
 
         this.connections = [];
         io.sockets.on('connection', (socket) => this.handleClientConnection(socket));
-        console.log('Socket created successfully');
+
+        this.serial = {
+            connected: false,
+        };
+
+        this.scan = {
+            running: false,
+            paused: false,
+            stopped: false
+        };
+
+        this.serialCachedData = {
+            inbound: [],
+            outbound: [],
+        };
+
+        this.socketCachedData = {
+            inbound: [],
+            outbound: [],
+        };
+
+        this.handleClientConnection = this.handleClientConnection.bind(this);
+        this.handleSocketDisconnect = this.handleSocketDisconnect.bind(this);
+        this.handleSerialConnect = this.handleSerialConnect.bind(this);
+        this.handleSerialDisconnect = this.handleSerialDisconnect.bind(this);
     }
 
     handleClientConnection(socket) {
         this.connections.push(socket);
-        console.log('Connected: %s sockets connected', this.connections.length);
-        socket.on('disconnect', () => {
-            this.connections.splice(this.connections.indexOf(socket), 1);
-            console.log('Disconnected: %s sockets connected', this.connections.length);
+        socket.on(SOCKET_EVENTS.DISCONNECT, () => this.handleSocketDisconnect(socket));
+        socket.on(SOCKET_EVENTS.SERIAL_CONNECT, () => this.handleSerialConnect(socket));
+        socket.on(SOCKET_EVENTS.SERIAL_DISCONNECT, () => this.handleSerialDisconnect(socket));
+        socket.on(SOCKET_EVENTS.START_SCAN, () => {
         });
-
-        socket.on(SOCKET_EVENTS.SERIAL_CONNECT, () => {
-            serialPort.open(function (err) {
-                if (err) {
-                    console.log("Error opening serial port");
-                    socket.emit(SOCKET_EVENTS.SERIAL_CONNECT_ERROR, err.message);
-                } else {
-                    console.log("Serial port opened");
-                    socket.emit(SOCKET_EVENTS.SERIAL_CONNECT);
-                }
-            });
+        socket.on(SOCKET_EVENTS.STOP_SCAN, () => {
         });
-
-        socket.on(SOCKET_EVENTS.SERIAL_DISCONNECT, () => {
-            serialPort.close(function (err) {
-                console.log("Closing serial port...");
-                if (err) {
-                    console.log("Error closing serial port.");
-                    socket.emit(SOCKET_EVENTS.SERIAL_DISCONNECT_ERROR, err.message);
-                } else {
-                    console.log("Serial port closed");
-                    socket.emit(SOCKET_EVENTS.SERIAL_DISCONNECT);
-                }
-            });
-        });
-
-        // socket.on(constants.START_PROGRAM, () => {
-        //     console.log('Program starting...');
-        // });
-        //
-        // socket.on(constants.STOP_PROGRAM, () => {
-        //     console.log('Program stopping...');
-        // });
     }
 
-    sendSerialData(data) {
-        serialPort.write(data);
+    handleSocketDisconnect(socket) {
+        this.connections.splice(this.connections.indexOf(socket), 1);
+        if (this.serial.connected) {
+            serialPort.close((err) => {
+                if (!err) {
+                    this.serial.connected = false;
+                }
+            });
+        }
     }
 
-    sendSocketData(data) {
-        io.sockets.emit('broadcast', data);
+    handleSerialConnect(socket) {
+        serialPort.open((err) => {
+            if (err) {
+                socket.emit(SOCKET_EVENTS.SERIAL_CONNECT_ERROR, err.message);
+            } else {
+                this.serial.connected = true;
+                socket.emit(SOCKET_EVENTS.SERIAL_CONNECT);
+            }
+        });
+    }
+
+    handleSerialDisconnect(socket) {
+        serialPort.close((err) => {
+            if (err) {
+                socket.emit(SOCKET_EVENTS.SERIAL_DISCONNECT_ERROR, err.message);
+            } else {
+                this.serial.connected = false;
+                socket.emit(SOCKET_EVENTS.SERIAL_DISCONNECT);
+            }
+        });
     }
 }
 

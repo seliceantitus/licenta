@@ -11,6 +11,11 @@ module.exports = SOCKET_EVENTS = {
     SERIAL_DISCONNECT: 'serial_disconnect',
     SERIAL_DISCONNECT_ERROR: 'serial_disconnect_error',
     SERIAL_ERROR: 'serial_error',
+    //Arduino program constants
+    CONFIG: 'config',
+    START_SCAN: 'start_scan',
+    PAUSE_SCAN: 'pause_scan',
+    STOP_SCAN: 'stop_scan',
     //Messaging constants
     ERROR: 'error',
     MOTOR: 'motor',

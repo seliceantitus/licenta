@@ -6,7 +6,6 @@ import {Button, Grid, Paper, withStyles} from "@material-ui/core";
 import {Block, PlayArrow} from "@material-ui/icons";
 import {DEFAULT_MD_COL_WIDTH, DEFAULT_XS_COL_WIDTH, TOAST_INFO} from "../../Constants/UI";
 import {PROGRAM_START, PROGRAM_STOP} from "../../Constants/Messages";
-import {START_PROGRAM, STOP_PROGRAM} from "../../Constants/Communication";
 import StepperMotor from "../../Utils/StepperMotor";
 
 const styles = theme => ({

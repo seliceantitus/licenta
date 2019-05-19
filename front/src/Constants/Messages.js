@@ -11,7 +11,7 @@ export const MISSING_COMPONENT_LOCATION = "Missing component location.";
 export const SOCKET_CONNECTION_SUCCESS = "Connected to server.";
 export const SOCKET_CONNECTING = "Connecting to server...";
 export const SOCKET_CONNECTION_EXISTING = "Already connected to server!";
-export const SOCKET_CONNECTION_RETRY = "Retrying to connect to server...";
+export const SOCKET_CONNECTION_RETRY = (attempts) => `Retrying (${attempts}) to connect to server...`;
 export const SOCKET_CONNECTION_FAIL = "Could not connect to server.";
 export const SOCKET_DISCONNECT = "Disconnected from server.";
 export const SOCKET_NOT_CONNECTED = "A server connection is necessary in order to open a serial connection.";

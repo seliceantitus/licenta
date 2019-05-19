@@ -57,7 +57,7 @@ class CommunicationManager {
     }
 
     addReconnectingHandler(func) {
-        this.socket.component.on(SOCKET_EVENTS.RECONNECTING, func);
+        this.socket.component.on(SOCKET_EVENTS.RECONNECTING, (attempt) => func(attempt));
     }
 
     addReconnectFailedHandler(func) {

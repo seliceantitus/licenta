@@ -60,7 +60,7 @@ const styles = theme => ({
     },
 });
 
-class NavigationAppBar extends React.Component {
+class NavigationFrame extends React.Component {
     constructor(props) {
         super(props);
 
@@ -131,4 +131,4 @@ class NavigationAppBar extends React.Component {
     }
 }
 
-export default withStyles(styles, {withTheme: true})(NavigationAppBar);
+export default withStyles(styles, {withTheme: true})(NavigationFrame);

@@ -14,3 +14,7 @@ export const STATUS_UNKNOWN = (pulse) => pulse ? <status-indicator pulse/> : <st
 
 export const DEFAULT_XS_COL_WIDTH = 10;
 export const DEFAULT_MD_COL_WIDTH = 10;
+
+export const MENU_LINK = 'menu_link';
+export const MENU_CONNECTION_BUTTON = 'menu_connection_button';
+export const MENU_DIVIDER = 'divider';

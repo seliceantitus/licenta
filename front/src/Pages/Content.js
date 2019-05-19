@@ -1,10 +1,6 @@
 import React from 'react';
-import {Link, Route, Switch} from "react-router-dom";
 import PropTypes from "prop-types";
-import Scan from "./Scan/Scan";
-import History from "./History/History";
-import Dashboard from "./Dash/Dashboard";
-import NavigationAppBar from "./NavigationAppBar/NavigationAppBar";
+import NavigationFrame from "../Components/Navigation/NavigationFrame";
 import ErrorBoundary from "./Error/ErrorBoundary";
 import {
     STATUS_ERROR,
@@ -31,21 +27,12 @@ import {
 } from "../Constants/Messages";
 import CommunicationManager from "../Utils/CommunicationManager";
 import {Slide, toast, ToastContainer} from "react-toastify";
-import {
-    Badge,
-    CssBaseline,
-    Divider,
-    List,
-    ListItem,
-    ListItemIcon,
-    ListItemText,
-    Tooltip,
-    withStyles,
-} from "@material-ui/core";
-
-import {Help, ImportExport, ThreeDRotation, Usb} from "@material-ui/icons/index";
-import DashboardIcon from '@material-ui/icons/Dashboard';
-import HistoryIcon from '@material-ui/icons/History';
+import {CssBaseline, withStyles,} from "@material-ui/core";
+import Menu from "../Components/Navigation/Menu";
+import {Route, Switch} from "react-router-dom";
+import Dashboard from "./Dash/Dashboard";
+import Scan from "./Scan/Scan";
+import History from "./History/History";
 
 
 const drawerWidth = 220;
@@ -141,8 +128,8 @@ class Content extends React.Component {
             this.showToast(TOAST_INFO, SOCKET_CONNECTING);
         });
         //Socket connection retry
-        this.communicationManager.addReconnectingHandler(() => {
-            this.showToast(TOAST_WARN, SOCKET_CONNECTION_RETRY);
+        this.communicationManager.addReconnectingHandler((attempts) => {
+            this.showToast(TOAST_WARN, SOCKET_CONNECTION_RETRY(attempts));
             this.setState({socket: {connected: false, status: STATUS_WARNING(true)}});
         });
         //Socket connection failed
@@ -155,31 +142,26 @@ class Content extends React.Component {
             this.showToast(TOAST_ERROR, SOCKET_DISCONNECT);
             this.setState({socket: {connected: false, status: STATUS_ERROR()}});
         });
-
         //Serial connected
         this.communicationManager.addSerialConnectHandler(() => {
             this.showToast(TOAST_SUCCESS, SERIAL_CONNECTION_OPEN);
             this.setState({serial: {connected: true, status: STATUS_OK(true)}});
         });
-
         //Serial connect failed
         this.communicationManager.addSerialConnectErrorHandler((error) => {
             this.showToast(TOAST_ERROR, `${SERIAL_CONNECTION_OPEN_ERROR} ${error}`);
             this.setState({serial: {connected: false, status: STATUS_ERROR()}});
         });
-
         //Serial disconnect
         this.communicationManager.addSerialDisconnectHandler(() => {
             this.showToast(TOAST_SUCCESS, SERIAL_CONNECTION_CLOSE);
             this.setState({serial: {connected: false, status: STATUS_ERROR()}});
         });
-
         //Serial disconnect failed
         this.communicationManager.addSerialDisconnectErrorHandler((error) => {
             this.showToast(TOAST_ERROR, `${SERIAL_CONNECTION_CLOSE_ERROR} ${error}`);
             this.setState({serial: {connected: false, status: STATUS_ERROR()}});
         });
-
         //Serial error
         this.communicationManager.addSerialErrorHandler((error) => {
             this.showToast(TOAST_ERROR, `${SERIAL_CONNECTION_FAIL} ${error}`);
@@ -187,7 +169,6 @@ class Content extends React.Component {
         });
 
         this.state = {
-            open: false,
             socket: {
                 connected: false,
                 status: STATUS_ERROR()
@@ -201,11 +182,6 @@ class Content extends React.Component {
         this.showToast = (type, message) => {
             toast(message, {type: type, containerId: 'Content'})
         };
-    }
-
-    componentWillUnmount() {
-        if (this.state.serial.connected) this.communicationManager.closeSerial();
-        if (this.state.socket.connected) this.communicationManager.closeSocket()
     }
 
     handleSocketClick = () => {
@@ -229,75 +205,6 @@ class Content extends React.Component {
         }
     };
 
-    renderMenuList = () => (
-        <List>
-            <ListItem button component={Link} to={'/'}>
-                <ListItemIcon><DashboardIcon/></ListItemIcon>
-                <ListItemText>Dashboard</ListItemText>
-            </ListItem>
-            <ListItem button component={Link} to={'/scan'}>
-                <ListItemIcon><ThreeDRotation/></ListItemIcon>
-                <ListItemText>Scan</ListItemText>
-            </ListItem>
-            <ListItem button component={Link} to={'/history'}>
-                <ListItemIcon><HistoryIcon/></ListItemIcon>
-                <ListItemText>
-                    History
-                </ListItemText>
-            </ListItem>
-            <Divider/>
-            <Tooltip
-                title={this.state.socket.connected ? "Socket" : "Click to connect"}
-                placement="right"
-            >
-                <ListItem button onClick={this.handleSocketClick}>
-                    <ListItemIcon>
-                        {this.state.socket.connected ?
-                            <ImportExport color={'action'}/>
-                            :
-                            <Badge badgeContent={'!'} color="secondary" variant={"dot"}>
-                                <ImportExport color={'action'}/>
-                            </Badge>
-                        }
-                    </ListItemIcon>
-                    <ListItemText>
-                        Socket
-                    </ListItemText>
-                    <ListItemIcon>
-                        {this.state.socket.status}
-                    </ListItemIcon>
-                </ListItem>
-            </Tooltip>
-            <Tooltip
-                title={this.state.serial.connected ? "Click to disconnect" : "Click to connect"}
-                placement="right"
-            >
-                <ListItem button onClick={this.handleSerialClick}>
-                    <ListItemIcon>
-                        {this.state.serial.connected ?
-                            <Usb color={'action'}/>
-                            :
-                            <Badge badgeContent={'!'} color="secondary" variant={"dot"}>
-                                <Usb color={'action'}/>
-                            </Badge>
-                        }
-                    </ListItemIcon>
-                    <ListItemText>
-                        Serial
-                    </ListItemText>
-                    <ListItemIcon>
-                        {this.state.serial.status}
-                    </ListItemIcon>
-                </ListItem>
-            </Tooltip>
-            <Divider/>
-            <ListItem button>
-                <ListItemIcon><Help/></ListItemIcon>
-                <ListItemText>Help</ListItemText>
-            </ListItem>
-        </List>
-    );
-
     render() {
         const {classes} = this.props;
         return (
@@ -305,9 +212,13 @@ class Content extends React.Component {
                 <CssBaseline/>
                 <ToastContainer enableMultiContainer autoClose={3000} pauseOnHover={false} transition={Slide}
                                 pauseOnFocusLoss={false} containerId={'Content'}/>
-                <NavigationAppBar>
-                    {this.renderMenuList(classes)}
-                </NavigationAppBar>
+                <NavigationFrame>
+                    <Menu socket={this.state.socket}
+                          serial={this.state.serial}
+                          socketHandler={this.handleSocketClick}
+                          serialHandler={this.handleSerialClick}
+                    />
+                </NavigationFrame>
                 <main className={classes.content}>
                     <div className={classes.toolbar}/>
                     <ErrorBoundary>

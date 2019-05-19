@@ -89,7 +89,7 @@ class Dashboard extends React.Component {
     }
 
     componentDidMount() {
-
+        // this.socket.on(SOCKET_EVENTS.CONFIG, () => console.log("[DASH] socket.on(config)"));
     }
 
     //TODO Emit messages with specific event
