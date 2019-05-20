@@ -18,7 +18,7 @@ class NavListButton extends React.Component {
 
     getBaseComponent = props => {
         const {handler, name, secondaryIcon} = props;
-        return(
+        return (
             <ListItem button onClick={handler}>
                 <ListItemIcon>{this.getBaseIcon(props)}</ListItemIcon>
                 <ListItemText>{name}</ListItemText>
@@ -30,7 +30,7 @@ class NavListButton extends React.Component {
     render() {
         const {tooltip} = this.props;
         const component = this.getBaseComponent(this.props);
-        if (tooltip){
+        if (tooltip) {
             return (
                 <Tooltip title={tooltip} placement="right">
                     {component}

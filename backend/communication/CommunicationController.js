@@ -50,16 +50,46 @@ class CommunicationController {
         this.serialPort = new SerialPort(port, {baudRate: 9600, autoOpen: false});
         this.parser = this.serialPort.pipe(new ReadLine());
         this.parser.on('data', data => {
+            this.logger(data);
             try {
                 const jsonData = JSON.parse(data);
-                console.log(Date.now(), jsonData);
-                io.sockets.emit(data.component, jsonData);
+                switch (jsonData.component) {
+                    case SOCKET_EVENTS.AR_CONFIG:
+                        io.sockets.emit(SOCKET_EVENTS.CONFIG, jsonData);
+                        break;
+                    case SOCKET_EVENTS.AR_START_SCAN:
+                        io.sockets.emit(SOCKET_EVENTS.START_SCAN, jsonData);
+                        break;
+                    case SOCKET_EVENTS.AR_PAUSE_SCAN:
+                        io.sockets.emit(SOCKET_EVENTS.PAUSE_SCAN, jsonData);
+                        break;
+                    case SOCKET_EVENTS.AR_STOP_SCAN:
+                        io.sockets.emit(SOCKET_EVENTS.STOP_SCAN, jsonData);
+                        break;
+                    case SOCKET_EVENTS.AR_ERROR:
+                        io.sockets.emit(SOCKET_EVENTS.ERROR, jsonData);
+                        break;
+                    case SOCKET_EVENTS.AR_MOTOR:
+                        io.sockets.emit(SOCKET_EVENTS.MOTOR, jsonData);
+                        break;
+                    case SOCKET_EVENTS.AR_PROGRAM:
+                        io.sockets.emit(SOCKET_EVENTS.PROGRAM, jsonData);
+                        break;
+                    case SOCKET_EVENTS.AR_SENSOR:
+                        io.sockets.emit(SOCKET_EVENTS.SENSOR, jsonData);
+                        break;
+                    default:
+                        io.socket.emit(SOCKET_EVENTS.ERROR)
+                }
             } catch (e) {
-                console.log(data);
-                console.log("Error: ", e);
-                io.sockets.emit(SOCKET_EVENTS.ERROR, e);
+                this.logger(e);
+                io.sockets.emit(SOCKET_EVENTS.ERROR);
             }
         });
+    }
+
+    logger(message) {
+        console.log(Date.now(), message);
     }
 
     async getSerialPortsList() {
@@ -75,15 +105,15 @@ class CommunicationController {
             .then(ports => {
                 socket.emit(SOCKET_EVENTS.SERIAL_PORTS, JSON.stringify(ports));
                 this.serialPorts = ports;
-        });
+            });
 
         socket.on(SOCKET_EVENTS.DISCONNECT, () => this.handleSocketDisconnect(socket));
         socket.on(SOCKET_EVENTS.SERIAL_CONNECT, (port) => this.handleSerialConnect(socket, port));
         socket.on(SOCKET_EVENTS.SERIAL_DISCONNECT, () => this.handleSerialDisconnect(socket));
-        socket.on(SOCKET_EVENTS.START_SCAN, () => {
-        });
-        socket.on(SOCKET_EVENTS.STOP_SCAN, () => {
-        });
+        socket.on(SOCKET_EVENTS.CONFIG, () => {});
+        socket.on(SOCKET_EVENTS.START_SCAN, () => {this.handleStartScan()});
+        socket.on(SOCKET_EVENTS.PAUSE_SCAN, () => {this.handlePauseScan()});
+        socket.on(SOCKET_EVENTS.STOP_SCAN, () => {this.handleStopScan()});
     }
 
     handleSocketDisconnect(socket) {
@@ -118,6 +148,24 @@ class CommunicationController {
                 socket.emit(SOCKET_EVENTS.SERIAL_DISCONNECT);
             }
         });
+    }
+
+    handleStartScan() {
+        const command = JSON.stringify({command: SOCKET_EVENTS.AR_START_SCAN});
+        this.logger(command);
+        this.serialPort.write(command);
+    }
+
+    handlePauseScan() {
+        const command = JSON.stringify({command: SOCKET_EVENTS.AR_PAUSE_SCAN});
+        this.logger(command);
+        this.serialPort.write(command);
+    }
+
+    handleStopScan() {
+        const command = JSON.stringify({command: SOCKET_EVENTS.AR_STOP_SCAN});
+        this.logger(command);
+        this.serialPort.write(command);
     }
 }
 

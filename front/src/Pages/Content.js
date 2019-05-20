@@ -120,6 +120,26 @@ class Content extends React.Component {
 
         this.communicationManager = new CommunicationManager();
         this.communicationManager.createSocket();
+
+        this.state = {
+            socket: {
+                connected: false,
+                status: STATUS_ERROR()
+            },
+            serial: {
+                connected: false,
+                status: STATUS_ERROR()
+            },
+            serialPorts: [],
+            selectedSerialPort: null,
+        };
+
+        this.showToast = (type, message) => {
+            toast(message, {type: type, containerId: 'Content'})
+        };
+    }
+
+    componentDidMount() {
         //Socket connected
         this.communicationManager.addConnectHandler(() => {
             this.showToast(TOAST_SUCCESS, SOCKET_CONNECTION_SUCCESS);
@@ -137,12 +157,31 @@ class Content extends React.Component {
         //Socket connection failed
         this.communicationManager.addReconnectFailedHandler(() => {
             this.showToast(TOAST_ERROR, SOCKET_CONNECTION_FAIL);
-            this.setState({socket: {connected: false, status: STATUS_ERROR()}});
+            this.setState({
+                socket: {
+                    connected: false,
+                    status: STATUS_ERROR()
+                },
+                serial: {
+                    connected: false,
+                    status: STATUS_ERROR()
+                },
+            });
         });
         //Socket disconnecting
         this.communicationManager.addDisconnectHandler(() => {
             this.showToast(TOAST_ERROR, SOCKET_DISCONNECT);
-            this.setState({socket: {connected: false, status: STATUS_ERROR()}});
+            this.setState({
+                socket: {
+                    connected: false,
+                    status: STATUS_ERROR()
+                },
+                serial: {
+                    connected: false,
+                    status: STATUS_ERROR()
+                },
+                serialPorts: [],
+            });
         });
         //Serial connected
         this.communicationManager.addSerialConnectHandler(() => {
@@ -153,7 +192,7 @@ class Content extends React.Component {
         this.communicationManager.addSerialConnectErrorHandler((response) => {
             this.showToast(TOAST_ERROR, `${SERIAL_CONNECTION_OPEN_ERROR} ${response.error}`);
             this.setState(state => {
-                const filteredPorts = state.serialPorts.filter((port) => port !== response.port);
+                const filteredPorts = state.serialPorts.filter(port => port !== response.port);
                 return {
                     serial: {
                         connected: false,
@@ -175,7 +214,6 @@ class Content extends React.Component {
         });
         //Serial list available ports
         this.communicationManager.addSerialPortsHandler((serialPorts) => {
-            console.log(serialPorts);
             this.setState({serialPorts: JSON.parse(serialPorts)});
         });
         //Serial error
@@ -183,23 +221,6 @@ class Content extends React.Component {
             this.showToast(TOAST_ERROR, `${SERIAL_CONNECTION_FAIL} ${error}`);
             this.setState({serial: {connected: false, status: STATUS_ERROR()}});
         });
-
-        this.state = {
-            socket: {
-                connected: false,
-                status: STATUS_ERROR()
-            },
-            serial: {
-                connected: false,
-                status: STATUS_ERROR()
-            },
-            serialPorts: [],
-            selectedSerialPort: null,
-        };
-
-        this.showToast = (type, message) => {
-            toast(message, {type: type, containerId: 'Content'})
-        };
     }
 
     handleSocketClick = () => {
@@ -240,12 +261,13 @@ class Content extends React.Component {
                 <ToastContainer enableMultiContainer autoClose={3000} pauseOnHover={false} transition={Slide}
                                 pauseOnFocusLoss={false} containerId={'Content'}/>
                 <NavigationFrame>
-                    <NavigationList socket={this.state.socket}
-                                    serial={this.state.serial}
-                                    serialPorts={this.state.serialPorts}
-                                    socketHandler={this.handleSocketClick}
-                                    serialHandler={this.handleSerialClick}
-                                    serialPortsHandler={this.handleSerialPortsSelect}
+                    <NavigationList
+                        socket={this.state.socket}
+                        serial={this.state.serial}
+                        serialPorts={this.state.serialPorts}
+                        socketHandler={this.handleSocketClick}
+                        serialHandler={this.handleSerialClick}
+                        serialPortsHandler={this.handleSerialPortsSelect}
                     />
                 </NavigationFrame>
                 <main className={classes.content}>

@@ -27,7 +27,7 @@ class NavListLink extends React.Component {
     render() {
         const {tooltip} = this.props;
         const component = this.getBaseComponent(this.props);
-        if (tooltip){
+        if (tooltip) {
             return (
                 <Tooltip title={tooltip} placement="right">
                     {component}

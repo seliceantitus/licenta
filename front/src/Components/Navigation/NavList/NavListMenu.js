@@ -12,11 +12,16 @@ class NavListMenu extends React.Component {
                   anchorEl={anchorEl}
                   onClose={closeHandler}
             >
-                {data.map((item, index) => (
-                    <MenuItem value={item} key={`${id}-Item-${index}`} onClick={() => itemSelectHandler(item)}>
-                        {selected === item ? <>{item} <Check/> </> : item}
+                {data.length > 0 ?
+                    data.map((item, index) => (
+                        <MenuItem value={item} key={`${id}-Item-${index}`} onClick={() => itemSelectHandler(item)}>
+                            {selected === item ? <>{item} <Check/> </> : item}
+                        </MenuItem>))
+                    :
+                    <MenuItem value={'None'} disabled>
+                        None
                     </MenuItem>
-                ))}
+                }
             </Menu>
         );
     }

@@ -92,9 +92,8 @@ class Dashboard extends React.Component {
         // this.socket.on(SOCKET_EVENTS.CONFIG, () => console.log("[DASH] socket.on(config)"));
     }
 
-    //TODO Emit messages with specific event
     handleOutboundData(json) {
-        this.socket.emit('client_data', JSON.stringify(json));
+        // this.socket.emit('client_data', JSON.stringify(json));
     }
 
     showToast(type, message) {

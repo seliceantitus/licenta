@@ -7,6 +7,7 @@ import {Block, PlayArrow} from "@material-ui/icons";
 import {DEFAULT_MD_COL_WIDTH, DEFAULT_XS_COL_WIDTH, TOAST_INFO} from "../../Constants/UI";
 import {PROGRAM_START, PROGRAM_STOP} from "../../Constants/Messages";
 import StepperMotor from "../../Utils/StepperMotor";
+import {SOCKET_EVENTS} from "../../Constants/Communication";
 
 const styles = theme => ({
     margin: {
@@ -70,17 +71,22 @@ class Scan extends React.Component {
         };
 
         this.handleInboundData = this.handleInboundData.bind(this);
-        this.startProgram = this.startProgram.bind(this);
-        this.stopProgram = this.stopProgram.bind(this);
-        this.showToast = this.showToast.bind(this);
+        this.startScan = this.startScan.bind(this);
+        this.stopScan = this.stopScan.bind(this);
     }
 
     componentDidMount() {
-        this.socket.on('broadcast', (json) => this.handleInboundData(json));
+        // this.socket.on('broadcast', (json) => this.handleInboundData(json));
+        this.socket.on(SOCKET_EVENTS.START_SCAN, (data) => {console.log(data)});
+        this.socket.on(SOCKET_EVENTS.PAUSE_SCAN, (data) => {console.log(data)});
+        this.socket.on(SOCKET_EVENTS.STOP_SCAN, (data) => {console.log(data)});
+    }
+
+    componentWillUnmount() {
+
     }
 
     handleInboundData(json) {
-        //TODO emit from backend specific messages
         try {
             parse(this, json);
         } catch (parseException) {
@@ -104,16 +110,16 @@ class Scan extends React.Component {
         }
     }
 
-    startProgram() {
-        this.showToast(TOAST_INFO, PROGRAM_START);
+    startScan() {
+        this.socket.emit(SOCKET_EVENTS.START_SCAN);
     }
 
-    stopProgram() {
-        this.showToast(TOAST_INFO, PROGRAM_STOP);
+    pauseScan() {
+        this.socket.emit(SOCKET_EVENTS.PAUSE_SCAN);
     }
 
-    showToast(type, message) {
-        // toast(message, {type: type});
+    stopScan() {
+        this.socket.emit(SOCKET_EVENTS.STOP_SCAN);
     }
 
     render() {
@@ -126,12 +132,12 @@ class Scan extends React.Component {
                     <Grid item>
                         <Paper className={classes.paper}>
                             <Button variant={"contained"} color={"primary"} className={classes.button}
-                                    onClick={this.startProgram}>
+                                    onClick={this.startScan}>
                                 Start
                                 <PlayArrow className={classes.buttonRightIcon}/>
                             </Button>
                             <Button variant={"contained"} color={"secondary"} className={classes.button}
-                                    onClick={this.stopProgram}>
+                                    onClick={this.stopScan}>
                                 Stop
                                 <Block className={classes.buttonRightIcon}/>
                             </Button>

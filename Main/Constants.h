@@ -48,3 +48,14 @@ enum Shield {
   LIMSW2 = 41,
   IRSENSOR = A5
 };
+
+enum Events {
+  CONFIG = 0x00,
+  START_SCAN = 0x01,
+  PAUSE_SCAN = 0x02,
+  STOP_SCAN = 0x03,
+  ERR = 0x04,
+  MOTOR = 0x05,
+  PROGRAM = 0x06,
+  SENSOR = 0x07
+};

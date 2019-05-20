@@ -26,6 +26,7 @@ export const SOCKET_EVENTS = {
 
 export const ERROR = {
     ID: 'error',
+    ON: 'onComponent',
     DATA: ['code', 'message'],
 };
 

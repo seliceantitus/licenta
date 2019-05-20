@@ -81,11 +81,15 @@ void fetchSerialData() {
   String data = Serial.readString();
   StaticJsonDocument<1024> doc;
   DeserializationError error = deserializeJson(doc, data);
-
+  rLed.off();
+  gLed.off();
+  yLed.off();
   if (error) {
-    Serial.println(error.c_str());
+    rLed.on();
   } else {
-    char* command = doc["command"];
+    int command = doc["command"];
+    if (command == START_SCAN) gLed.on();
+    else if (command == STOP_SCAN) yLed.on();
   }
 }
 
