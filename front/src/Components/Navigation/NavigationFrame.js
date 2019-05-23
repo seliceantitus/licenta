@@ -63,7 +63,7 @@ const styles = theme => ({
 class NavigationFrame extends React.Component {
     constructor(props) {
         super(props);
-
+        console.log('[NAV FRAME] Constructed');
         this.state = {
             open: false,
         };
