@@ -64,9 +64,10 @@ const avatarTheme = createMuiTheme({
 
 class Dashboard extends React.Component {
 
-    constructor(props, context) {
-        super(props, context);
-        console.log('[DASH] Const');
+    constructor(props) {
+        super(props);
+
+        console.log('[DASHBOARD] Constructed');
         this.communicationManager = this.props.communicationManager;
         this.socket = this.communicationManager.getSocket();
         this.state = {

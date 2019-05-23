@@ -1,10 +1,10 @@
 export const SOCKET_EVENTS = {
     //Socket constants
-    CONNECT: 'connect',
-    CONNECTING: 'connecting',
-    RECONNECTING: 'reconnecting',
-    RECONNECT_FAILED: 'reconnect_failed',
-    DISCONNECT: 'disconnect',
+    SOCKET_CONNECT: 'connect',
+    SOCKET_CONNECTING: 'connecting',
+    SOCKET_RECONNECTING: 'reconnecting',
+    SOCKET_RECONNECT_FAILED: 'reconnect_failed',
+    SOCKET_DISCONNECT: 'disconnect',
     //Serial constants
     SERIAL_CONNECT: 'serial_connect',
     SERIAL_CONNECT_ERROR: 'serial_connect_error',

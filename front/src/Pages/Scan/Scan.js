@@ -54,7 +54,7 @@ const styles = theme => ({
 class Scan extends React.Component {
     constructor(props) {
         super(props);
-        console.log('[SCAN] Const');
+        console.log('[SCAN] Constructed');
         this.communicationManager = this.props.communicationManager;
         this.socket = this.communicationManager.getSocket();
         this.stepperMotor = new StepperMotor(1.8, 4);

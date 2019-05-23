@@ -11,7 +11,6 @@ class CommunicationManager {
         };
 
         this.serial = {
-            component: null,
             connected: false
         };
     }
@@ -23,54 +22,102 @@ class CommunicationManager {
             'reconnectionDelayMax': 4000,
             'reconnectionAttempts': 2
         });
+        this.socket.component.on(SOCKET_EVENTS.SOCKET_CONNECT, () => this.socket.connected = true);
+        this.socket.component.on(SOCKET_EVENTS.SOCKET_DISCONNECT, () => this.socket.connected = false);
+        this.socket.component.on(SOCKET_EVENTS.SERIAL_CONNECT, () => this.serial.connected = true);
+        this.socket.component.on(SOCKET_EVENTS.SERIAL_DISCONNECT, () => this.serial.connected = false);
     }
 
     getSocket() {
         return this.socket.component;
     }
 
-    addConnectHandler(func) {
-        this.socket.component.on(SOCKET_EVENTS.CONNECT, func);
+    addSocketConnectHandler(func) {
+        this.socket.component.on(SOCKET_EVENTS.SOCKET_CONNECT, func);
     }
 
-    addConnectingHandler(func) {
-        this.socket.component.on(SOCKET_EVENTS.CONNECTING, func);
+    removeSocketConnectHandler(func) {
+        this.socket.component.removeListener(SOCKET_EVENTS.SOCKET_CONNECT, func);
     }
 
-    addReconnectingHandler(func) {
-        this.socket.component.on(SOCKET_EVENTS.RECONNECTING, (attempt) => func(attempt));
+    addSocketConnectingHandler(func) {
+        this.socket.component.on(SOCKET_EVENTS.SOCKET_CONNECTING, func);
     }
 
-    addReconnectFailedHandler(func) {
-        this.socket.component.on(SOCKET_EVENTS.RECONNECT_FAILED, func);
+    removeSocketConnectingHandler(func) {
+        this.socket.component.removeListener(SOCKET_EVENTS.SOCKET_CONNECTING, func);
     }
 
-    addDisconnectHandler(func) {
-        this.socket.component.on(SOCKET_EVENTS.DISCONNECT, func);
+    addSocketReconnectingHandler(func) {
+        this.socket.component.on(SOCKET_EVENTS.SOCKET_RECONNECTING, (attempt) => func(attempt));
+    }
+
+    removeSocketReconnectingHandler(func) {
+        this.socket.component.removeListener(SOCKET_EVENTS.SOCKET_RECONNECTING, (attempt) => func(attempt));
+    }
+
+    addSocketReconnectFailedHandler(func) {
+        this.socket.component.on(SOCKET_EVENTS.SOCKET_RECONNECT_FAILED, func);
+    }
+
+    removeSocketReconnectFailedHandler(func) {
+        this.socket.component.removeListener(SOCKET_EVENTS.SOCKET_RECONNECT_FAILED, func);
+    }
+
+    addSocketDisconnectHandler(func) {
+        this.socket.component.on(SOCKET_EVENTS.SOCKET_DISCONNECT, func);
+    }
+
+    removeSocketDisconnectHandler(func) {
+        this.socket.component.removeListener(SOCKET_EVENTS.SOCKET_DISCONNECT, func);
     }
 
     addSerialConnectHandler(func) {
         this.socket.component.on(SOCKET_EVENTS.SERIAL_CONNECT, func);
     }
 
+    removeSerialConnectHandler(func) {
+        this.socket.component.removeListener(SOCKET_EVENTS.SERIAL_CONNECT, func);
+    }
+
     addSerialConnectErrorHandler(func) {
         this.socket.component.on(SOCKET_EVENTS.SERIAL_CONNECT_ERROR, (error) => func(error));
+    }
+
+    removeSerialConnectErrorHandler(func) {
+        this.socket.component.removeListener(SOCKET_EVENTS.SERIAL_CONNECT_ERROR, (error) => func(error));
     }
 
     addSerialDisconnectHandler(func) {
         this.socket.component.on(SOCKET_EVENTS.SERIAL_DISCONNECT, func)
     }
 
+    removeSerialDisconnectHandler(func) {
+        this.socket.component.removeListener(SOCKET_EVENTS.SERIAL_DISCONNECT, func)
+    }
+
     addSerialDisconnectErrorHandler(func) {
         this.socket.component.on(SOCKET_EVENTS.SERIAL_DISCONNECT_ERROR, (error) => func(error));
+    }
+
+    removeSerialDisconnectErrorHandler(func) {
+        this.socket.component.removeListener(SOCKET_EVENTS.SERIAL_DISCONNECT_ERROR, (error) => func(error));
     }
 
     addSerialPortsHandler(func) {
         this.socket.component.on(SOCKET_EVENTS.SERIAL_PORTS, (serialPorts) => func(serialPorts));
     }
 
+    removeSerialPortsHandler(func) {
+        this.socket.component.removeListener(SOCKET_EVENTS.SERIAL_PORTS, (serialPorts) => func(serialPorts));
+    }
+
     addSerialErrorHandler(func) {
         this.socket.component.on(SOCKET_EVENTS.SERIAL_ERROR, (error) => func(error));
+    }
+
+    removeSerialErrorHandler(func) {
+        this.socket.component.removeListener(SOCKET_EVENTS.SERIAL_ERROR, (error) => func(error));
     }
 
     openSocket() {
@@ -87,6 +134,14 @@ class CommunicationManager {
 
     closeSerial() {
         this.socket.component.emit(SOCKET_EVENTS.SERIAL_DISCONNECT);
+    }
+
+    changeSocketStatus(status) {
+        this.socket.connected = status;
+    }
+
+    changeSerialStatus(status) {
+        this.serial.connected = status;
     }
 
     isSocketConnected() {

@@ -1,11 +1,17 @@
 class StepperMotor {
 
     constructor(stepDegree, stepIncrement) {
-        this.state = {
-            stepDegree: stepDegree,
-            stepIncrement: stepIncrement,
-            fullRotationSteps: 200
-        }
+        this.stepDegree = stepDegree;
+        this.stepIncrement = stepIncrement;
+        this.fullRotationSteps = 200;
+    }
+
+    setStepDegree(stepDegree) {
+        this.stepDegree = stepDegree;
+    }
+
+    setStepIncrement(stepIncrement) {
+        this.stepIncrement = stepIncrement;
     }
 
     getRadarLabels() {
@@ -13,7 +19,7 @@ class StepperMotor {
         let deg = 0;
         while (Math.ceil(deg) < 360) {
             degrees = [...degrees, deg.toFixed(1)];
-            deg += (this.state.stepIncrement * this.state.stepDegree);
+            deg += (this.stepIncrement * this.stepDegree);
         }
         return degrees;
     }
