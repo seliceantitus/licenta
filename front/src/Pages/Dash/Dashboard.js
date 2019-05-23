@@ -1,9 +1,10 @@
 import React from "react";
 import PropTypes from 'prop-types';
-import {toast} from 'react-toastify';
-import {DEFAULT_MD_COL_WIDTH, DEFAULT_XS_COL_WIDTH} from "../../Constants/UI";
+import {Slide, toast, ToastContainer} from 'react-toastify';
+import {DEFAULT_MD_COL_WIDTH, DEFAULT_XS_COL_WIDTH, TOAST_INFO} from "../../Constants/UI";
 import {
     Avatar,
+    Button,
     Card,
     CardContent,
     CardHeader,
@@ -68,37 +69,34 @@ class Dashboard extends React.Component {
         super(props);
 
         console.log('[DASHBOARD] Constructed');
-        this.communicationManager = this.props.communicationManager;
+        const {communicationManager, stepperMotor} = this.props;
+        this.stepperMotor = stepperMotor;
+        this.communicationManager = communicationManager;
         this.socket = this.communicationManager.getSocket();
+
         this.state = {
-            // //TODO Disable page elements if socket is not enabled
-            // enabled: this.socket.connected,
-            // connections: {
-            //     socket: {
-            //         connected: this.socket.connected,
-            //         status: this.socket.connected ? STATUS_OK(true) : STATUS_ERROR()
-            //     },
-            //     serial: {
-            //         connected: false,
-            //         status: STATUS_ERROR()
-            //     }
-            // },
+            enabled: false,
         };
 
         this.handleOutboundData = this.handleOutboundData.bind(this);
-        this.showToast = this.showToast.bind(this);
+        this.showToast = (type, message) => {
+            toast(message, {type: type, containerId: 'Dashboard'})
+        };
     }
 
     componentDidMount() {
-        // this.socket.on(SOCKET_EVENTS.CONFIG, () => console.log("[DASH] socket.on(config)"));
+        this.setState({
+                enabled: this.communicationManager.isSocketConnected() && this.communicationManager.isSerialConnected()
+            }
+        );
+    }
+
+    componentWillMount() {
+        console.log('[DASHBOARD] Unmount');
     }
 
     handleOutboundData(json) {
         // this.socket.emit('client_data', JSON.stringify(json));
-    }
-
-    showToast(type, message) {
-        toast(message, {type: type});
     }
 
     renderMotorData = (classes) => (
@@ -188,6 +186,7 @@ class Dashboard extends React.Component {
                     <Typography>
                         List component port connections on arduino
                     </Typography>
+                    <Button variant={"contained"} disabled={!this.state.enabled}>Test</Button>
                 </CardContent>
             </Card>
         </Grid>
@@ -198,10 +197,17 @@ class Dashboard extends React.Component {
         //TODO Redesign page header
         return (
             <Grid container justify="center" alignItems="flex-start" spacing={8}>
+                <ToastContainer
+                    enableMultiContainer
+                    autoClose={3000}
+                    pauseOnHover={false}
+                    transition={Slide}
+                    pauseOnFocusLoss={false}
+                    containerId={'Dashboard'}
+                />
                 <Grid container item spacing={8} justify={"center"} alignItems={"flex-start"}
                       xs={DEFAULT_XS_COL_WIDTH} md={DEFAULT_MD_COL_WIDTH} lg={10} xl={10}
                 >
-
                     <Typography variant={"h2"}>
                         Dashboard
                     </Typography>

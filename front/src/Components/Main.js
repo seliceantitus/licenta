@@ -3,6 +3,7 @@ import {withStyles} from "@material-ui/core";
 import NavigationWrapper from "./Wrappers/NavigationWrapper";
 import PagesWrapper from "./Wrappers/PagesWrapper";
 import CommunicationManager from "../Utils/CommunicationManager";
+import StepperMotor from "../Utils/StepperMotor";
 
 const styles = theme => ({
     root: {
@@ -28,6 +29,31 @@ class Main extends React.Component {
         console.log('[MAIN] Constructed');
         this.communicationManager = new CommunicationManager();
         this.communicationManager.createSocket();
+        this.stepperMotor = new StepperMotor(1.8, 4);
+        this.state = {
+            loaded: false,
+            socket: {
+                connected: false
+            },
+            serial: {
+                connected: false
+            }
+        }
+    }
+
+    componentDidMount() {
+        this.communicationManager.addSocketConnectHandler(
+            () => this.setState({socket: {connected: true}})
+        );
+        this.communicationManager.addSocketDisconnectHandler(
+            () => this.setState({socket: {connected: false}})
+        );
+        this.communicationManager.addSerialConnectHandler(
+            () => this.setState({serial: {connected: true}})
+        );
+        this.communicationManager.addSerialDisconnectHandler(
+            () => this.setState({serial: {connected: false}})
+        );
     }
 
     render() {
@@ -37,7 +63,10 @@ class Main extends React.Component {
                 <NavigationWrapper communicationManager={this.communicationManager}/>
                 <main className={classes.content}>
                     <div className={classes.toolbar}/>
-                    <PagesWrapper communicationManager={this.communicationManager}/>
+                    <PagesWrapper
+                        communicationManager={this.communicationManager}
+                        stepperMotor={this.stepperMotor}
+                    />
                 </main>
             </div>
         );

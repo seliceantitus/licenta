@@ -23,7 +23,10 @@ class CommunicationManager {
             'reconnectionAttempts': 2
         });
         this.socket.component.on(SOCKET_EVENTS.SOCKET_CONNECT, () => this.socket.connected = true);
-        this.socket.component.on(SOCKET_EVENTS.SOCKET_DISCONNECT, () => this.socket.connected = false);
+        this.socket.component.on(SOCKET_EVENTS.SOCKET_DISCONNECT, () => {
+            this.socket.connected = false;
+            this.serial.connected = false
+        });
         this.socket.component.on(SOCKET_EVENTS.SERIAL_CONNECT, () => this.serial.connected = true);
         this.socket.component.on(SOCKET_EVENTS.SERIAL_DISCONNECT, () => this.serial.connected = false);
     }
@@ -134,14 +137,6 @@ class CommunicationManager {
 
     closeSerial() {
         this.socket.component.emit(SOCKET_EVENTS.SERIAL_DISCONNECT);
-    }
-
-    changeSocketStatus(status) {
-        this.socket.connected = status;
-    }
-
-    changeSerialStatus(status) {
-        this.serial.connected = status;
     }
 
     isSocketConnected() {

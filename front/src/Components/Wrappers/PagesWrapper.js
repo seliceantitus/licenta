@@ -9,22 +9,30 @@ class PagesWrapper extends React.Component {
     constructor(props) {
         super(props);
 
-        this.communicationManager = this.props.communicationManager;
         console.log('[PAGES WRAPPER] Constructed');
     }
 
     render() {
+        const {communicationManager, stepperMotor} = this.props;
         return (
             <Switch>
                 <Route exact path={'/'}
-                       component={() => <Dashboard communicationManager={this.communicationManager}/>}
+                       component={() =>
+                           <Dashboard
+                               communicationManager={communicationManager}
+                               stepperMotor={stepperMotor}
+                           />
+                       }
                 />
                 <Route path={'/scan'}
-                       component={() => <Scan communicationManager={this.communicationManager}/>}
+                       component={() =>
+                           <Scan
+                               communicationManager={communicationManager}
+                               stepperMotor={stepperMotor}
+                           />
+                       }
                 />
-                <Route path={'/history'}
-                       component={() => <History communicationManager={this.communicationManager}/>}
-                />
+                <Route path={'/history'} component={History}/>
                 <Route path={'/help'} component={Help}/>
             </Switch>
         );

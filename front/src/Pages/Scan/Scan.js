@@ -4,9 +4,7 @@ import parse from "../../Parser/Parser";
 import Chart from 'react-apexcharts';
 import {Button, Grid, Paper, withStyles} from "@material-ui/core";
 import {Block, PlayArrow} from "@material-ui/icons";
-import {DEFAULT_MD_COL_WIDTH, DEFAULT_XS_COL_WIDTH, TOAST_INFO} from "../../Constants/UI";
-import {PROGRAM_START, PROGRAM_STOP} from "../../Constants/Messages";
-import StepperMotor from "../../Utils/StepperMotor";
+import {DEFAULT_MD_COL_WIDTH, DEFAULT_XS_COL_WIDTH} from "../../Constants/UI";
 import {SOCKET_EVENTS} from "../../Constants/Communication";
 
 const styles = theme => ({
@@ -54,15 +52,19 @@ const styles = theme => ({
 class Scan extends React.Component {
     constructor(props) {
         super(props);
+
         console.log('[SCAN] Constructed');
-        this.communicationManager = this.props.communicationManager;
+        const {communicationManager, stepperMotor} = this.props;
+        this.stepperMotor = stepperMotor;
+        this.communicationManager = communicationManager;
         this.socket = this.communicationManager.getSocket();
-        this.stepperMotor = new StepperMotor(1.8, 4);
+
         this.state = {
-            stepsLimit: this.stepperMotor.getRadarLabels().length,
+            enabled: false,
+            stepsLimit: 0,
             counter: 0,
             options: {
-                labels: this.stepperMotor.getRadarLabels(),
+                labels: 0,
             },
             series: [{
                 name: 'Distance',
@@ -76,14 +78,19 @@ class Scan extends React.Component {
     }
 
     componentDidMount() {
-        // this.socket.on('broadcast', (json) => this.handleInboundData(json));
-        this.socket.on(SOCKET_EVENTS.START_SCAN, (data) => {console.log(data)});
-        this.socket.on(SOCKET_EVENTS.PAUSE_SCAN, (data) => {console.log(data)});
-        this.socket.on(SOCKET_EVENTS.STOP_SCAN, (data) => {console.log(data)});
+        this.socket.on(SOCKET_EVENTS.START_SCAN, (data) => console.log(data));
+        this.socket.on(SOCKET_EVENTS.PAUSE_SCAN, (data) => console.log(data));
+        this.socket.on(SOCKET_EVENTS.STOP_SCAN, (data) => console.log(data));
+        this.setState({
+            stepsLimit: this.stepperMotor.getRadarLabels().length,
+            options: {
+                labels: this.stepperMotor.getRadarLabels(),
+            },
+        });
     }
 
     componentWillUnmount() {
-
+        console.log('[SCAN] Unmount');
     }
 
     handleInboundData(json) {
