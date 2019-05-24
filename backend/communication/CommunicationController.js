@@ -180,19 +180,16 @@ class CommunicationController {
 
     handleStartScan() {
         const command = JSON.stringify({command: ARDUINO_REQUEST.AR_START_SCAN});
-        this.logger(command);
         this.serialPort.write(command);
     }
 
     handlePauseScan() {
         const command = JSON.stringify({command: ARDUINO_REQUEST.AR_PAUSE_SCAN});
-        this.logger(command);
         this.serialPort.write(command);
     }
 
     handleStopScan() {
         const command = JSON.stringify({command: ARDUINO_REQUEST.AR_STOP_SCAN});
-        this.logger(command);
         this.serialPort.write(command);
     }
 }

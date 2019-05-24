@@ -100,6 +100,10 @@ class Scan extends React.Component {
 
     componentWillUnmount() {
         console.log('[SCAN] Unmount');
+        this.socket.removeListener(RESPONSE.START_SCAN, (data) => this.handleInboundData(RESPONSE.START_SCAN, data));
+        this.socket.removeListener(RESPONSE.PAUSE_SCAN, (data) => this.handleInboundData(RESPONSE.PAUSE_SCAN, data));
+        this.socket.removeListener(RESPONSE.STOP_SCAN, (data) => this.handleInboundData(RESPONSE.STOP_SCAN, data));
+        this.socket.removeListener(RESPONSE.SENSOR, (data) => this.handleInboundData(RESPONSE.SENSOR, data));
     }
 
     handleInboundData(event, json) {

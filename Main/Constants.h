@@ -59,3 +59,8 @@ enum Events {
   PROGRAM = 0x06,
   SENSOR = 0x07
 };
+
+enum Components {
+  AR_AXIS_MOTOR = 0x10,
+  AR_TURNTABLE_MOTOR = 0x11,
+};

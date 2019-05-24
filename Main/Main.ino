@@ -31,6 +31,8 @@ int sensorAxisTurns = 0;
 int sensorAxisStep = 20;
 
 void setup() {
+  gLed.on();
+  yLed.on();
   rLed.on();
 
   Serial.begin(9600);
@@ -47,9 +49,14 @@ void setup() {
   sensorAxis.setDirection(RIGHT);
   turntable.setDirection(LEFT);
 
+  gLed.off();
+  yLed.off();
   rLed.off();
 }
 
+/*
+    Serial Json sender functions
+*/
 void sendConfigSuccess() {
   JsonSerial::JsonNode component = jSerial.createIntNode("component", CONFIG, false, 0, NULL);
   JsonSerial::JsonNode *list[] = { &component };
@@ -103,6 +110,48 @@ void sendMotorData(int steps, int rotations, char *locationValue) {
   jSerial.sendJson(list, 4);
 }
 
+/*
+    Handlers for serial events
+*/
+
+void startScan() {
+  gLed.on();
+  sendStartScan();
+  isRunning = true;
+  isPaused = false;
+  delay(1000);
+  gLed.off();
+}
+
+void pauseScan() {
+  yLed.on();
+  sendPauseScan();
+  isPaused = true;
+  delay(1000);
+  yLed.off();
+}
+
+void stopScan() {
+  rLed.on();
+  sendStopScan();
+  isRunning = false;
+  isPaused = false;
+  delay(1000);
+  rLed.off();
+}
+
+void configMotor(int motorId, int stepSize) {
+  //TODO check componentId => handle accordingly
+  rLed.on();
+  rLed.on();
+  turntableStep = stepSize;
+  sendConfigSuccess();
+  delay(1000);
+  rLed.off();
+  rLed.off();
+}
+
+
 void fetchSerialData() {
   String data = Serial.readString();
   StaticJsonDocument<1024> doc;
@@ -115,26 +164,15 @@ void fetchSerialData() {
   } else {
     int command = doc["command"];
     if (command == START_SCAN) {
-      gLed.on();
-      sendStartScan();
-      isRunning = true;
-      isPaused = false;
-      delay(2000);
+      startScan();
     } else if (command == PAUSE_SCAN) {
-      yLed.on();
-      sendPauseScan();
-      isPaused = true;
-      delay(1000);
+      pauseScan();
     } else if (command == STOP_SCAN) {
-      rLed.on();
-      sendStopScan();
-      isRunning = false;
-      isPaused = false;
-      delay(2000);
+      stopScan();
     } else if (command == CONFIG) {
-      rLed.on();
-      yLed.on();
-      sendConfigSuccess();
+      int component = doc["component"];
+      int stepSize = doc["stepSize"];
+      configMotor(component, stepSize);
     }
   }
 }
