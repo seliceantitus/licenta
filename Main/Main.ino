@@ -149,6 +149,7 @@ void stopScan() {
   sendStopScan();
   isRunning = false;
   isPaused = false;
+  resetComponents();
   delay(1000);
   rLed.off();
 }
