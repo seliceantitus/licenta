@@ -39,6 +39,11 @@ export const RESPONSE = {
 
     CONFIG_SUCCESS: 'config_success',
     CONFIG_ERROR: 'config_error',
+
+    ERROR: 'error',
+    MOTOR: 'motor',
+    PROGRAM: 'program',
+    SENSOR: 'sensor',
 };
 
 export const MESSAGE_CONFIG = {

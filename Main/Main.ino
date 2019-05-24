@@ -24,10 +24,10 @@ volatile int activeScreen = 0;
 volatile bool isRunning = false;
 
 int turntableTurns = 0;
-int turntableStep = 20;
+int turntableStep = 4;
 int turntableFullRotations = 0;
 int sensorAxisTurns = 0;
-int sensorAxisStep = 50;
+int sensorAxisStep = 20;
 
 void setup() {
   rLed.on();
@@ -75,7 +75,7 @@ void sendStopScan() {
 
 
 void sendSensorData() {
-  JsonSerial::JsonNode component = jSerial.createStringNode("component", "sensor", false, 0, NULL);
+  JsonSerial::JsonNode component = jSerial.createIntNode("component", SENSOR, false, 0, NULL);
   JsonSerial::JsonNode action = jSerial.createStringNode("action", "measurement", false, 0, NULL);
   JsonSerial::JsonNode data_adc = jSerial.createFloatNode("analog", sensor.getADCValue(), false, 0, NULL);
   JsonSerial::JsonNode data_voltage = jSerial.createFloatNode("voltage", sensor.getVoltage(), false, 0, NULL);
@@ -89,7 +89,7 @@ void sendSensorData() {
 }
 
 void sendMotorData(int steps, int rotations, char *locationValue) {
-  JsonSerial::JsonNode component = jSerial.createStringNode("component", "motor", false, 0, NULL);
+  JsonSerial::JsonNode component = jSerial.createIntNode("component", MOTOR, false, 0, NULL);
   JsonSerial::JsonNode location = jSerial.createStringNode("location", locationValue, false, 0, NULL);
   JsonSerial::JsonNode action = jSerial.createStringNode("action", "turn", false, 0, NULL);
   JsonSerial::JsonNode data_steps = jSerial.createFloatNode("steps", steps, false, 0, NULL);
@@ -116,12 +116,16 @@ void fetchSerialData() {
     if (command == START_SCAN) {
       gLed.on();
       sendStartScan();
+      isRunning = true;
+      delay(2000);
     } else if (command == PAUSE_SCAN) {
       yLed.on();
       sendPauseScan();
     } else if (command == STOP_SCAN) {
       rLed.on();
       sendStopScan();
+      isRunning = false;
+      delay(2000);
     } else if (command == CONFIG) {
       rLed.on();
       yLed.on();
@@ -135,10 +139,6 @@ void loop() {
   if (Serial.available()) {
     fetchSerialData();
   }
-  if (limSw1.active() && !isRunning) {
-    isRunning = true;
-    delay(1000);
-  }
   if (isRunning) {
     if (turntableTurns == 200) {
       turntableFullRotations += 1;
@@ -146,20 +146,14 @@ void loop() {
       sensorAxis.turn(sensorAxisStep);
       sensorAxisTurns += sensorAxisStep;
     }
-    noInterrupts();
     sensor.measure();
-    interrupts();
     sendSensorData();
-    noInterrupts();
     turntable.turn(turntableStep);
     turntableTurns += turntableStep;
-    interrupts();
     if (limSw1.active()) {
-      noInterrupts();
       sensorAxis.setDirection(LEFT);
       sensorAxis.turn(sensorAxisTurns);
       sensorAxis.setDirection(RIGHT);
-      interrupts();
       isRunning = false;
       sensorAxisTurns = 0;
       turntableTurns = 0;

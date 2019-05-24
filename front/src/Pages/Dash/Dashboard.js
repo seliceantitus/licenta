@@ -6,7 +6,8 @@ import {
     Avatar,
     Card,
     CardContent,
-    CardHeader, CircularProgress,
+    CardHeader,
+    CircularProgress,
     createMuiTheme,
     ExpansionPanel,
     ExpansionPanelDetails,
@@ -21,6 +22,7 @@ import {ExpandMore, SaveOutlined} from "@material-ui/icons";
 import Button from "@material-ui/core/Button";
 import TextField from "@material-ui/core/TextField";
 import {REQUEST, RESPONSE} from "../../Constants/Communication";
+import {CONFIG_NO_RESPONSE} from "../../Constants/Messages";
 
 const styles = theme => ({
     paper: {
@@ -65,7 +67,7 @@ const styles = theme => ({
         marginTop: theme.spacing.unit,
     },
     textField: {
-        margin: theme.spacing.unit,
+        marginRight: theme.spacing.unit,
     },
     button: {
         margin: theme.spacing.unit,
@@ -89,7 +91,6 @@ class Dashboard extends React.Component {
 
     constructor(props) {
         super(props);
-
         console.log('[DASHBOARD] Constructed');
         const {communicationManager, stepperMotor} = this.props;
         this.stepperMotor = stepperMotor;
@@ -98,12 +99,13 @@ class Dashboard extends React.Component {
 
         this.state = {
             enabled: false,
-            configWaiting: false,
             axisMotor: {
+                configWaiting: false,
                 stepDegree: 0,
                 stepSize: 0
             },
             turntableMotor: {
+                configWaiting: false,
                 stepDegree: 0,
                 stepSize: 0
             },
@@ -126,20 +128,25 @@ class Dashboard extends React.Component {
                 stepSize: this.stepperMotor.getStepIncrement(),
             }
         });
-        //TODO move this in comm mngr or detach it in componentwillunmount
-        this.socket.on(RESPONSE.CONFIG_ERROR, () => {
-            this.setState({configWaiting: false});
-            this.showToast(TOAST_ERROR, 'Config error')
-        });
-        this.socket.on(RESPONSE.CONFIG_SUCCESS, () => {
-            this.setState({configWaiting: false});
-            this.showToast(TOAST_SUCCESS, 'Configuration saved')
-        });
+        this.socket.on(RESPONSE.CONFIG_ERROR, this.handleConfigError);
+        this.socket.on(RESPONSE.CONFIG_SUCCESS, this.handleConfigSuccess);
     }
 
     componentWillUnmount() {
         console.log('[DASHBOARD] Unmount');
+        this.socket.removeListener(RESPONSE.CONFIG_ERROR, this.handleConfigError);
+        this.socket.removeListener(RESPONSE.CONFIG_SUCCESS, this.handleConfigSuccess);
     }
+
+    handleConfigError = () => {
+        this.setState({axisMotor: {...this.state.axisMotor, configWaiting: false}});
+        this.showToast(TOAST_ERROR, 'Config error')
+    };
+
+    handleConfigSuccess = () => {
+        this.setState({axisMotor: {...this.state.axisMotor, configWaiting: false}});
+        this.showToast(TOAST_SUCCESS, 'Configuration saved')
+    };
 
     handleConfigDataChanged = name => (event) => {
         //TODO Validate data
@@ -158,7 +165,13 @@ class Dashboard extends React.Component {
             component: REQUEST.AXIS_MOTOR,
             stepSize: newStepSize
         }));
-        this.setState({configWaiting: true});
+        this.setState({axisMotor: {...this.state.axisMotor, configWaiting: true}});
+        setInterval(() => {
+            if (this.state.axisMotor.configWaiting) {
+                this.setState({axisMotor: {...this.state.axisMotor, configWaiting: false}});
+                this.showToast(TOAST_ERROR, CONFIG_NO_RESPONSE);
+            }
+        }, 5000);
     };
 
     saveTurntableMotorConfig = () => {
@@ -168,16 +181,22 @@ class Dashboard extends React.Component {
     };
 
     axisMotorConfig = (classes) => (
-        <form>
+        <div>
             <div>
+            <Typography style={{marginBottom: 16}}>
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque ullamcorper et nulla non vehicula.
+                Etiam volutpat, nulla et tempus volutpat, tellus dolor scelerisque erat, sed imperdiet augue arcu eu
+                leo.
+            </Typography>
+            </div>
+            <div>
+            <form style={{display: 'flex', alignItems: 'center'}}>
                 <TextField
                     className={classes.textField}
                     label="Step increment"
                     value={this.state.axisMotor.stepSize}
                     onChange={this.handleConfigDataChanged('axisMotor')}
                 />
-            </div>
-            <div>
                 <Button
                     disabled={!this.state.enabled}
                     variant={"contained"}
@@ -185,14 +204,15 @@ class Dashboard extends React.Component {
                     className={classes.button}
                     onClick={this.saveAxisMotorConfig}
                 >
-                    {this.state.configWaiting ?
+                    {this.state.axisMotor.configWaiting ?
                         <CircularProgress variant={"indeterminate"} style={{width: 24, height: 24, color: 'white'}}/>
                         :
                         <SaveOutlined/>
                     }
                 </Button>
+            </form>
             </div>
-        </form>
+        </div>
     );
 
     turntableMotorConfig = (classes) => {

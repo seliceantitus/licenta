@@ -94,6 +94,7 @@ class Scan extends React.Component {
             this.socket.on(RESPONSE.START_SCAN, (data) => this.handleInboundData(RESPONSE.START_SCAN, data));
             this.socket.on(RESPONSE.PAUSE_SCAN, (data) => this.handleInboundData(RESPONSE.PAUSE_SCAN, data));
             this.socket.on(RESPONSE.STOP_SCAN, (data) => this.handleInboundData(RESPONSE.STOP_SCAN, data));
+            this.socket.on(RESPONSE.SENSOR, (data) => this.handleInboundData(RESPONSE.SENSOR, data));
         }
     }
 
@@ -102,13 +103,6 @@ class Scan extends React.Component {
     }
 
     handleInboundData(event, json) {
-        // try {
-        //     parse(this, json);
-        // } catch (parseException) {
-        //     TODO Stop the program on exception
-        // console.log("Caught", parseException);
-        // }
-        //
         console.log(json);
         switch (event) {
             case RESPONSE.START_SCAN:
@@ -138,7 +132,6 @@ class Scan extends React.Component {
             default:
                 return;
         }
-        console.log(this.state);
     }
 
     startScan() {
