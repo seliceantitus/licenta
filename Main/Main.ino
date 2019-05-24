@@ -22,6 +22,7 @@ JsonSerial jSerial = JsonSerial();
 
 volatile int activeScreen = 0;
 volatile bool isRunning = false;
+volatile bool isPaused = false;
 
 int turntableTurns = 0;
 int turntableStep = 4;
@@ -49,7 +50,7 @@ void setup() {
   rLed.off();
 }
 
-void sendConfigSuccess(){
+void sendConfigSuccess() {
   JsonSerial::JsonNode component = jSerial.createIntNode("component", CONFIG, false, 0, NULL);
   JsonSerial::JsonNode *list[] = { &component };
   jSerial.sendJson(list, 1);
@@ -117,14 +118,18 @@ void fetchSerialData() {
       gLed.on();
       sendStartScan();
       isRunning = true;
+      isPaused = false;
       delay(2000);
     } else if (command == PAUSE_SCAN) {
       yLed.on();
       sendPauseScan();
+      isPaused = true;
+      delay(1000);
     } else if (command == STOP_SCAN) {
       rLed.on();
       sendStopScan();
       isRunning = false;
+      isPaused = false;
       delay(2000);
     } else if (command == CONFIG) {
       rLed.on();
@@ -139,7 +144,7 @@ void loop() {
   if (Serial.available()) {
     fetchSerialData();
   }
-  if (isRunning) {
+  if (isRunning && !isPaused) {
     if (turntableTurns == 200) {
       turntableFullRotations += 1;
       turntableTurns = 0;
