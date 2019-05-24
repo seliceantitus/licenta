@@ -43,8 +43,15 @@ void JsonSerial::sendJson(JsonSerial::JsonNode *data[], int dataSize) {
     if (node->isNested) {
       createSubNode(&document, node);
     } else {
-      if (node->value == NULL) document[node->key] = node->fValue;
-      else document[node->key] = node->value;
+      if (node->value == NULL) {
+        if (node->iValue == NULL) {
+          document[node->key] = node->fValue;
+        } else {
+          document[node->key] = node->iValue;
+        }
+      } else {
+        document[node->key] = node->value;
+      }
     }
   }
 

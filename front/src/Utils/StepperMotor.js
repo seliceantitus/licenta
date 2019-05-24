@@ -6,8 +6,16 @@ class StepperMotor {
         this.fullRotationSteps = 200;
     }
 
+    getStepDegree() {
+        return this.stepDegree;
+    }
+
     setStepDegree(stepDegree) {
         this.stepDegree = stepDegree;
+    }
+
+    getStepIncrement() {
+        return this.stepIncrement;
     }
 
     setStepIncrement(stepIncrement) {

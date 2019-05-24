@@ -9,15 +9,15 @@ import {INVALID_COMPONENT_ID, MISSING_COMPONENT_ID} from "../Constants/Messages"
 function parse(component, json) {
     switch (json.component) {
         case Constants.MOTOR.ID:
-            motorParse(component, json);
+            // motorParse(component, json);
             break;
 
         case Constants.PROGRAM.ID:
-            programParse(component, json);
+            // programParse(component, json);
             break;
 
         case Constants.SENSOR.ID:
-            sensorParse(component, json);
+            // sensorParse(component, json);
             break;
 
         case undefined:

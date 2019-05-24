@@ -49,6 +49,31 @@ void setup() {
   rLed.off();
 }
 
+void sendConfigSuccess(){
+  JsonSerial::JsonNode component = jSerial.createIntNode("component", CONFIG, false, 0, NULL);
+  JsonSerial::JsonNode *list[] = { &component };
+  jSerial.sendJson(list, 1);
+}
+
+void sendStartScan() {
+  JsonSerial::JsonNode component = jSerial.createIntNode("component", START_SCAN, false, 0, NULL);
+  JsonSerial::JsonNode *list[] = { &component };
+  jSerial.sendJson(list, 1);
+}
+
+void sendPauseScan() {
+  JsonSerial::JsonNode component = jSerial.createIntNode("component", PAUSE_SCAN, false, 0, NULL);
+  JsonSerial::JsonNode *list[] = { &component };
+  jSerial.sendJson(list, 1);
+}
+
+void sendStopScan() {
+  JsonSerial::JsonNode component = jSerial.createIntNode("component", STOP_SCAN, false, 0, NULL);
+  JsonSerial::JsonNode *list[] = { &component };
+  jSerial.sendJson(list, 1);
+}
+
+
 void sendSensorData() {
   JsonSerial::JsonNode component = jSerial.createStringNode("component", "sensor", false, 0, NULL);
   JsonSerial::JsonNode action = jSerial.createStringNode("action", "measurement", false, 0, NULL);
@@ -63,7 +88,7 @@ void sendSensorData() {
   jSerial.sendJson(list, 3);
 }
 
-void sendMotorData(int steps, int rotations, char *locationValue){
+void sendMotorData(int steps, int rotations, char *locationValue) {
   JsonSerial::JsonNode component = jSerial.createStringNode("component", "motor", false, 0, NULL);
   JsonSerial::JsonNode location = jSerial.createStringNode("location", locationValue, false, 0, NULL);
   JsonSerial::JsonNode action = jSerial.createStringNode("action", "turn", false, 0, NULL);
@@ -88,8 +113,20 @@ void fetchSerialData() {
     rLed.on();
   } else {
     int command = doc["command"];
-    if (command == START_SCAN) gLed.on();
-    else if (command == STOP_SCAN) yLed.on();
+    if (command == START_SCAN) {
+      gLed.on();
+      sendStartScan();
+    } else if (command == PAUSE_SCAN) {
+      yLed.on();
+      sendPauseScan();
+    } else if (command == STOP_SCAN) {
+      rLed.on();
+      sendStopScan();
+    } else if (command == CONFIG) {
+      rLed.on();
+      yLed.on();
+      sendConfigSuccess();
+    }
   }
 }
 
@@ -105,7 +142,7 @@ void loop() {
   if (isRunning) {
     if (turntableTurns == 200) {
       turntableFullRotations += 1;
-      turntableTurns = 0; 
+      turntableTurns = 0;
       sensorAxis.turn(sensorAxisStep);
       sensorAxisTurns += sensorAxisStep;
     }
@@ -131,5 +168,5 @@ void loop() {
     }
   }
   long e = millis();
-//  Serial.println(e - s);
+  //  Serial.println(e - s);
 }

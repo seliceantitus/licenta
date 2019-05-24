@@ -1,14 +1,14 @@
-import {PROGRAM} from '../../Constants/Communication';
+import {MESSAGE_CONFIG} from '../../Constants/Communication';
 import InvalidJsonException from "../../Exceptions/InvalidJsonException";
 import {INVALID_COMPONENT_ACTION, MISSING_COMPONENT_ACTION} from "../../Constants/Messages";
 
 function programParse(component, json) {
     switch (json.action) {
-        case PROGRAM.ACTIONS.START.ID:
+        case MESSAGE_CONFIG.PROGRAM.ACTIONS.START.ID:
             console.log("Program starting");
             break;
 
-        case PROGRAM.ACTIONS.STOP.ID:
+        case MESSAGE_CONFIG.PROGRAM.ACTIONS.STOP.ID:
             console.log("Program stopping");
             break;
 

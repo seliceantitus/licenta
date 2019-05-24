@@ -1,4 +1,4 @@
-import {SENSOR} from '../../Constants/Communication';
+import {MESSAGE_CONFIG} from '../../Constants/Communication';
 import InvalidJsonException from "../../Exceptions/InvalidJsonException";
 import {
     INVALID_COMPONENT_ACTION,
@@ -21,8 +21,8 @@ function extractData(json, dataKeys) {
 
 function sensorParse(component, json) {
     switch (json.action) {
-        case SENSOR.ACTIONS.MEASUREMENT.ID:
-            const sensorData = extractData(json.data, SENSOR.ACTIONS.MEASUREMENT.DATA);
+        case MESSAGE_CONFIG.SENSOR.ACTIONS.MEASUREMENT.ID:
+            const sensorData = extractData(json.data, MESSAGE_CONFIG.SENSOR.ACTIONS.MEASUREMENT.DATA);
             component.setState({sensorData: sensorData});
             break;
 

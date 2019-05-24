@@ -1,11 +1,10 @@
 import React from "react";
 import PropTypes from 'prop-types';
-import parse from "../../Parser/Parser";
 import Chart from 'react-apexcharts';
-import {Button, Grid, Paper, withStyles} from "@material-ui/core";
-import {Block, PlayArrow} from "@material-ui/icons";
+import {Button, CircularProgress, Grid, Paper, withStyles} from "@material-ui/core";
 import {DEFAULT_MD_COL_WIDTH, DEFAULT_XS_COL_WIDTH} from "../../Constants/UI";
-import {SOCKET_EVENTS} from "../../Constants/Communication";
+import {REQUEST, RESPONSE} from "../../Constants/Communication";
+import {Pause} from "@material-ui/icons";
 
 const styles = theme => ({
     margin: {
@@ -61,8 +60,11 @@ class Scan extends React.Component {
 
         this.state = {
             enabled: false,
+            dataLoaded: false,
             stepsLimit: 0,
             counter: 0,
+            running: false,
+            paused: false,
             options: {
                 labels: 0,
             },
@@ -74,59 +76,81 @@ class Scan extends React.Component {
 
         this.handleInboundData = this.handleInboundData.bind(this);
         this.startScan = this.startScan.bind(this);
+        this.pauseScan = this.pauseScan.bind(this);
         this.stopScan = this.stopScan.bind(this);
     }
 
     componentDidMount() {
-        this.socket.on(SOCKET_EVENTS.START_SCAN, (data) => console.log(data));
-        this.socket.on(SOCKET_EVENTS.PAUSE_SCAN, (data) => console.log(data));
-        this.socket.on(SOCKET_EVENTS.STOP_SCAN, (data) => console.log(data));
+        const enabled = this.communicationManager.isSocketConnected() && this.communicationManager.isSerialConnected();
         this.setState({
+            enabled: enabled,
+            dataLoaded: true,
             stepsLimit: this.stepperMotor.getRadarLabels().length,
             options: {
                 labels: this.stepperMotor.getRadarLabels(),
             },
         });
+        if (enabled) {
+            this.socket.on(RESPONSE.START_SCAN, (data) => this.handleInboundData(RESPONSE.START_SCAN, data));
+            this.socket.on(RESPONSE.PAUSE_SCAN, (data) => this.handleInboundData(RESPONSE.PAUSE_SCAN, data));
+            this.socket.on(RESPONSE.STOP_SCAN, (data) => this.handleInboundData(RESPONSE.STOP_SCAN, data));
+        }
     }
 
     componentWillUnmount() {
         console.log('[SCAN] Unmount');
     }
 
-    handleInboundData(json) {
-        try {
-            parse(this, json);
-        } catch (parseException) {
-            //TODO Stop the program on exception
-            console.log("Caught", parseException);
+    handleInboundData(event, json) {
+        // try {
+        //     parse(this, json);
+        // } catch (parseException) {
+        //     TODO Stop the program on exception
+        // console.log("Caught", parseException);
+        // }
+        //
+        console.log(json);
+        switch (event) {
+            case RESPONSE.START_SCAN:
+                this.setState({running: true, paused: false});
+                break;
+            case RESPONSE.PAUSE_SCAN:
+                this.setState({paused: true});
+                break;
+            case RESPONSE.STOP_SCAN:
+                this.setState({running: false, paused: false});
+                break;
+            case RESPONSE.SENSOR:
+                this.setState(state => {
+                    const seriesData = state.series[0].data;
+                    if (state.counter > state.stepsLimit - 1) return {state};
+                    seriesData[state.counter] = json.data.distance;
+                    return {
+                        series: [{
+                            ...state.series,
+                            data: seriesData
+                        }],
+                        counter: state.counter + 1,
+                        data: json.data.distance
+                    }
+                });
+                break;
+            default:
+                return;
         }
-        if (json.component === 'sensor') {
-            this.setState(state => {
-                const seriesData = state.series[0].data;
-                if (state.counter > state.stepsLimit - 1) return {state};
-                seriesData[state.counter] = json.data.distance;
-                return {
-                    series: [{
-                        ...state.series,
-                        data: seriesData
-                    }],
-                    counter: state.counter + 1,
-                    data: json.data.distance
-                }
-            })
-        }
+        console.log(this.state);
     }
 
     startScan() {
-        this.socket.emit(SOCKET_EVENTS.START_SCAN);
+        this.socket.emit(REQUEST.START_SCAN);
     }
 
     pauseScan() {
-        this.socket.emit(SOCKET_EVENTS.PAUSE_SCAN);
+        this.socket.emit(REQUEST.PAUSE_SCAN);
     }
 
     stopScan() {
-        this.socket.emit(SOCKET_EVENTS.STOP_SCAN);
+        this.socket.emit(REQUEST.STOP_SCAN);
     }
 
     render() {
@@ -138,15 +162,31 @@ class Scan extends React.Component {
                 >
                     <Grid item>
                         <Paper className={classes.paper}>
-                            <Button variant={"contained"} color={"primary"} className={classes.button}
-                                    onClick={this.startScan}>
+                            <Button
+                                variant={"contained"}
+                                color={"primary"}
+                                className={classes.button}
+                                onClick={this.startScan}
+                                disabled={!this.state.enabled || (this.state.running && !this.state.paused)}
+                            >
                                 Start
-                                <PlayArrow className={classes.buttonRightIcon}/>
                             </Button>
-                            <Button variant={"contained"} color={"secondary"} className={classes.button}
-                                    onClick={this.stopScan}>
+                            <Button
+                                variant={"contained"}
+                                color={"secondary"}
+                                className={classes.button}
+                                onClick={this.stopScan}
+                                disabled={!this.state.enabled || !this.state.running}
+                            >
                                 Stop
-                                <Block className={classes.buttonRightIcon}/>
+                            </Button>
+                            <Button
+                                variant={"contained"}
+                                className={classes.button}
+                                onClick={this.pauseScan}
+                                disabled={!this.state.enabled || (!this.state.running && !this.state.paused)}
+                            >
+                                <Pause/>
                             </Button>
                         </Paper>
                     </Grid>
@@ -156,12 +196,16 @@ class Scan extends React.Component {
                 >
                     <Grid item>
                         <Paper className={classes.paper}>
-                            <Chart
-                                options={this.state.options}
-                                series={this.state.series}
-                                type="radar"
-                                height="650"
-                            />
+                            {this.state.dataLoaded ?
+                                <Chart
+                                    options={this.state.options}
+                                    series={this.state.series}
+                                    type="radar"
+                                    height="650"
+                                />
+                                :
+                                <CircularProgress/>
+                            }
                         </Paper>
                     </Grid>
                 </Grid>
