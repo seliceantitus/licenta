@@ -1,5 +1,5 @@
 // SERIAL PORT DEPENDENCIES
-const SerialPort = require('serialport');
+const SerialPort = require('serialport/lib');
 const ReadLine = SerialPort.parsers.Readline;
 
 
@@ -90,7 +90,7 @@ class CommunicationController {
     }
 
     logger(message) {
-        console.log(Date.now(), message);
+        console.log(new Date().toString(), message);
     }
 
     async getSerialPortsList() {
