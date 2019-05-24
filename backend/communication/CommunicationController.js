@@ -8,7 +8,7 @@ const io = require('socket.io').listen(3002);
 
 // USER DEPENDENCIES
 const Constants = require("../constants/Constants");
-const{SOCKET_EVENTS, REQUEST, RESPONSE, ARDUINO_REQUEST, ARDUINO_RESPONSE} = Constants;
+const{SOCKET_EVENTS, REQUEST, RESPONSE, ARDUINO_REQUEST, ARDUINO_RESPONSE, ARDUINO_ERRORS} = Constants;
 
 class CommunicationController {
     constructor() {
@@ -68,7 +68,7 @@ class CommunicationController {
                         io.sockets.emit(RESPONSE.STOP_SCAN, jsonData);
                         break;
                     case ARDUINO_RESPONSE.AR_ERROR:
-                        io.sockets.emit(RESPONSE.ERROR, jsonData);
+                        io.sockets.emit(RESPONSE.ERROR, {message: ARDUINO_ERRORS[jsonData.message].MESSAGE});
                         break;
                     case ARDUINO_RESPONSE.AR_MOTOR:
                         io.sockets.emit(RESPONSE.MOTOR, jsonData);

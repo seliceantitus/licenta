@@ -20,15 +20,18 @@ Motor sensorAxis = Motor(23, 31, 33, 35, 37);
 Motor turntable = Motor(22, 30, 32, 34, 36);
 JsonSerial jSerial = JsonSerial();
 
-volatile int activeScreen = 0;
-volatile bool isRunning = false;
-volatile bool isPaused = false;
+bool isRunning = false;
+bool isPaused = false;
+
+int layer = 0;
+
+int turntableStep = 4;
+int sensorAxisStep = 20;
 
 int turntableTurns = 0;
-int turntableStep = 4;
-int turntableFullRotations = 0;
 int sensorAxisTurns = 0;
-int sensorAxisStep = 20;
+
+int infinityResults = 0;
 
 void setup() {
   gLed.on();
@@ -54,9 +57,10 @@ void setup() {
   rLed.off();
 }
 
-/*
-    Serial Json sender functions
-*/
+/***************************
+  Serial Json sender functions
+****************************/
+
 void sendConfigSuccess() {
   JsonSerial::JsonNode component = jSerial.createIntNode("component", CONFIG, false, 0, NULL);
   JsonSerial::JsonNode *list[] = { &component };
@@ -110,9 +114,18 @@ void sendMotorData(int steps, int rotations, char *locationValue) {
   jSerial.sendJson(list, 4);
 }
 
-/*
-    Handlers for serial events
-*/
+void sendError(char* errorMessage) {
+  JsonSerial::JsonNode component = jSerial.createIntNode("component", ERR, false, 0, NULL);
+  JsonSerial::JsonNode message = jSerial.createStringNode("message", errorMessage, false, 0, NULL);
+
+  JsonSerial::JsonNode *list[] = { &component, &message };
+
+  jSerial.sendJson(list, 2);
+}
+
+/****************************
+  Handlers for serial events
+****************************/
 
 void startScan() {
   gLed.on();
@@ -141,26 +154,36 @@ void stopScan() {
 }
 
 void configMotor(int motorId, int stepSize) {
-  //TODO check componentId => handle accordingly
-  rLed.on();
-  rLed.on();
-  turntableStep = stepSize;
-  sendConfigSuccess();
+  if (motorId == AXIS_MOTOR) {
+    gLed.on();
+    sensorAxisStep = stepSize;
+    sendConfigSuccess();
+    gLed.off();
+  } else if (motorId == TURNTABLE_MOTOR) {
+    gLed.on();
+    turntableStep = stepSize;
+    sendConfigSuccess();
+    gLed.off();
+  } else {
+    rLed.on();
+    sendError("Invalid motor requested.");
+    rLed.off();
+  }
   delay(1000);
-  rLed.off();
-  rLed.off();
 }
 
+/****************************
+  Functions
+****************************/
 
 void fetchSerialData() {
   String data = Serial.readString();
   StaticJsonDocument<1024> doc;
   DeserializationError error = deserializeJson(doc, data);
-  rLed.off();
-  gLed.off();
-  yLed.off();
   if (error) {
     rLed.on();
+    sendError(error.c_str());
+    rLed.off();
   } else {
     int command = doc["command"];
     if (command == START_SCAN) {
@@ -177,6 +200,35 @@ void fetchSerialData() {
   }
 }
 
+void measure() {
+  sensor.measure();
+  if (sensor.getDistance() == 0) {
+    infinityResults += 1;
+  }
+  sendSensorData();
+}
+
+void turnMotors() {
+  turntable.turn(turntableStep);
+  turntableTurns += turntableStep;
+}
+
+bool checkLimits() {
+  return (limSw1.active() || limSw2.active());
+}
+
+void resetComponents() {
+  sensorAxis.setDirection(LEFT);
+  sensorAxis.turn(sensorAxisTurns);
+  sensorAxis.setDirection(RIGHT);
+  isRunning = false;
+  isPaused = false;
+  layer = 0;
+  sensorAxisTurns = 0;
+  turntableTurns = 0;
+  delay(1000);
+}
+
 void loop() {
   long s = millis();
   if (Serial.available()) {
@@ -184,26 +236,16 @@ void loop() {
   }
   if (isRunning && !isPaused) {
     if (turntableTurns == 200) {
-      turntableFullRotations += 1;
+      layer += 1;
       turntableTurns = 0;
       sensorAxis.turn(sensorAxisStep);
       sensorAxisTurns += sensorAxisStep;
     }
-    sensor.measure();
-    sendSensorData();
-    turntable.turn(turntableStep);
-    turntableTurns += turntableStep;
-    if (limSw1.active()) {
-      sensorAxis.setDirection(LEFT);
-      sensorAxis.turn(sensorAxisTurns);
-      sensorAxis.setDirection(RIGHT);
-      isRunning = false;
-      sensorAxisTurns = 0;
-      turntableTurns = 0;
-      turntableFullRotations = 0;
-      delay(2000);
+    measure();
+    turnMotors();
+    if (checkLimits()) {
+      resetComponents();
     }
+    long e = millis();
   }
-  long e = millis();
-  //  Serial.println(e - s);
 }

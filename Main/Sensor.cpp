@@ -40,7 +40,7 @@ void Sensor::measure() {
   _adcValue = totalADC / _sampleSize;
   _voltage = totalVoltage / _sampleSize;
   _distance = totalDistance / _sampleSize;
-  if (isinf(_distance) || _distance > 50 || _distance < 0) _distance = -1.0;
+  if (isinf(_distance) || _distance > 50 || _distance < 0) _distance = 0.0;
 }
 
 float Sensor::getADCValue() {

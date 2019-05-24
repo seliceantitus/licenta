@@ -69,5 +69,27 @@ module.exports = {
         //Arduino equivalents for Components
         AR_AXIS_MOTOR: 0x10,
         AR_TURNTABLE_MOTOR: 0x11,
+    },
+    ARDUINO_ERRORS: {
+        IncompleteInput: {
+            ID: 'IncompleteInput',
+            MESSAGE: 'Incomplete Input: It might have ended prematurely, or it was empty.',
+        },
+        InvalidInput: {
+            ID: 'InvalidInput',
+            MESSAGE: 'Invalid Input: Not a valid JSON document.',
+        },
+        NoMemory: {
+            ID: 'NoMemory',
+            MESSAGE: 'No Memory: The JsonDocument is too small.',
+        },
+        NotSupported: {
+            ID: 'NotSupported',
+            MESSAGE: 'Not Supported: It contains features that are not supported by the library.',
+        },
+        TooDeep: {
+            ID: 'TooDeep',
+            MESSAGE: 'Too many nest levels',
+        },
     }
 };

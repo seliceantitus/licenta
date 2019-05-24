@@ -13,7 +13,7 @@ class JsonSerial {
       JsonNode **children;
     };
     JsonSerial();
-    void parseJson();
+    void parseJson(int command);
     void sendJson(JsonNode *data[], int dataSize);
     JsonNode createStringNode(char *key, char *value, bool isNested, int childrenCount, JsonNode **children);
     JsonNode createFloatNode(char *key, float fValue, bool isNested, int childrenCount, JsonNode **children);

@@ -95,6 +95,7 @@ class Scan extends React.Component {
             this.socket.on(RESPONSE.PAUSE_SCAN, (data) => this.handleInboundData(RESPONSE.PAUSE_SCAN, data));
             this.socket.on(RESPONSE.STOP_SCAN, (data) => this.handleInboundData(RESPONSE.STOP_SCAN, data));
             this.socket.on(RESPONSE.SENSOR, (data) => this.handleInboundData(RESPONSE.SENSOR, data));
+            this.socket.on(RESPONSE.ERROR, (data) => this.handleInboundData(RESPONSE.ERROR, data));
         }
     }
 
@@ -104,6 +105,7 @@ class Scan extends React.Component {
         this.socket.removeListener(RESPONSE.PAUSE_SCAN, (data) => this.handleInboundData(RESPONSE.PAUSE_SCAN, data));
         this.socket.removeListener(RESPONSE.STOP_SCAN, (data) => this.handleInboundData(RESPONSE.STOP_SCAN, data));
         this.socket.removeListener(RESPONSE.SENSOR, (data) => this.handleInboundData(RESPONSE.SENSOR, data));
+        this.socket.removeListener(RESPONSE.ERROR, (data) => this.handleInboundData(RESPONSE.ERROR, data));
     }
 
     handleInboundData(event, json) {
@@ -132,6 +134,10 @@ class Scan extends React.Component {
                         data: json.data.distance
                     }
                 });
+                break;
+            case RESPONSE.ERROR:
+                //TODO alert the user | toast | whatever
+                console.log('ERROR');
                 break;
             default:
                 return;

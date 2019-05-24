@@ -61,6 +61,6 @@ enum Events {
 };
 
 enum Components {
-  AR_AXIS_MOTOR = 0x10,
-  AR_TURNTABLE_MOTOR = 0x11,
+  AXIS_MOTOR = 0x10,
+  TURNTABLE_MOTOR = 0x11,
 };

@@ -5,7 +5,7 @@
 
 JsonSerial::JsonSerial() {}
 
-void JsonSerial::parseJson() {
+void JsonSerial::parseJson(int command) {
 
 }
 
