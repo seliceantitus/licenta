@@ -7,7 +7,16 @@ const io = require('socket.io').listen(3002);
 
 // USER DEPENDENCIES
 const Constants = require("../constants/Constants");
-const{SOCKET_EVENTS, REQUEST, RESPONSE, ARDUINO_REQUEST, ARDUINO_RESPONSE, ARDUINO_ERRORS} = Constants;
+const {
+    SOCKET_EVENTS,
+    REQUEST,
+    RESPONSE,
+    COMPONENTS,
+    ARDUINO_REQUEST,
+    ARDUINO_RESPONSE,
+    ARDUINO_ERRORS,
+    ARDUINO_COMPONENTS
+} = Constants;
 
 class CommunicationController {
     constructor() {
@@ -53,6 +62,7 @@ class CommunicationController {
         this.parser.on('data', data => {
             try {
                 const jsonData = JSON.parse(data);
+                this.serialCachedData.inbound.push(jsonData);
                 this.logger(`[SERIAL IN] ${data}`);
                 switch (jsonData.component) {
                     case ARDUINO_RESPONSE.AR_BOARD_BUSY:
@@ -126,7 +136,8 @@ class CommunicationController {
     handleSocketDisconnect(socket) {
         this.connections.splice(this.connections.indexOf(socket), 1);
         if (this.serial.connected) {
-
+            const command = JSON.stringify({command: ARDUINO_REQUEST.AR_RESET});
+            this.serialPort.write(command);
             this.serialPort.close((err) => {
                 if (!err) {
                     this.serial.connected = false;
@@ -148,25 +159,30 @@ class CommunicationController {
     }
 
     handleSerialDisconnect(socket) {
-        this.serialPort.close((err) => {
-            if (err) {
-                socket.emit(RESPONSE.SERIAL_DISCONNECT_ERROR, err.message);
-            } else {
-                this.serial.connected = false;
-                socket.emit(RESPONSE.SERIAL_DISCONNECT_SUCCESS);
-            }
-        });
+        const command = JSON.stringify({command: ARDUINO_REQUEST.AR_RESET});
+        this.serialPort.write(command);
+        this.logger(`[SERIAL OUT] ${command}`);
+        setTimeout(() => {
+            this.serialPort.close((err) => {
+                if (err) {
+                    socket.emit(RESPONSE.SERIAL_DISCONNECT_ERROR, err.message);
+                } else {
+                    this.serial.connected = false;
+                    socket.emit(RESPONSE.SERIAL_DISCONNECT_SUCCESS);
+                }
+            })
+        }, 2000);
     }
 
     handleConfig(socket, data) {
         const component = data.component;
         let arComponent = null;
         switch (component) {
-            case REQUEST.AXIS_MOTOR:
-                arComponent = ARDUINO_REQUEST.AR_AXIS_MOTOR;
+            case COMPONENTS.AXIS_MOTOR:
+                arComponent = ARDUINO_COMPONENTS.AR_AXIS_MOTOR;
                 break;
-            case REQUEST.TURNTABLE_MOTOR:
-                arComponent = ARDUINO_REQUEST.AR_TURNTABLE_MOTOR;
+            case COMPONENTS.TURNTABLE_MOTOR:
+                arComponent = ARDUINO_COMPONENTS.AR_TURNTABLE_MOTOR;
                 break;
             default:
                 break;
@@ -201,10 +217,10 @@ class CommunicationController {
     }
 
     handleConfigSuccess(jsonData) {
-        if (jsonData.motor === ARDUINO_RESPONSE.AR_AXIS_MOTOR) {
-            io.sockets.emit(RESPONSE.CONFIG_SUCCESS, {motor: RESPONSE.AXIS_MOTOR});
-        } else if (jsonData.motor === ARDUINO_RESPONSE.AR_TURNTABLE_MOTOR) {
-            io.sockets.emit(RESPONSE.CONFIG_SUCCESS, {motor: RESPONSE.TURNTABLE_MOTOR});
+        if (jsonData.motor === ARDUINO_COMPONENTS.AR_AXIS_MOTOR) {
+            io.sockets.emit(RESPONSE.CONFIG_SUCCESS, {motor: COMPONENTS.AXIS_MOTOR});
+        } else if (jsonData.motor === ARDUINO_COMPONENTS.AR_TURNTABLE_MOTOR) {
+            io.sockets.emit(RESPONSE.CONFIG_SUCCESS, {motor: COMPONENTS.TURNTABLE_MOTOR});
         } else {
             io.sockets.emit(RESPONSE.CONFIG_ERROR, "Invalid motor ID received.");
         }

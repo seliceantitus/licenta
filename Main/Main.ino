@@ -214,6 +214,8 @@ void fetchSerialData() {
       int component = doc["component"];
       int stepSize = doc["stepSize"];
       configMotor(component, stepSize);
+    } else if (command == RESET) {
+      resetComponents();
     }
   }
 }

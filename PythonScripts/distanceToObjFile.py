@@ -35,7 +35,7 @@ for vertexSet in vertices:
 
 combined = zip(vertices[0], vertices[1])
 
-for i in range(0, len(zip(vertices[0], vertices[1]))):
+for i in range(0, len(combined)):
 	if (i == len(combined) - 1):
 		f.write("f %d %d %d %d\n" % (combined[i][0], combined[0][0], combined[0][1], combined[i][1]))
 	else:

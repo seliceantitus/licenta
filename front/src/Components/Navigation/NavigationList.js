@@ -10,7 +10,6 @@ class NavigationList extends React.Component {
 
     constructor(props) {
         super(props);
-        console.log('[NAV LIST] Constructed');
         this.state = {
             port: '',
             anchorElement: null,

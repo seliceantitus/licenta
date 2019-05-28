@@ -59,7 +59,8 @@ enum Events {
   PROGRAM = 0x06,
   SENSOR = 0x07,
   BOARD_READY = 0x08,
-  BOARD_BUSY = 0x09
+  BOARD_BUSY = 0x09,
+  RESET = 0xA0
 };
 
 enum Components {

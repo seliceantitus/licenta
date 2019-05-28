@@ -1,24 +1,27 @@
 import React from "react";
-import * as THREE from 'three';
+import {Grid, Typography} from "@material-ui/core";
+import Paper from "@material-ui/core/Paper";
 
 
 class History extends React.Component {
 
     constructor(props) {
         super(props);
-        console.log('[HISTORY] Constructed');
-        const scene = new THREE.Scene();
     }
 
-    componentWillUnmount() {
-        console.log('[HISTORY] Unmount');
+    componentDidMount() {
+
     }
 
     render() {
         return (
-            <div>
-                <h1>History</h1>
-            </div>
+            <Grid container justify={"center"} alignItems={"flex-start"} spacing={2} direction={"row"}>
+                <Paper>
+                    <Typography variant={"h1"}>
+                        History
+                    </Typography>
+                </Paper>
+            </Grid>
         );
     }
 }

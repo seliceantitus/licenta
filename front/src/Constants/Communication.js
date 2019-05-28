@@ -1,5 +1,4 @@
 export const SOCKET_EVENTS = {
-    //Socket constants
     SOCKET_CONNECT: 'connect',
     SOCKET_CONNECTING: 'connecting',
     SOCKET_RECONNECTING: 'reconnecting',
@@ -10,19 +9,10 @@ export const SOCKET_EVENTS = {
 export const REQUEST = {
     SERIAL_CONNECT: 'serial_connect',
     SERIAL_DISCONNECT: 'serial_disconnect',
-
     CONFIG: 'config',
     START_SCAN: 'start_scan',
     PAUSE_SCAN: 'pause_scan',
     STOP_SCAN: 'stop_scan',
-
-    AXIS_MOTOR: 'axis_motor',
-    TURNTABLE_MOTOR: 'turntable_motor',
-
-    ERROR: 'error',
-    MOTOR: 'motor',
-    PROGRAM: 'program',
-    SENSOR: 'sensor',
 };
 
 export const RESPONSE = {
@@ -32,68 +22,20 @@ export const RESPONSE = {
     SERIAL_DISCONNECT_ERROR: 'serial_disconnect_error',
     SERIAL_PORTS: 'serial_ports',
     SERIAL_ERROR: 'serial_error',
-
     BOARD_READY: 'board_ready',
     BOARD_BUSY: 'board_busy',
-
     START_SCAN: 'start_scan',
     PAUSE_SCAN: 'pause_scan',
     STOP_SCAN: 'stop_scan',
-
     CONFIG_SUCCESS: 'config_success',
     CONFIG_ERROR: 'config_error',
-
     ERROR: 'error',
     MOTOR: 'motor',
     PROGRAM: 'program',
     SENSOR: 'sensor',
 };
 
-export const MESSAGE_CONFIG = {
-    CONFIG: {
-        ID: 'config',
-        COMPONENT: ['axisMotor', 'turntableMotor'],
-        DATA: ['stepSize']
-    },
-
-    ERROR: {
-        ID: 'error',
-        ON: 'onComponent',
-        DATA: ['code', 'message'],
-    },
-
-    MOTOR: {
-        ID: 'motor',
-        LOCATION: ['axis', 'turntable'],
-        ACTIONS: {
-            TURN: {
-                ID: 'turn',
-                DATA: ['steps', 'turns'],
-            },
-        },
-    },
-
-    PROGRAM: {
-        ID: 'program',
-        ACTIONS: {
-            START: {
-                ID: 'start',
-                DATA: null,
-            },
-            STOP: {
-                ID: 'stop',
-                DATA: null,
-            },
-        },
-    },
-
-    SENSOR: {
-        ID: 'sensor',
-        ACTIONS: {
-            MEASUREMENT: {
-                ID: 'measurement',
-                DATA: ['analog', 'voltage', 'distance'],
-            },
-        },
-    },
+export const COMPONENTS = {
+    AXIS_MOTOR: 'axis_motor',
+    TURNTABLE_MOTOR: 'turntable_motor',
 };

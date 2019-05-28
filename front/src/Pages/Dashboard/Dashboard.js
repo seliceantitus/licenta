@@ -21,7 +21,7 @@ import {
 import {ExpandMore, SaveOutlined} from "@material-ui/icons";
 import Button from "@material-ui/core/Button";
 import TextField from "@material-ui/core/TextField";
-import {REQUEST} from "../../Constants/Communication";
+import {COMPONENTS, REQUEST} from "../../Constants/Communication";
 import {
     CONFIG_AXIS_SUCCESS,
     CONFIG_ERROR,
@@ -102,7 +102,6 @@ class Dashboard extends React.Component {
 
     constructor(props) {
         super(props);
-        console.log('[DASHBOARD] Constructed');
         const {communicationManager, axisMotor, tableMotor} = this.props;
         this.axisMotor = axisMotor;
         this.tableMotor = tableMotor;
@@ -116,7 +115,7 @@ class Dashboard extends React.Component {
                 stepDegree: 0,
                 stepSize: 0
             },
-            turntableMotor: {
+            tableMotor: {
                 configWaiting: false,
                 stepDegree: 0,
                 stepSize: 0
@@ -136,19 +135,18 @@ class Dashboard extends React.Component {
                 stepDegree: this.axisMotor.getStepDegree(),
                 stepSize: this.axisMotor.getStepIncrement(),
             },
-            turntableMotor: {
+            tableMotor: {
                 stepDegree: this.tableMotor.getStepDegree(),
                 stepSize: this.tableMotor.getStepIncrement(),
             }
         });
-        if (enabled) {
+        if (this.props.board.status === 'READY') {
             this.communicationManager.addConfigErrorHandler(this.handleConfigError);
             this.communicationManager.addConfigSuccessHandler(this.handleConfigSuccess);
         }
     }
 
     componentWillUnmount() {
-        console.log('[DASHBOARD] Unmount');
         this.communicationManager.removeConfigErrorHandler();
         this.communicationManager.removeConfigSuccessHandler();
     }
@@ -159,19 +157,21 @@ class Dashboard extends React.Component {
     };
 
     handleConfigSuccess = (data) => {
-        if (data['motor'] === REQUEST.AXIS_MOTOR) {
+        if (data['motor'] === COMPONENTS.AXIS_MOTOR) {
             this.setState({axisMotor: {...this.state.axisMotor, configWaiting: false}});
+            this.axisMotor.setStepIncrement(this.state.axisMotor.stepSize);
             this.showToast(TOAST_SUCCESS, CONFIG_AXIS_SUCCESS);
             clearTimeout(this.axisMotorInterval);
-        } else if (data['motor'] === REQUEST.TURNTABLE_MOTOR) {
-            this.setState({turntableMotor: {...this.state.turntableMotor, configWaiting: false}});
+        } else if (data['motor'] === COMPONENTS.TURNTABLE_MOTOR) {
+            this.setState({tableMotor: {...this.state.tableMotor, configWaiting: false}});
+            this.tableMotor.setStepIncrement(this.state.tableMotor.stepSize);
             this.showToast(TOAST_SUCCESS, CONFIG_TURNTABLE_SUCCESS);
+
             clearTimeout(this.turntableMotorInterval);
         }
     };
 
     handleConfigDataChanged = name => (event) => {
-        //TODO Validate data
         this.setState({
             [name]: {
                 ...this.state[name],
@@ -184,7 +184,7 @@ class Dashboard extends React.Component {
         const newStepSize = this.state.axisMotor.stepSize;
         this.axisMotor.setStepIncrement(newStepSize);
         this.socket.emit(REQUEST.CONFIG, JSON.stringify({
-            component: REQUEST.AXIS_MOTOR,
+            component: COMPONENTS.AXIS_MOTOR,
             stepSize: newStepSize
         }));
         this.setState({axisMotor: {...this.state.axisMotor, configWaiting: true}});
@@ -197,16 +197,16 @@ class Dashboard extends React.Component {
     };
 
     saveTurntableMotorConfig = () => {
-        const newStepSize = this.state.turntableMotor.stepSize;
+        const newStepSize = this.state.tableMotor.stepSize;
         this.tableMotor.setStepIncrement(newStepSize);
         this.socket.emit(REQUEST.CONFIG, JSON.stringify({
-            component: REQUEST.TURNTABLE_MOTOR,
+            component: COMPONENTS.TURNTABLE_MOTOR,
             stepSize: newStepSize
         }));
-        this.setState({turntableMotor: {...this.state.turntableMotor, configWaiting: true}});
+        this.setState({tableMotor: {...this.state.tableMotor, configWaiting: true}});
         this.turntableMotorInterval = setTimeout(() => {
-            if (this.state.turntableMotor.configWaiting) {
-                this.setState({turntableMotor: {...this.state.turntableMotor, configWaiting: false}});
+            if (this.state.tableMotor.configWaiting) {
+                this.setState({tableMotor: {...this.state.tableMotor, configWaiting: false}});
                 this.showToast(TOAST_ERROR, CONFIG_NO_RESPONSE);
             }
         }, 5000);
@@ -216,9 +216,7 @@ class Dashboard extends React.Component {
         <div>
             <div>
                 <Typography style={{marginBottom: 16}}>
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque ullamcorper et nulla non vehicula.
-                    Etiam volutpat, nulla et tempus volutpat, tellus dolor scelerisque erat, sed imperdiet augue arcu eu
-                    leo.
+                    Text text bla bla
                 </Typography>
             </div>
             <div>
@@ -253,9 +251,7 @@ class Dashboard extends React.Component {
         <div>
             <div>
                 <Typography style={{marginBottom: 16}}>
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque ullamcorper et nulla non vehicula.
-                    Etiam volutpat, nulla et tempus volutpat, tellus dolor scelerisque erat, sed imperdiet augue arcu eu
-                    leo.
+                    Text text bla bla
                 </Typography>
             </div>
             <div>
@@ -264,8 +260,8 @@ class Dashboard extends React.Component {
                         disabled={!this.state.enabled}
                         className={classes.textField}
                         label="Step increment"
-                        value={this.state.turntableMotor.stepSize}
-                        onChange={this.handleConfigDataChanged('turntableMotor')}
+                        value={this.state.tableMotor.stepSize}
+                        onChange={this.handleConfigDataChanged('tableMotor')}
                     />
                     <Button
                         component={'button'}
@@ -275,7 +271,7 @@ class Dashboard extends React.Component {
                         className={classes.button}
                         onClick={this.saveTurntableMotorConfig}
                     >
-                        {this.state.turntableMotor.configWaiting ?
+                        {this.state.tableMotor.configWaiting ?
                             <CircularProgress variant={"indeterminate"}
                                               style={{width: 24, height: 24, color: 'white'}}/>
                             :
@@ -307,17 +303,13 @@ class Dashboard extends React.Component {
                         <ExpansionPanelSummary expandIcon={<ExpandMore/>}>
                             <Typography className={classes.heading}>Sensor Axis</Typography>
                         </ExpansionPanelSummary>
-                        <ExpansionPanelDetails>
-                            {this.axisMotorConfig(classes)}
-                        </ExpansionPanelDetails>
+                        <ExpansionPanelDetails>{this.axisMotorConfig(classes)}</ExpansionPanelDetails>
                     </ExpansionPanel>
                     <ExpansionPanel defaultExpanded>
                         <ExpansionPanelSummary expandIcon={<ExpandMore/>}>
                             <Typography className={classes.heading}>Turntable</Typography>
                         </ExpansionPanelSummary>
-                        <ExpansionPanelDetails>
-                            {this.turntableMotorConfig(classes)}
-                        </ExpansionPanelDetails>
+                        <ExpansionPanelDetails>{this.turntableMotorConfig(classes)}</ExpansionPanelDetails>
                     </ExpansionPanel>
                 </CardContent>
             </Card>

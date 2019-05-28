@@ -4,25 +4,11 @@ module.exports = {
     },
     REQUEST: {
         SERIAL_CONNECT: 'serial_connect',
-        SERIAL_CONNECT_ERROR: 'serial_connect_error',
         SERIAL_DISCONNECT: 'serial_disconnect',
-        SERIAL_DISCONNECT_ERROR: 'serial_disconnect_error',
-        SERIAL_PORTS: 'serial_ports',
-        SERIAL_ERROR: 'serial_error',
-        //
         CONFIG: 'config',
-        CONFIG_ERROR: 'config_error',
         START_SCAN: 'start_scan',
         PAUSE_SCAN: 'pause_scan',
         STOP_SCAN: 'stop_scan',
-        //
-        AXIS_MOTOR: 'axis_motor',
-        TURNTABLE_MOTOR: 'turntable_motor',
-        //
-        ERROR: 'error',
-        MOTOR: 'motor',
-        PROGRAM: 'program',
-        SENSOR: 'sensor',
     },
     RESPONSE: {
         SERIAL_CONNECT_SUCCESS: 'serial_connect_success',
@@ -31,24 +17,25 @@ module.exports = {
         SERIAL_DISCONNECT_ERROR: 'serial_disconnect_error',
         SERIAL_PORTS: 'serial_ports',
         SERIAL_ERROR: 'serial_error',
-
         BOARD_READY: 'board_ready',
         BOARD_BUSY: 'board_busy',
-
         START_SCAN: 'start_scan',
         PAUSE_SCAN: 'pause_scan',
         STOP_SCAN: 'stop_scan',
-
         CONFIG_SUCCESS: 'config_success',
         CONFIG_ERROR: 'config_error',
-
-        AXIS_MOTOR: 'axis_motor',
-        TURNTABLE_MOTOR: 'turntable_motor',
-
         ERROR: 'error',
         MOTOR: 'motor',
         PROGRAM: 'program',
         SENSOR: 'sensor',
+    },
+    COMPONENTS: {
+        AXIS_MOTOR: 'axis_motor',
+        TURNTABLE_MOTOR: 'turntable_motor',
+    },
+    ARDUINO_COMPONENTS: {
+        AR_AXIS_MOTOR: 0x10,
+        AR_TURNTABLE_MOTOR: 0x11,
     },
     ARDUINO_REQUEST: {
         AR_CONFIG: 0x00,
@@ -59,9 +46,7 @@ module.exports = {
         AR_MOTOR: 0x05,
         AR_PROGRAM: 0x06,
         AR_SENSOR: 0x07,
-        //Arduino equivalents for Components
-        AR_AXIS_MOTOR: 0x10,
-        AR_TURNTABLE_MOTOR: 0x11,
+        AR_RESET: 0xA0,
     },
     ARDUINO_RESPONSE: {
         AR_CONFIG: 0x00,
@@ -74,9 +59,6 @@ module.exports = {
         AR_SENSOR: 0x07,
         AR_BOARD_READY: 0x08,
         AR_BOARD_BUSY: 0x09,
-        //Arduino equivalents for Components
-        AR_AXIS_MOTOR: 0x10,
-        AR_TURNTABLE_MOTOR: 0x11,
     },
     ARDUINO_ERRORS: {
         IncompleteInput: {

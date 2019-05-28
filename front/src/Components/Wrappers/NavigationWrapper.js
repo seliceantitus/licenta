@@ -33,7 +33,6 @@ class NavigationWrapper extends React.Component {
 
     constructor(props, context) {
         super(props, context);
-        console.log('[NAV WRAPPER] Constructed');
         this.communicationManager = this.props.communicationManager;
 
         this.state = {

@@ -26,7 +26,6 @@ const styles = theme => ({
 class Main extends React.Component {
     constructor(props) {
         super(props);
-        console.log('[MAIN] Constructed');
         this.communicationManager = new CommunicationManager();
         this.communicationManager.createSocket();
         this.axisMotor = new StepperMotor(1.8, 200);
