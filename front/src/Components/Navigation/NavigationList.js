@@ -1,8 +1,7 @@
 import React from "react";
 import {Divider} from "@material-ui/core";
-import {Dashboard, Help, History, ImportExport, ThreeDRotation, Usb} from "@material-ui/icons/index";
+import {Dashboard, DeviceHub, Help, History, ImportExport, ThreeDRotation, Usb} from "@material-ui/icons/index";
 import {NAV_BUTTON, NAV_DIVIDER, NAV_LINK, NAV_MENU} from "../../Constants/UI";
-import {DeviceHub} from "@material-ui/icons/index";
 import NavListLink from "./NavList/NavListLink";
 import NavListButton from "./NavList/NavListButton";
 import NavListMenu from "./NavList/NavListMenu";

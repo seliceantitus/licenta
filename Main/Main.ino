@@ -25,8 +25,8 @@ bool isPaused = false;
 
 int layer = 0;
 
-int turntableStep = 20;
-int sensorAxisStep = 20;
+int turntableStep = 8;
+int sensorAxisStep = 200;
 
 int turntableTurns = 0;
 int sensorAxisTurns = 0;
@@ -40,6 +40,8 @@ void setup() {
 
   Serial.begin(9600);
   analogReference(EXTERNAL);
+
+  sendBoardBusy();
 
   screen = LCD(LANDSCAPE);
   screen.fill(WHITE);
@@ -55,16 +57,31 @@ void setup() {
   gLed.off();
   yLed.off();
   rLed.off();
+
+  sendBoardReady();
 }
 
 /***************************
   Serial Json sender functions
 ****************************/
 
-void sendConfigSuccess() {
-  JsonSerial::JsonNode component = jSerial.createIntNode("component", CONFIG, false, 0, NULL);
+void sendBoardBusy() {
+  JsonSerial::JsonNode component = jSerial.createIntNode("component", BOARD_BUSY, false, 0, NULL);
   JsonSerial::JsonNode *list[] = { &component };
   jSerial.sendJson(list, 1);
+}
+
+void sendBoardReady() {
+  JsonSerial::JsonNode component = jSerial.createIntNode("component", BOARD_READY, false, 0, NULL);
+  JsonSerial::JsonNode *list[] = { &component };
+  jSerial.sendJson(list, 1);
+}
+
+void sendConfigSuccess(int motorId) {
+  JsonSerial::JsonNode component = jSerial.createIntNode("component", CONFIG, false, 0, NULL);
+  JsonSerial::JsonNode motor = jSerial.createIntNode("motor", motorId, false, 0, NULL);
+  JsonSerial::JsonNode *list[] = { &component, &motor };
+  jSerial.sendJson(list, 2);
 }
 
 void sendStartScan() {
@@ -158,12 +175,12 @@ void configMotor(int motorId, int stepSize) {
   if (motorId == AXIS_MOTOR) {
     gLed.on();
     sensorAxisStep = stepSize;
-    sendConfigSuccess();
+    sendConfigSuccess(AXIS_MOTOR);
     gLed.off();
   } else if (motorId == TURNTABLE_MOTOR) {
     gLed.on();
     turntableStep = stepSize;
-    sendConfigSuccess();
+    sendConfigSuccess(TURNTABLE_MOTOR);
     gLed.off();
   } else {
     rLed.on();
@@ -219,6 +236,7 @@ bool checkLimits() {
 }
 
 void resetComponents() {
+  sendBoardBusy();
   sensorAxis.setDirection(LEFT);
   sensorAxis.turn(sensorAxisTurns);
   sensorAxis.setDirection(RIGHT);
@@ -228,6 +246,7 @@ void resetComponents() {
   sensorAxisTurns = 0;
   turntableTurns = 0;
   delay(1000);
+  sendBoardReady();
 }
 
 void loop() {

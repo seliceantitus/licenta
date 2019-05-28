@@ -1,7 +1,3 @@
-import motorParse from "./ComponentHandlers/MotorHandler";
-import programParse from "./ComponentHandlers/ProgramHandler";
-import sensorParse from './ComponentHandlers/SensorHandler';
-
 import * as Constants from '../Constants/Communication';
 import InvalidJsonException from "../Exceptions/InvalidJsonException";
 import {INVALID_COMPONENT_ID, MISSING_COMPONENT_ID} from "../Constants/Messages";

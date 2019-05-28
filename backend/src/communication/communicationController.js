@@ -43,6 +43,7 @@ class CommunicationController {
         this.handleSocketDisconnect = this.handleSocketDisconnect.bind(this);
         this.handleSerialConnect = this.handleSerialConnect.bind(this);
         this.handleSerialDisconnect = this.handleSerialDisconnect.bind(this);
+        this.handleConfigSuccess = this.handleConfigSuccess.bind(this);
     }
 
     createSerialPort(port) {
@@ -54,8 +55,14 @@ class CommunicationController {
                 const jsonData = JSON.parse(data);
                 this.logger(`[SERIAL IN] ${data}`);
                 switch (jsonData.component) {
+                    case ARDUINO_RESPONSE.AR_BOARD_BUSY:
+                        io.sockets.emit(RESPONSE.BOARD_BUSY);
+                        break;
+                    case ARDUINO_RESPONSE.AR_BOARD_READY:
+                        io.sockets.emit(RESPONSE.BOARD_READY);
+                        break;
                     case ARDUINO_RESPONSE.AR_CONFIG:
-                        io.sockets.emit(RESPONSE.CONFIG_SUCCESS, jsonData);
+                        this.handleConfigSuccess(jsonData);
                         break;
                     case ARDUINO_RESPONSE.AR_START_SCAN:
                         io.sockets.emit(RESPONSE.START_SCAN, jsonData);
@@ -119,6 +126,7 @@ class CommunicationController {
     handleSocketDisconnect(socket) {
         this.connections.splice(this.connections.indexOf(socket), 1);
         if (this.serial.connected) {
+
             this.serialPort.close((err) => {
                 if (!err) {
                     this.serial.connected = false;
@@ -190,6 +198,16 @@ class CommunicationController {
     handleStopScan() {
         const command = JSON.stringify({command: ARDUINO_REQUEST.AR_STOP_SCAN});
         this.serialPort.write(command);
+    }
+
+    handleConfigSuccess(jsonData) {
+        if (jsonData.motor === ARDUINO_RESPONSE.AR_AXIS_MOTOR) {
+            io.sockets.emit(RESPONSE.CONFIG_SUCCESS, {motor: RESPONSE.AXIS_MOTOR});
+        } else if (jsonData.motor === ARDUINO_RESPONSE.AR_TURNTABLE_MOTOR) {
+            io.sockets.emit(RESPONSE.CONFIG_SUCCESS, {motor: RESPONSE.TURNTABLE_MOTOR});
+        } else {
+            io.sockets.emit(RESPONSE.CONFIG_ERROR, "Invalid motor ID received.");
+        }
     }
 }
 

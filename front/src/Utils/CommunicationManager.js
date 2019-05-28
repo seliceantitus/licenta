@@ -1,6 +1,6 @@
 import openSocket from "socket.io-client";
 import {SOCKET_URL} from "../Constants/URL";
-import {SOCKET_EVENTS, REQUEST, RESPONSE} from "../Constants/Communication";
+import {REQUEST, RESPONSE, SOCKET_EVENTS} from "../Constants/Communication";
 
 class CommunicationManager {
 
@@ -129,6 +129,42 @@ class CommunicationManager {
 
     removeSerialErrorHandler(func) {
         this.socket.component.removeListener(RESPONSE.SERIAL_ERROR, (error) => func(error));
+    }
+
+    /*
+    ----------[ BOARD ]----------
+     */
+
+    addBoardBusyHandler(func) {
+        this.socket.component.on(RESPONSE.BOARD_BUSY, func);
+    }
+
+    removeBoardBusyHandler(func) {
+        this.socket.component.removeListener(RESPONSE.BOARD_BUSY, func);
+    }
+
+    addBoardReadyHandler(func) {
+        this.socket.component.on(RESPONSE.BOARD_READY, func);
+    }
+
+    removeBoardReadyHandler(func) {
+        this.socket.component.removeListener(RESPONSE.BOARD_READY, func);
+    }
+
+    addConfigSuccessHandler(func) {
+        this.socket.component.on(RESPONSE.CONFIG_SUCCESS, (data) => func(data));
+    }
+
+    removeConfigSuccessHandler() {
+        this.socket.component.removeAllListeners(RESPONSE.CONFIG_SUCCESS);
+    }
+
+    addConfigErrorHandler(func) {
+        this.socket.component.on(RESPONSE.CONFIG_ERROR, (data) => func(data));
+    }
+
+    removeConfigErrorHandler() {
+        this.socket.component.removeAllListeners(RESPONSE.CONFIG_ERROR);
     }
 
     openSocket() {

@@ -33,6 +33,9 @@ export const RESPONSE = {
     SERIAL_PORTS: 'serial_ports',
     SERIAL_ERROR: 'serial_error',
 
+    BOARD_READY: 'board_ready',
+    BOARD_BUSY: 'board_busy',
+
     START_SCAN: 'start_scan',
     PAUSE_SCAN: 'pause_scan',
     STOP_SCAN: 'stop_scan',
@@ -93,4 +96,4 @@ export const MESSAGE_CONFIG = {
             },
         },
     },
-}
+};

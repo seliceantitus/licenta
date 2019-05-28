@@ -57,7 +57,9 @@ enum Events {
   ERR = 0x04,
   MOTOR = 0x05,
   PROGRAM = 0x06,
-  SENSOR = 0x07
+  SENSOR = 0x07,
+  BOARD_READY = 0x08,
+  BOARD_BUSY = 0x09
 };
 
 enum Components {

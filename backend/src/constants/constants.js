@@ -32,12 +32,18 @@ module.exports = {
         SERIAL_PORTS: 'serial_ports',
         SERIAL_ERROR: 'serial_error',
 
+        BOARD_READY: 'board_ready',
+        BOARD_BUSY: 'board_busy',
+
         START_SCAN: 'start_scan',
         PAUSE_SCAN: 'pause_scan',
         STOP_SCAN: 'stop_scan',
 
         CONFIG_SUCCESS: 'config_success',
         CONFIG_ERROR: 'config_error',
+
+        AXIS_MOTOR: 'axis_motor',
+        TURNTABLE_MOTOR: 'turntable_motor',
 
         ERROR: 'error',
         MOTOR: 'motor',
@@ -66,6 +72,8 @@ module.exports = {
         AR_MOTOR: 0x05,
         AR_PROGRAM: 0x06,
         AR_SENSOR: 0x07,
+        AR_BOARD_READY: 0x08,
+        AR_BOARD_BUSY: 0x09,
         //Arduino equivalents for Components
         AR_AXIS_MOTOR: 0x10,
         AR_TURNTABLE_MOTOR: 0x11,

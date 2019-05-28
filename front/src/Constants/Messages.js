@@ -25,8 +25,11 @@ export const SERIAL_PORT_SELECTED = port => `Selected port ${port}.`;
 export const SERIAL_CONNECTION_FAIL = "Unable to connect to Arduino.";
 
 export const CONFIG_INVALID_INPUT = "The value must be a number!";
-export const CONFIG_NO_RESPONSE = "Did not receive a response from the server. Please try again.";
 export const CONFIG_INVALID_RANGE = "The number must be between 1 and 200";
+export const CONFIG_NO_RESPONSE = "Did not receive a response from the server. Please try again.";
+export const CONFIG_ERROR = "Config error: ";
+export const CONFIG_AXIS_SUCCESS = "Axis motor configuration saved.";
+export const CONFIG_TURNTABLE_SUCCESS = "Axis motor configuration saved.";
 
 export const PROGRAM_START = "Starting to scan.";
 export const PROGRAM_PAUSE = "Pausing the scan.";

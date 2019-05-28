@@ -21,8 +21,13 @@ import {
 import {ExpandMore, SaveOutlined} from "@material-ui/icons";
 import Button from "@material-ui/core/Button";
 import TextField from "@material-ui/core/TextField";
-import {REQUEST, RESPONSE} from "../../Constants/Communication";
-import {CONFIG_NO_RESPONSE} from "../../Constants/Messages";
+import {REQUEST} from "../../Constants/Communication";
+import {
+    CONFIG_AXIS_SUCCESS,
+    CONFIG_ERROR,
+    CONFIG_NO_RESPONSE,
+    CONFIG_TURNTABLE_SUCCESS
+} from "../../Constants/Messages";
 
 const styles = theme => ({
     paper: {
@@ -60,17 +65,23 @@ const styles = theme => ({
         display: 'flex',
         alignItems: 'center',
     },
+    header: {
+        fontWeight: 200,
+        fontSize: '3.6rem',
+        marginLeft: '2rem',
+        textTransform: 'uppercase',
+    },
     configForm: {
         display: 'flex',
         alignItems: 'center',
         flexWrap: 'wrap',
-        marginTop: theme.spacing.unit,
+        marginTop: theme.spacing(1),
     },
     textField: {
-        marginRight: theme.spacing.unit,
+        marginRight: theme.spacing(1),
     },
     button: {
-        margin: theme.spacing.unit,
+        margin: theme.spacing(1),
     },
 });
 
@@ -81,7 +92,7 @@ const avatarTheme = createMuiTheme({
     overrides: {
         MuiAvatar: {
             img: {
-                objectFit: "scale-down"
+                objectFit: "scale-down",
             }
         }
     }
@@ -92,8 +103,9 @@ class Dashboard extends React.Component {
     constructor(props) {
         super(props);
         console.log('[DASHBOARD] Constructed');
-        const {communicationManager, stepperMotor} = this.props;
-        this.stepperMotor = stepperMotor;
+        const {communicationManager, axisMotor, tableMotor} = this.props;
+        this.axisMotor = axisMotor;
+        this.tableMotor = tableMotor;
         this.communicationManager = communicationManager;
         this.socket = this.communicationManager.getSocket();
 
@@ -117,35 +129,45 @@ class Dashboard extends React.Component {
     }
 
     componentDidMount() {
+        const enabled = this.communicationManager.isSocketConnected() && this.communicationManager.isSerialConnected();
         this.setState({
-            enabled: this.communicationManager.isSocketConnected() && this.communicationManager.isSerialConnected(),
+            enabled: enabled,
             axisMotor: {
-                stepDegree: this.stepperMotor.getStepDegree(),
-                stepSize: this.stepperMotor.getStepIncrement(),
+                stepDegree: this.axisMotor.getStepDegree(),
+                stepSize: this.axisMotor.getStepIncrement(),
             },
             turntableMotor: {
-                stepDegree: this.stepperMotor.getStepDegree(),
-                stepSize: this.stepperMotor.getStepIncrement(),
+                stepDegree: this.tableMotor.getStepDegree(),
+                stepSize: this.tableMotor.getStepIncrement(),
             }
         });
-        this.socket.on(RESPONSE.CONFIG_ERROR, this.handleConfigError);
-        this.socket.on(RESPONSE.CONFIG_SUCCESS, this.handleConfigSuccess);
+        if (enabled) {
+            this.communicationManager.addConfigErrorHandler(this.handleConfigError);
+            this.communicationManager.addConfigSuccessHandler(this.handleConfigSuccess);
+        }
     }
 
     componentWillUnmount() {
         console.log('[DASHBOARD] Unmount');
-        this.socket.removeListener(RESPONSE.CONFIG_ERROR, this.handleConfigError);
-        this.socket.removeListener(RESPONSE.CONFIG_SUCCESS, this.handleConfigSuccess);
+        this.communicationManager.removeConfigErrorHandler();
+        this.communicationManager.removeConfigSuccessHandler();
     }
 
-    handleConfigError = () => {
+    handleConfigError = (data) => {
         this.setState({axisMotor: {...this.state.axisMotor, configWaiting: false}});
-        this.showToast(TOAST_ERROR, 'Config error')
+        this.showToast(TOAST_ERROR, `${CONFIG_ERROR} ${data}`);
     };
 
-    handleConfigSuccess = () => {
-        this.setState({axisMotor: {...this.state.axisMotor, configWaiting: false}});
-        this.showToast(TOAST_SUCCESS, 'Configuration saved')
+    handleConfigSuccess = (data) => {
+        if (data['motor'] === REQUEST.AXIS_MOTOR) {
+            this.setState({axisMotor: {...this.state.axisMotor, configWaiting: false}});
+            this.showToast(TOAST_SUCCESS, CONFIG_AXIS_SUCCESS);
+            clearTimeout(this.axisMotorInterval);
+        } else if (data['motor'] === REQUEST.TURNTABLE_MOTOR) {
+            this.setState({turntableMotor: {...this.state.turntableMotor, configWaiting: false}});
+            this.showToast(TOAST_SUCCESS, CONFIG_TURNTABLE_SUCCESS);
+            clearTimeout(this.turntableMotorInterval);
+        }
     };
 
     handleConfigDataChanged = name => (event) => {
@@ -160,13 +182,13 @@ class Dashboard extends React.Component {
 
     saveAxisMotorConfig = () => {
         const newStepSize = this.state.axisMotor.stepSize;
-        this.stepperMotor.setStepIncrement(newStepSize);
+        this.axisMotor.setStepIncrement(newStepSize);
         this.socket.emit(REQUEST.CONFIG, JSON.stringify({
             component: REQUEST.AXIS_MOTOR,
             stepSize: newStepSize
         }));
         this.setState({axisMotor: {...this.state.axisMotor, configWaiting: true}});
-        setInterval(() => {
+        this.axisMotorInterval = setTimeout(() => {
             if (this.state.axisMotor.configWaiting) {
                 this.setState({axisMotor: {...this.state.axisMotor, configWaiting: false}});
                 this.showToast(TOAST_ERROR, CONFIG_NO_RESPONSE);
@@ -176,54 +198,94 @@ class Dashboard extends React.Component {
 
     saveTurntableMotorConfig = () => {
         const newStepSize = this.state.turntableMotor.stepSize;
-        this.stepperMotor.setStepIncrement(newStepSize);
-        this.socket.emit(REQUEST.CONFIG, JSON.stringify({component: 'turntableMotor', stepSize: newStepSize}));
+        this.tableMotor.setStepIncrement(newStepSize);
+        this.socket.emit(REQUEST.CONFIG, JSON.stringify({
+            component: REQUEST.TURNTABLE_MOTOR,
+            stepSize: newStepSize
+        }));
+        this.setState({turntableMotor: {...this.state.turntableMotor, configWaiting: true}});
+        this.turntableMotorInterval = setTimeout(() => {
+            if (this.state.turntableMotor.configWaiting) {
+                this.setState({turntableMotor: {...this.state.turntableMotor, configWaiting: false}});
+                this.showToast(TOAST_ERROR, CONFIG_NO_RESPONSE);
+            }
+        }, 5000);
     };
 
     axisMotorConfig = (classes) => (
         <div>
             <div>
-            <Typography style={{marginBottom: 16}}>
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque ullamcorper et nulla non vehicula.
-                Etiam volutpat, nulla et tempus volutpat, tellus dolor scelerisque erat, sed imperdiet augue arcu eu
-                leo.
-            </Typography>
+                <Typography style={{marginBottom: 16}}>
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque ullamcorper et nulla non vehicula.
+                    Etiam volutpat, nulla et tempus volutpat, tellus dolor scelerisque erat, sed imperdiet augue arcu eu
+                    leo.
+                </Typography>
             </div>
             <div>
-            <form style={{display: 'flex', alignItems: 'center'}}>
-                <TextField
-                    className={classes.textField}
-                    label="Step increment"
-                    value={this.state.axisMotor.stepSize}
-                    onChange={this.handleConfigDataChanged('axisMotor')}
-                />
-                <Button
-                    disabled={!this.state.enabled}
-                    variant={"contained"}
-                    color={"primary"}
-                    className={classes.button}
-                    onClick={this.saveAxisMotorConfig}
-                >
-                    {this.state.axisMotor.configWaiting ?
-                        <CircularProgress variant={"indeterminate"} style={{width: 24, height: 24, color: 'white'}}/>
-                        :
-                        <SaveOutlined/>
-                    }
-                </Button>
-            </form>
+                <form style={{display: 'flex', alignItems: 'center'}}>
+                    <TextField
+                        disabled={!this.state.enabled}
+                        className={classes.textField}
+                        label="Step increment"
+                        value={this.state.axisMotor.stepSize}
+                        onChange={this.handleConfigDataChanged('axisMotor')}
+                    />
+                    <Button
+                        disabled={!this.state.enabled}
+                        variant={"contained"}
+                        color={"primary"}
+                        className={classes.button}
+                        onClick={this.saveAxisMotorConfig}
+                    >
+                        {this.state.axisMotor.configWaiting ?
+                            <CircularProgress variant={"indeterminate"}
+                                              style={{width: 24, height: 24, color: 'white'}}/>
+                            :
+                            <SaveOutlined/>
+                        }
+                    </Button>
+                </form>
             </div>
         </div>
     );
 
-    turntableMotorConfig = (classes) => {
-        return (
-            <TextField
-                label="Step increment"
-                value={this.state.turntableMotor.stepSize}
-                onChange={this.handleConfigDataChanged('turntableMotor')}
-            />
-        );
-    };
+    turntableMotorConfig = (classes) => (
+        <div>
+            <div>
+                <Typography style={{marginBottom: 16}}>
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque ullamcorper et nulla non vehicula.
+                    Etiam volutpat, nulla et tempus volutpat, tellus dolor scelerisque erat, sed imperdiet augue arcu eu
+                    leo.
+                </Typography>
+            </div>
+            <div>
+                <form style={{display: 'flex', alignItems: 'center'}}>
+                    <TextField
+                        disabled={!this.state.enabled}
+                        className={classes.textField}
+                        label="Step increment"
+                        value={this.state.turntableMotor.stepSize}
+                        onChange={this.handleConfigDataChanged('turntableMotor')}
+                    />
+                    <Button
+                        component={'button'}
+                        disabled={!this.state.enabled}
+                        variant={"contained"}
+                        color={"primary"}
+                        className={classes.button}
+                        onClick={this.saveTurntableMotorConfig}
+                    >
+                        {this.state.turntableMotor.configWaiting ?
+                            <CircularProgress variant={"indeterminate"}
+                                              style={{width: 24, height: 24, color: 'white'}}/>
+                            :
+                            <SaveOutlined/>
+                        }
+                    </Button>
+                </form>
+            </div>
+        </div>
+    );
 
     renderMotorData = (classes) => (
         <Grid item>
@@ -278,7 +340,7 @@ class Dashboard extends React.Component {
                     }
                 />
                 <CardContent>
-                    <Typography variant={"subheading"}>
+                    <Typography variant={"subtitle2"}>
                         Information about the Infrared Sensor
                     </Typography>
                 </CardContent>
@@ -287,9 +349,9 @@ class Dashboard extends React.Component {
     );
 
     render() {
-        const {classes} = this.props;
+        const {classes, board} = this.props;
         return (
-            <Grid container justify={"center"} alignItems={"flex-start"} spacing={8}>
+            <Grid container justify={"center"} alignItems={"flex-start"} spacing={2}>
                 <ToastContainer
                     enableMultiContainer
                     autoClose={3000}
@@ -308,7 +370,7 @@ class Dashboard extends React.Component {
                                 className={classes.avatar}
                         />
                     </MuiThemeProvider>
-                    <Typography variant={"h3"}>Dashboard</Typography>
+                    <Typography variant={"h3"} className={classes.header}>Dashboard</Typography>
                 </Grid>
                 <Grid container item direction={"column"} justify={"center"} alignItems={"stretch"}
                       xs={DEFAULT_XS_COL_WIDTH} md={DEFAULT_MD_COL_WIDTH} lg={5} xl={5}

@@ -1,5 +1,5 @@
 import React from "react";
-import Dashboard from "../../Pages/Dash/Dashboard";
+import Dashboard from "../../Pages/Dashboard/Dashboard";
 import Scan from "../../Pages/Scan/Scan";
 import History from "../../Pages/History/History";
 import Help from "../../Pages/Help/Help";
@@ -13,14 +13,16 @@ class PagesWrapper extends React.Component {
     }
 
     render() {
-        const {communicationManager, stepperMotor} = this.props;
+        const {communicationManager, axisMotor, tableMotor, board} = this.props;
         return (
             <Switch>
                 <Route exact path={'/'}
                        component={() =>
                            <Dashboard
                                communicationManager={communicationManager}
-                               stepperMotor={stepperMotor}
+                               axisMotor={axisMotor}
+                               tableMotor={tableMotor}
+                               board={board}
                            />
                        }
                 />
@@ -28,7 +30,9 @@ class PagesWrapper extends React.Component {
                        component={() =>
                            <Scan
                                communicationManager={communicationManager}
-                               stepperMotor={stepperMotor}
+                               axisMotor={axisMotor}
+                               tableMotor={tableMotor}
+                               board={board}
                            />
                        }
                 />

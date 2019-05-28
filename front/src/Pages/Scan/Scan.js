@@ -8,20 +8,20 @@ import {Pause} from "@material-ui/icons";
 
 const styles = theme => ({
     margin: {
-        margin: theme.spacing.unit,
+        margin: theme.spacing(1),
     },
     paper: {
         elevation: 2,
-        paddingTop: theme.spacing.unit * 2,
-        paddingBottom: theme.spacing.unit * 2,
-        paddingLeft: theme.spacing.unit * 4,
-        paddingRight: theme.spacing.unit * 4,
+        paddingTop: theme.spacing(2),
+        paddingBottom: theme.spacing(2),
+        paddingLeft: theme.spacing(4),
+        paddingRight: theme.spacing(4),
     },
     button: {
-        margin: theme.spacing.unit,
+        margin: theme.spacing(1),
     },
     buttonRightIcon: {
-        marginLeft: theme.spacing.unit,
+        marginLeft: theme.spacing(1),
     },
     //Table style
     table: {
@@ -53,8 +53,9 @@ class Scan extends React.Component {
         super(props);
 
         console.log('[SCAN] Constructed');
-        const {communicationManager, stepperMotor} = this.props;
-        this.stepperMotor = stepperMotor;
+        const {communicationManager, axisMotor, tableMotor} = this.props;
+        this.axisMotor = axisMotor;
+        this.tableMotor = tableMotor;
         this.communicationManager = communicationManager;
         this.socket = this.communicationManager.getSocket();
 
@@ -70,7 +71,7 @@ class Scan extends React.Component {
             },
             series: [{
                 name: 'Distance',
-                data: new Array(this.stepperMotor.getRadarLabels().length).fill(0)
+                data: new Array(this.tableMotor.getRadarLabels().length).fill(0)
             }]
         };
 
@@ -85,9 +86,9 @@ class Scan extends React.Component {
         this.setState({
             enabled: enabled,
             dataLoaded: true,
-            stepsLimit: this.stepperMotor.getRadarLabels().length,
+            stepsLimit: this.tableMotor.getRadarLabels().length,
             options: {
-                labels: this.stepperMotor.getRadarLabels(),
+                labels: this.tableMotor.getRadarLabels(),
             },
         });
         if (enabled) {
@@ -159,8 +160,8 @@ class Scan extends React.Component {
     render() {
         const {classes} = this.props;
         return (
-            <Grid container justify="center" alignItems="flex-start" spacing={8}>
-                <Grid container item spacing={8} direction={"column"} justify={"center"} alignItems={"stretch"}
+            <Grid container justify="center" alignItems="flex-start" spacing={2}>
+                <Grid container item spacing={2} direction={"column"} justify={"center"} alignItems={"stretch"}
                       xs={DEFAULT_XS_COL_WIDTH} md={DEFAULT_MD_COL_WIDTH} lg={3} xl={3}
                 >
                     <Grid item>
@@ -194,7 +195,7 @@ class Scan extends React.Component {
                         </Paper>
                     </Grid>
                 </Grid>
-                <Grid container item spacing={8} direction={"column"} justify={"center"} alignItems={"stretch"}
+                <Grid container item spacing={2} direction={"column"} justify={"center"} alignItems={"stretch"}
                       xs={DEFAULT_XS_COL_WIDTH} md={DEFAULT_MD_COL_WIDTH} lg={7} xl={7}
                 >
                     <Grid item>

@@ -19,7 +19,7 @@ const styles = theme => ({
     },
     content: {
         flexGrow: 1,
-        paddingTop: theme.spacing.unit * 3,
+        paddingTop: theme.spacing(3),
     },
 });
 
@@ -29,14 +29,17 @@ class Main extends React.Component {
         console.log('[MAIN] Constructed');
         this.communicationManager = new CommunicationManager();
         this.communicationManager.createSocket();
-        this.stepperMotor = new StepperMotor(1.8, 4);
+        this.axisMotor = new StepperMotor(1.8, 200);
+        this.tableMotor = new StepperMotor(1.8, 8);
         this.state = {
-            loaded: false,
             socket: {
                 connected: false
             },
             serial: {
                 connected: false
+            },
+            board: {
+                status: null
             }
         }
     }
@@ -46,13 +49,19 @@ class Main extends React.Component {
             () => this.setState({socket: {connected: true}})
         );
         this.communicationManager.addSocketDisconnectHandler(
-            () => this.setState({socket: {connected: false}})
+            () => this.setState({socket: {connected: false}, serial: {connected: false}})
         );
         this.communicationManager.addSerialConnectHandler(
             () => this.setState({serial: {connected: true}})
         );
         this.communicationManager.addSerialDisconnectHandler(
-            () => this.setState({serial: {connected: false}})
+            () => this.setState({serial: {connected: false}, board: {status: null}})
+        );
+        this.communicationManager.addBoardBusyHandler(
+            () => this.setState({board: {status: 'BUSY'}})
+        );
+        this.communicationManager.addBoardReadyHandler(
+            () => this.setState({board: {status: 'READY'}})
         );
     }
 
@@ -65,7 +74,9 @@ class Main extends React.Component {
                     <div className={classes.toolbar}/>
                     <PagesWrapper
                         communicationManager={this.communicationManager}
-                        stepperMotor={this.stepperMotor}
+                        axisMotor={this.axisMotor}
+                        tableMotor={this.tableMotor}
+                        board={this.state.board}
                     />
                 </main>
             </div>
