@@ -77,9 +77,9 @@ void Motor::turn(int numberOfSteps) {
   digitalWrite(_enablePin, LOW);
   for (int rotations = 0; rotations < numberOfSteps; rotations++) {
     digitalWrite(_stepPin, HIGH);
-    delayMicroseconds(750);
+    delayMicroseconds(1000);
     digitalWrite(_stepPin, LOW);
-    delayMicroseconds(750);
+    delayMicroseconds(1000);
   }
   digitalWrite(_enablePin, HIGH);
   digitalWrite(_sleepPin, LOW);

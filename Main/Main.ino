@@ -25,7 +25,7 @@ bool isPaused = false;
 
 int layer = 0;
 
-int turntableStep = 4;
+int turntableStep = 20;
 int sensorAxisStep = 20;
 
 int turntableTurns = 0;
@@ -247,6 +247,6 @@ void loop() {
     if (checkLimits()) {
       resetComponents();
     }
-    long e = millis();
   }
+  long e = millis();
 }

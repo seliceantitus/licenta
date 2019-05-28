@@ -2,7 +2,6 @@
 const SerialPort = require('serialport/lib');
 const ReadLine = SerialPort.parsers.Readline;
 
-
 // SOCKET DEPENDENCIES
 const io = require('socket.io').listen(3002);
 
