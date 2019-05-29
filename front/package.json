@@ -19,7 +19,8 @@
     "react-window": "^1.8.2",
     "socket.io-client": "^2.2.0",
     "status-indicator": "^1.0.9",
-    "three": "^0.104.0"
+    "three": "^0.104.0",
+    "three-orbit-controls": "^82.1.0"
   },
   "scripts": {
     "start": "react-scripts start",

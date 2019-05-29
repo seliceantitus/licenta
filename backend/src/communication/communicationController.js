@@ -106,7 +106,7 @@ class CommunicationController {
     }
 
     logger(message) {
-        console.log(new Date().toString(), message);
+        console.log(new Date().toString(), '\n', message);
     }
 
     async getSerialPortsList() {

@@ -50,5 +50,7 @@ export const SCAN_STATUS = {
     RUNNING: 'running',
     PAUSED: 'paused',
     STOPPED: 'stopped',
-    FINISHED: 'finished'
+    FINISHED: 'finished',
+    UPLOADING: 'uploading',
+    DELETING: 'deleting'
 };

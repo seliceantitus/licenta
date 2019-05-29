@@ -133,7 +133,7 @@ class Dashboard extends React.Component {
         if (board.status === BOARD_STATUS.READY) {
             const enabled = this.communicationManager.isSocketConnected() && this.communicationManager.isSerialConnected();
             this.setState({
-                enabled: enabled,
+                pageEnabled: enabled,
                 axisMotor: {
                     stepDegree: this.axisMotor.getStepDegree(),
                     stepSize: this.axisMotor.getStepIncrement(),
@@ -225,14 +225,14 @@ class Dashboard extends React.Component {
             <div>
                 <form style={{display: 'flex', alignItems: 'center'}}>
                     <TextField
-                        disabled={!this.state.enabled}
+                        disabled={!this.state.pageEnabled}
                         className={classes.textField}
                         label="Step increment"
                         value={this.state.axisMotor.stepSize}
                         onChange={this.handleConfigDataChanged('axisMotor')}
                     />
                     <Button
-                        disabled={!this.state.enabled}
+                        disabled={!this.state.pageEnabled}
                         variant={"contained"}
                         color={"primary"}
                         className={classes.button}
@@ -260,7 +260,7 @@ class Dashboard extends React.Component {
             <div>
                 <form style={{display: 'flex', alignItems: 'center'}}>
                     <TextField
-                        disabled={!this.state.enabled}
+                        disabled={!this.state.pageEnabled}
                         className={classes.textField}
                         label="Step increment"
                         value={this.state.tableMotor.stepSize}
@@ -268,7 +268,7 @@ class Dashboard extends React.Component {
                     />
                     <Button
                         component={'button'}
-                        disabled={!this.state.enabled}
+                        disabled={!this.state.pageEnabled}
                         variant={"contained"}
                         color={"primary"}
                         className={classes.button}

@@ -45,3 +45,17 @@ exports.index = (req, res) => {
         return res.status(200).json({status: 'success', data: scans});
     })
 };
+
+exports.delete = (req, res) => {
+    Layer.deleteMany({scan: req.params.scan_id})
+        .catch(err => {
+            return res.status(500).json({status: 'error', error: err});
+        });
+    Scan.deleteOne({_id: req.params.scan_id})
+        .then(() => {
+            return res.status(200).json({status: 'success'})
+        })
+        .catch(err => {
+            return res.status(500).json({status: 'error', error: err});
+        });
+};

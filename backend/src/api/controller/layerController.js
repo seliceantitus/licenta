@@ -6,6 +6,7 @@ exports.new = (req, res) => {
         _id: mongoose.Types.ObjectId(),
         scan: req.body.scan_id,
         points: req.body.points,
+        distances: req.body.distances,
     });
     layer.save()
         .then(result => {

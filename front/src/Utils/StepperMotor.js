@@ -22,6 +22,14 @@ class StepperMotor {
         this.stepIncrement = stepIncrement;
     }
 
+    getSteps() {
+        return this.fullRotationSteps/this.stepIncrement;
+    }
+
+    getAngle() {
+        return this.stepIncrement * this.stepDegree;
+    }
+
     getRadarLabels() {
         let degrees = [];
         let deg = 0;

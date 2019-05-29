@@ -247,7 +247,7 @@ bool checkOverObjectHeight() {
 }
 
 void resetComponents() {
-  sendBoardBusy();
+//  sendBoardBusy();
   sensorAxis.setDirection(LEFT);
   sensorAxis.turn(sensorAxisTurns);
   sensorAxis.setDirection(RIGHT);
@@ -257,7 +257,7 @@ void resetComponents() {
   sensorAxisTurns = 0;
   turntableTurns = 0;
   delay(1000);
-  sendBoardReady();
+//  sendBoardReady();
 }
 
 void loop() {

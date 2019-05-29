@@ -35,3 +35,5 @@ export const SCANNING_START = "Starting to scan.";
 export const SCANNING_PAUSE = "Pausing the scan.";
 export const SCANNING_STOP = "Stopping the scan.";
 export const SCANNING_FINISHED = "Scan has finished.";
+
+export const SCAN_DATA_SAVED = "Saved scan data.";

@@ -6,11 +6,12 @@ const LayerSchema = new mongoose.Schema({
         ref: 'Scan',
         required: true
     },
-    points: [{
+    distances: [{
         type: Number,
         required: true,
         default: [],
     }],
+    points: [{}],
 });
 
 module.exports = mongoose.model('Layer', LayerSchema);

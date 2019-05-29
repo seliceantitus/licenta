@@ -7,6 +7,7 @@ router.route('/')
     .post(scanController.new);
 
 router.route('/:scan_id')
-    .get(scanController.view);
+    .get(scanController.view)
+    .delete(scanController.delete);
 
 module.exports = router;
