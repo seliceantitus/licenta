@@ -1,4 +1,3 @@
-#include "LCD.h"
 #include "LED.h"
 #include "Motor.h"
 #include "Sensor.h"
@@ -9,7 +8,6 @@
 #include <ArduinoJson.h>
 #include <stdio.h>
 
-LCD screen;
 LED gLed = LED(GLED);
 LED yLed = LED(YLED);
 LED rLed = LED(RLED);
@@ -24,6 +22,7 @@ bool isRunning = false;
 bool isPaused = false;
 
 int layer = 0;
+int pointsPerLayer = 0;
 
 int turntableStep = 8;
 int sensorAxisStep = 200;
@@ -43,16 +42,12 @@ void setup() {
 
   sendBoardBusy();
 
-  screen = LCD(LANDSCAPE);
-  screen.fill(WHITE);
-  screen.initButton(START_BUTTON, 60, 120, 100, 200, RED, BLACK, WHITE, "Start", 3);
-  screen.initButton(CANCEL_BUTTON, 60, 120, 100, 200, BLACK, RED, WHITE, "Stop", 3);
-  screen.drawButton(START_BUTTON, false);
-
   sensorAxis.enable();
   turntable.enable();
   sensorAxis.setDirection(RIGHT);
   turntable.setDirection(LEFT);
+
+  pointsPerLayer = 200 / turntableStep;
 
   gLed.off();
   yLed.off();
@@ -66,45 +61,50 @@ void setup() {
 ****************************/
 
 void sendBoardBusy() {
-  JsonSerial::JsonNode component = jSerial.createIntNode("component", BOARD_BUSY, false, 0, NULL);
+  JsonSerial::JsonNode component = jSerial.createIntNode("component", RES_BOARD_BUSY, false, 0, NULL);
   JsonSerial::JsonNode *list[] = { &component };
   jSerial.sendJson(list, 1);
 }
 
 void sendBoardReady() {
-  JsonSerial::JsonNode component = jSerial.createIntNode("component", BOARD_READY, false, 0, NULL);
+  JsonSerial::JsonNode component = jSerial.createIntNode("component", RES_BOARD_READY, false, 0, NULL);
   JsonSerial::JsonNode *list[] = { &component };
   jSerial.sendJson(list, 1);
 }
 
 void sendConfigSuccess(int motorId) {
-  JsonSerial::JsonNode component = jSerial.createIntNode("component", CONFIG, false, 0, NULL);
+  JsonSerial::JsonNode component = jSerial.createIntNode("component", RES_CONFIG, false, 0, NULL);
   JsonSerial::JsonNode motor = jSerial.createIntNode("motor", motorId, false, 0, NULL);
   JsonSerial::JsonNode *list[] = { &component, &motor };
   jSerial.sendJson(list, 2);
 }
 
 void sendStartScan() {
-  JsonSerial::JsonNode component = jSerial.createIntNode("component", START_SCAN, false, 0, NULL);
+  JsonSerial::JsonNode component = jSerial.createIntNode("component", RES_START_SCAN, false, 0, NULL);
   JsonSerial::JsonNode *list[] = { &component };
   jSerial.sendJson(list, 1);
 }
 
 void sendPauseScan() {
-  JsonSerial::JsonNode component = jSerial.createIntNode("component", PAUSE_SCAN, false, 0, NULL);
+  JsonSerial::JsonNode component = jSerial.createIntNode("component", RES_PAUSE_SCAN, false, 0, NULL);
   JsonSerial::JsonNode *list[] = { &component };
   jSerial.sendJson(list, 1);
 }
 
 void sendStopScan() {
-  JsonSerial::JsonNode component = jSerial.createIntNode("component", STOP_SCAN, false, 0, NULL);
+  JsonSerial::JsonNode component = jSerial.createIntNode("component", RES_STOP_SCAN, false, 0, NULL);
   JsonSerial::JsonNode *list[] = { &component };
   jSerial.sendJson(list, 1);
 }
 
+void sendFinishedScan() {
+  JsonSerial::JsonNode component = jSerial.createIntNode("component", RES_FINISHED_SCAN, false, 0, NULL);
+  JsonSerial::JsonNode *list[] = { &component };
+  jSerial.sendJson(list, 1);
+}
 
 void sendSensorData() {
-  JsonSerial::JsonNode component = jSerial.createIntNode("component", SENSOR, false, 0, NULL);
+  JsonSerial::JsonNode component = jSerial.createIntNode("component", RES_SENSOR, false, 0, NULL);
   JsonSerial::JsonNode action = jSerial.createStringNode("action", "measurement", false, 0, NULL);
   JsonSerial::JsonNode data_adc = jSerial.createFloatNode("analog", sensor.getADCValue(), false, 0, NULL);
   JsonSerial::JsonNode data_voltage = jSerial.createFloatNode("voltage", sensor.getVoltage(), false, 0, NULL);
@@ -118,7 +118,7 @@ void sendSensorData() {
 }
 
 void sendMotorData(int steps, int rotations, char *locationValue) {
-  JsonSerial::JsonNode component = jSerial.createIntNode("component", MOTOR, false, 0, NULL);
+  JsonSerial::JsonNode component = jSerial.createIntNode("component", RES_MOTOR, false, 0, NULL);
   JsonSerial::JsonNode location = jSerial.createStringNode("location", locationValue, false, 0, NULL);
   JsonSerial::JsonNode action = jSerial.createStringNode("action", "turn", false, 0, NULL);
   JsonSerial::JsonNode data_steps = jSerial.createFloatNode("steps", steps, false, 0, NULL);
@@ -132,7 +132,7 @@ void sendMotorData(int steps, int rotations, char *locationValue) {
 }
 
 void sendError(char* errorMessage) {
-  JsonSerial::JsonNode component = jSerial.createIntNode("component", ERR, false, 0, NULL);
+  JsonSerial::JsonNode component = jSerial.createIntNode("component", RES_ERR, false, 0, NULL);
   JsonSerial::JsonNode message = jSerial.createStringNode("message", errorMessage, false, 0, NULL);
 
   JsonSerial::JsonNode *list[] = { &component, &message };
@@ -180,6 +180,7 @@ void configMotor(int motorId, int stepSize) {
   } else if (motorId == TURNTABLE_MOTOR) {
     gLed.on();
     turntableStep = stepSize;
+    pointsPerLayer = 200 / turntableStep;
     sendConfigSuccess(TURNTABLE_MOTOR);
     gLed.off();
   } else {
@@ -204,17 +205,17 @@ void fetchSerialData() {
     rLed.off();
   } else {
     int command = doc["command"];
-    if (command == START_SCAN) {
+    if (command == REQ_START_SCAN) {
       startScan();
-    } else if (command == PAUSE_SCAN) {
+    } else if (command == REQ_PAUSE_SCAN) {
       pauseScan();
-    } else if (command == STOP_SCAN) {
+    } else if (command == REQ_STOP_SCAN) {
       stopScan();
-    } else if (command == CONFIG) {
+    } else if (command == REQ_CONFIG) {
       int component = doc["component"];
       int stepSize = doc["stepSize"];
       configMotor(component, stepSize);
-    } else if (command == RESET) {
+    } else if (command == REQ_RESET) {
       resetComponents();
     }
   }
@@ -235,6 +236,14 @@ void turnMotors() {
 
 bool checkLimits() {
   return (limSw1.active() || limSw2.active());
+}
+
+bool checkOverObjectHeight() {
+  if (infinityResults > (0.9 * pointsPerLayer)){
+    sendFinishedScan();
+    return true;
+  }
+  return false;
 }
 
 void resetComponents() {
@@ -258,10 +267,15 @@ void loop() {
   }
   if (isRunning && !isPaused) {
     if (turntableTurns == 200) {
-      layer += 1;
-      turntableTurns = 0;
-      sensorAxis.turn(sensorAxisStep);
-      sensorAxisTurns += sensorAxisStep;
+      if (checkOverObjectHeight()) {
+        resetComponents();
+        return;
+      } else {
+        layer += 1;
+        turntableTurns = 0;
+        sensorAxis.turn(sensorAxisStep);
+        sensorAxisTurns += sensorAxisStep;
+      }
     }
     measure();
     turnMotors();

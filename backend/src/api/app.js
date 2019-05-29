@@ -1,5 +1,6 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const cors = require('cors');
 const mongoose = require('mongoose');
 const scan = require('./routes/scan');
 const layer = require('./routes/layer');
@@ -18,17 +19,9 @@ mongoose.connect(`mongodb://${ipAddress}:${port}/${name}`, { useNewUrlParser: tr
         }
     );
 
+app.use(cors());
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
-app.use((req, res, next) => {
-    res.header('Access-Control-Allow-Origin', '*');
-    res.header('Access-Control-Allow-Headers', '*');
-    if (req.method === 'OPTIONS') {
-        res.header('Access=Control-Allow-Methods', 'PUT, POST, PATCH, DELETE, GET');
-        return res.status(200).json({});
-    }
-    next();
-});
 app.use('/scan', scan);
 app.use('/layer', layer);
 module.exports = app;

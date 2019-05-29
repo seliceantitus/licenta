@@ -4,6 +4,7 @@ import NavigationWrapper from "./Wrappers/NavigationWrapper";
 import PagesWrapper from "./Wrappers/PagesWrapper";
 import CommunicationManager from "../Utils/CommunicationManager";
 import StepperMotor from "../Utils/StepperMotor";
+import {BOARD_STATUS} from "../Constants/Communication";
 
 const styles = theme => ({
     root: {
@@ -57,10 +58,10 @@ class Main extends React.Component {
             () => this.setState({serial: {connected: false}, board: {status: null}})
         );
         this.communicationManager.addBoardBusyHandler(
-            () => this.setState({board: {status: 'BUSY'}})
+            () => this.setState({board: {status: BOARD_STATUS.BUSY}})
         );
         this.communicationManager.addBoardReadyHandler(
-            () => this.setState({board: {status: 'READY'}})
+            () => this.setState({board: {status: BOARD_STATUS.READY}})
         );
     }
 

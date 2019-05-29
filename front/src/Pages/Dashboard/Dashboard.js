@@ -21,7 +21,7 @@ import {
 import {ExpandMore, SaveOutlined} from "@material-ui/icons";
 import Button from "@material-ui/core/Button";
 import TextField from "@material-ui/core/TextField";
-import {COMPONENTS, REQUEST} from "../../Constants/Communication";
+import {BOARD_STATUS, COMPONENTS, REQUEST} from "../../Constants/Communication";
 import {
     CONFIG_AXIS_SUCCESS,
     CONFIG_ERROR,
@@ -102,6 +102,7 @@ class Dashboard extends React.Component {
 
     constructor(props) {
         super(props);
+
         const {communicationManager, axisMotor, tableMotor} = this.props;
         this.axisMotor = axisMotor;
         this.tableMotor = tableMotor;
@@ -128,19 +129,21 @@ class Dashboard extends React.Component {
     }
 
     componentDidMount() {
-        const enabled = this.communicationManager.isSocketConnected() && this.communicationManager.isSerialConnected();
-        this.setState({
-            enabled: enabled,
-            axisMotor: {
-                stepDegree: this.axisMotor.getStepDegree(),
-                stepSize: this.axisMotor.getStepIncrement(),
-            },
-            tableMotor: {
-                stepDegree: this.tableMotor.getStepDegree(),
-                stepSize: this.tableMotor.getStepIncrement(),
-            }
-        });
-        if (this.props.board.status === 'READY') {
+        const {board} = this.props;
+        if (board.status === BOARD_STATUS.READY) {
+            const enabled = this.communicationManager.isSocketConnected() && this.communicationManager.isSerialConnected();
+            this.setState({
+                enabled: enabled,
+                axisMotor: {
+                    stepDegree: this.axisMotor.getStepDegree(),
+                    stepSize: this.axisMotor.getStepIncrement(),
+                },
+                tableMotor: {
+                    stepDegree: this.tableMotor.getStepDegree(),
+                    stepSize: this.tableMotor.getStepIncrement(),
+                }
+            });
+
             this.communicationManager.addConfigErrorHandler(this.handleConfigError);
             this.communicationManager.addConfigSuccessHandler(this.handleConfigSuccess);
         }

@@ -31,6 +31,7 @@ export const CONFIG_ERROR = "Config error: ";
 export const CONFIG_AXIS_SUCCESS = "Axis motor configuration saved.";
 export const CONFIG_TURNTABLE_SUCCESS = "Axis motor configuration saved.";
 
-export const PROGRAM_START = "Starting to scan.";
-export const PROGRAM_PAUSE = "Pausing the scan.";
-export const PROGRAM_STOP = "Stopping the scan.";
+export const SCANNING_START = "Starting to scan.";
+export const SCANNING_PAUSE = "Pausing the scan.";
+export const SCANNING_STOP = "Stopping the scan.";
+export const SCANNING_FINISHED = "Scan has finished.";

@@ -83,20 +83,20 @@ class CommunicationController {
                     case ARDUINO_RESPONSE.AR_STOP_SCAN:
                         io.sockets.emit(RESPONSE.STOP_SCAN, jsonData);
                         break;
+                    case ARDUINO_RESPONSE.AR_FINISHED_SCAN:
+                        io.sockets.emit(RESPONSE.AR_FINISHED_SCAN, jsonData);
+                        break;
                     case ARDUINO_RESPONSE.AR_ERROR:
                         io.sockets.emit(RESPONSE.ERROR, {message: ARDUINO_ERRORS[jsonData.message].MESSAGE});
                         break;
                     case ARDUINO_RESPONSE.AR_MOTOR:
                         io.sockets.emit(RESPONSE.MOTOR, jsonData);
                         break;
-                    case ARDUINO_RESPONSE.AR_PROGRAM:
-                        io.sockets.emit(RESPONSE.PROGRAM, jsonData);
-                        break;
                     case ARDUINO_RESPONSE.AR_SENSOR:
                         io.sockets.emit(RESPONSE.SENSOR, jsonData);
                         break;
                     default:
-                        io.socket.emit(RESPONSE.ERROR)
+                        io.sockets.emit(RESPONSE.ERROR)
                 }
             } catch (e) {
                 this.logger(e);

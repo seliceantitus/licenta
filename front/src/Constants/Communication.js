@@ -27,15 +27,28 @@ export const RESPONSE = {
     START_SCAN: 'start_scan',
     PAUSE_SCAN: 'pause_scan',
     STOP_SCAN: 'stop_scan',
+    FINISHED_SCAN: 'finished_scan',
     CONFIG_SUCCESS: 'config_success',
     CONFIG_ERROR: 'config_error',
     ERROR: 'error',
     MOTOR: 'motor',
-    PROGRAM: 'program',
     SENSOR: 'sensor',
 };
 
 export const COMPONENTS = {
     AXIS_MOTOR: 'axis_motor',
     TURNTABLE_MOTOR: 'turntable_motor',
+};
+
+export const BOARD_STATUS = {
+    READY: 'ready',
+    BUSY: 'busy'
+};
+
+export const SCAN_STATUS = {
+    IDLE: 'idle',
+    RUNNING: 'running',
+    PAUSED: 'paused',
+    STOPPED: 'stopped',
+    FINISHED: 'finished'
 };

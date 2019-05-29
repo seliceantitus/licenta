@@ -49,21 +49,30 @@ enum Shield {
   IRSENSOR = A5
 };
 
-enum Events {
-  CONFIG = 0x00,
-  START_SCAN = 0x01,
-  PAUSE_SCAN = 0x02,
-  STOP_SCAN = 0x03,
-  ERR = 0x04,
-  MOTOR = 0x05,
-  PROGRAM = 0x06,
-  SENSOR = 0x07,
-  BOARD_READY = 0x08,
-  BOARD_BUSY = 0x09,
-  RESET = 0xA0
+enum Requests {
+  REQ_CONFIG = 0x00,
+  REQ_START_SCAN = 0x01,
+  REQ_PAUSE_SCAN = 0x02,
+  REQ_STOP_SCAN = 0x03,
+  REQ_MOTOR = 0x04,
+  REQ_SENSOR = 0x05,
+  REQ_RESET = 0x06
+};
+
+enum Responses {
+  RES_CONFIG = 0x00,
+  RES_START_SCAN = 0x01,
+  RES_PAUSE_SCAN = 0x02,
+  RES_STOP_SCAN = 0x03,
+  RES_FINISHED_SCAN = 0x04,
+  RES_ERR = 0x05,
+  RES_MOTOR = 0x06,
+  RES_SENSOR = 0x07,
+  RES_BOARD_READY = 0x08,
+  RES_BOARD_BUSY = 0x09
 };
 
 enum Components {
-  AXIS_MOTOR = 0x10,
-  TURNTABLE_MOTOR = 0x11,
+  AXIS_MOTOR = 0x01,
+  TURNTABLE_MOTOR = 0x02
 };
