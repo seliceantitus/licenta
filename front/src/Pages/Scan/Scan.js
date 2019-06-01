@@ -56,7 +56,7 @@ class Scan extends React.Component {
     constructor(props) {
         super(props);
 
-        const {communicationManager, axisMotor, tableMotor} = this.props;
+        const {communicationManager, axisMotor, tableMotor, toastCallback} = this.props;
         this.axisMotor = axisMotor;
         this.tableMotor = tableMotor;
         this.communicationManager = communicationManager;
@@ -91,9 +91,11 @@ class Scan extends React.Component {
         this.uploadScan = this.uploadScan.bind(this);
         this.deleteScan = this.deleteScan.bind(this);
 
-        this.showToast = (type, message) => {
-            toast(message, {type: type, containerId: 'Scan'})
-        };
+        // this.showToast = (type, message) => {
+            // toast(message, {type: type, containerId: 'Scan'})
+            // toast(message, {type: type});
+        // };
+        this.showToast = toastCallback;
     }
 
     componentDidMount() {
@@ -124,15 +126,6 @@ class Scan extends React.Component {
     }
 
     componentWillUnmount() {
-        //TODO removeAllListeners, because these do not work, or create a JS object with event and callback
-
-        // this.socket.removeListener(RESPONSE.START_SCAN, (data) => this.handleInboundData(RESPONSE.START_SCAN, data));
-        // this.socket.removeListener(RESPONSE.PAUSE_SCAN, (data) => this.handleInboundData(RESPONSE.PAUSE_SCAN, data));
-        // this.socket.removeListener(RESPONSE.STOP_SCAN, (data) => this.handleInboundData(RESPONSE.STOP_SCAN, data));
-        // this.socket.removeListener(RESPONSE.FINISHED_SCAN, (data) => this.handleInboundData(RESPONSE.FINISHED_SCAN, data));
-        // this.socket.removeListener(RESPONSE.SENSOR, (data) => this.handleInboundData(RESPONSE.SENSOR, data));
-        // this.socket.removeListener(RESPONSE.ERROR, (data) => this.handleInboundData(RESPONSE.ERROR, data));
-
         this.socket.removeAllListeners(RESPONSE.START_SCAN);
         this.socket.removeAllListeners(RESPONSE.PAUSE_SCAN);
         this.socket.removeAllListeners(RESPONSE.STOP_SCAN);
@@ -150,6 +143,7 @@ class Scan extends React.Component {
                 this.setState({scanStatus: SCAN_STATUS.PAUSED});
                 break;
             case RESPONSE.STOP_SCAN:
+                // The data is lost because the component is reconstructed by the BOARD_BUSY flag
                 this.setState({scanStatus: SCAN_STATUS.STOPPED});
                 break;
             case RESPONSE.FINISHED_SCAN:
@@ -269,7 +263,10 @@ class Scan extends React.Component {
     };
 
     deleteScan() {
+        console.log("Deleting");
         this.setState({scanStatus: SCAN_STATUS.DELETING});
+        //TODO Implement DELETE API call
+        console.log("Done deleting");
     };
 
     renderSideMenu = (classes) => (
@@ -346,14 +343,6 @@ class Scan extends React.Component {
         const {classes} = this.props;
         return (
             <Grid container justify={"center"} alignItems={"flex-start"} spacing={2} direction={"row"}>
-                <ToastContainer
-                    enableMultiContainer
-                    autoClose={3000}
-                    pauseOnHover={false}
-                    transition={Slide}
-                    pauseOnFocusLoss={false}
-                    containerId={'Scan'}
-                />
                 <Grid container item spacing={0} direction={"column"} justify={"center"} alignItems={"stretch"}
                       xs={DEFAULT_XS_COL_WIDTH} md={DEFAULT_MD_COL_WIDTH} lg={1} xl={1}
                 >

@@ -103,7 +103,7 @@ class Dashboard extends React.Component {
     constructor(props) {
         super(props);
 
-        const {communicationManager, axisMotor, tableMotor} = this.props;
+        const {communicationManager, axisMotor, tableMotor, toastCallback} = this.props;
         this.axisMotor = axisMotor;
         this.tableMotor = tableMotor;
         this.communicationManager = communicationManager;
@@ -123,9 +123,12 @@ class Dashboard extends React.Component {
             },
         };
 
-        this.showToast = (type, message) => {
-            toast(message, {type: type, containerId: 'Dashboard'})
-        };
+        // this.showToast = (type, message) => {
+        //     toast(message, {type: type, containerId: 'Dashboard'})
+            // toast(message, {type: type});
+        // };
+
+        this.showToast = toastCallback;
     }
 
     componentDidMount() {
@@ -219,11 +222,15 @@ class Dashboard extends React.Component {
         <div>
             <div>
                 <Typography style={{marginBottom: 16}}>
-                    Text text bla bla
+                    This motor is responsible for spinning the threaded axis on which the Infrared Proximity Sensor is
+                    coupled.
+                </Typography>
+                <Typography>
+                    The step increment parameter influences the total number of layers the final scan will have.
                 </Typography>
             </div>
             <div>
-                <form style={{display: 'flex', alignItems: 'center'}}>
+                <form style={{display: 'flex', alignItems: 'center', marginTop: 20}}>
                     <TextField
                         disabled={!this.state.pageEnabled}
                         className={classes.textField}
@@ -254,7 +261,10 @@ class Dashboard extends React.Component {
         <div>
             <div>
                 <Typography style={{marginBottom: 16}}>
-                    Text text bla bla
+                    This motor is responsible for spinning the turntable on which the object to be scanned is located.
+                </Typography>
+                <Typography>
+                    The step increment parameter influences the total number of points per layer.
                 </Typography>
             </div>
             <div>
@@ -284,6 +294,18 @@ class Dashboard extends React.Component {
                 </form>
             </div>
         </div>
+    );
+
+    renderPageHeader = (classes) => (
+        <>
+            <MuiThemeProvider theme={avatarTheme}>
+                <Avatar aria-label="Arduino Mega"
+                        src={require('../../assets/img/png/ArduinoMega.png')}
+                        className={classes.avatar}
+                />
+            </MuiThemeProvider>
+            <Typography variant={"h3"} className={classes.header}>Dashboard</Typography>
+        </>
     );
 
     renderMotorData = (classes) => (
@@ -335,8 +357,18 @@ class Dashboard extends React.Component {
                     }
                 />
                 <CardContent>
-                    <Typography variant={"subtitle2"}>
-                        Information about the Infrared Sensor
+                    <Typography variant={"body1"}>
+                        The Infrared Proximity Sensor is responsible of measuring the distance to the object, which is
+                        then used to compute the 3D space coordinates of the object.
+                    </Typography>
+                    <Typography>
+                        Model: 2Y0A21
+                    </Typography>
+                    <Typography>
+                        Distance unit: Centimeters
+                    </Typography>
+                    <Typography>
+                        Measurements per query: 1000
                     </Typography>
                 </CardContent>
             </Card>
@@ -347,25 +379,11 @@ class Dashboard extends React.Component {
         const {classes, board} = this.props;
         return (
             <Grid container justify={"center"} alignItems={"flex-start"} spacing={2}>
-                <ToastContainer
-                    enableMultiContainer
-                    autoClose={3000}
-                    pauseOnHover={false}
-                    transition={Slide}
-                    pauseOnFocusLoss={false}
-                    containerId={'Dashboard'}
-                />
                 <Grid container item justify={"flex-start"} alignItems={"flex-start"}
                       xs={DEFAULT_XS_COL_WIDTH} md={DEFAULT_MD_COL_WIDTH} lg={10} xl={10}
                       className={classes.pageHeader}
                 >
-                    <MuiThemeProvider theme={avatarTheme}>
-                        <Avatar aria-label="Arduino Mega"
-                                src={require('../../assets/img/png/ArduinoMega.png')}
-                                className={classes.avatar}
-                        />
-                    </MuiThemeProvider>
-                    <Typography variant={"h3"} className={classes.header}>Dashboard</Typography>
+                    {this.renderPageHeader(classes)}
                 </Grid>
                 <Grid container item direction={"column"} justify={"center"} alignItems={"stretch"}
                       xs={DEFAULT_XS_COL_WIDTH} md={DEFAULT_MD_COL_WIDTH} lg={5} xl={5}

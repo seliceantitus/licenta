@@ -13,7 +13,7 @@ class PagesWrapper extends React.Component {
     }
 
     render() {
-        const {communicationManager, axisMotor, tableMotor, board} = this.props;
+        const {communicationManager, axisMotor, tableMotor, board, toastCallback} = this.props;
         return (
             <Switch>
                 <Route exact path={'/'}
@@ -23,6 +23,7 @@ class PagesWrapper extends React.Component {
                                axisMotor={axisMotor}
                                tableMotor={tableMotor}
                                board={board}
+                               toastCallback={toastCallback}
                            />
                        }
                 />
@@ -33,6 +34,7 @@ class PagesWrapper extends React.Component {
                                axisMotor={axisMotor}
                                tableMotor={tableMotor}
                                board={board}
+                               toastCallback={toastCallback}
                            />
                        }
                 />

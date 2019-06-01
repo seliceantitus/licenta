@@ -33,7 +33,8 @@ class NavigationWrapper extends React.Component {
 
     constructor(props, context) {
         super(props, context);
-        this.communicationManager = this.props.communicationManager;
+        const {communicationManager, toastCallback} = this.props;
+        this.communicationManager = communicationManager;
 
         this.state = {
             socket: {
@@ -48,9 +49,13 @@ class NavigationWrapper extends React.Component {
             selectedSerialPort: null,
         };
 
-        this.showToast = (type, message) => {
-            toast(message, {type: type, containerId: 'NavigationWrapper'})
-        };
+        // this.showToast = (type, message) => {
+            // toast(message, {type: type, containerId: 'NavigationWrapper'})
+            // toast(message, {type: type});
+        // };
+
+        this.showToast = toastCallback;
+
         this.socketConnect = () => {
             this.showToast(TOAST_SUCCESS, SOCKET_CONNECTION_SUCCESS);
             this.setState({socket: {connected: true, status: STATUS_OK()}});
@@ -185,14 +190,6 @@ class NavigationWrapper extends React.Component {
         return (
             <>
                 <CssBaseline/>
-                <ToastContainer
-                    enableMultiContainer
-                    autoClose={3000}
-                    pauseOnHover={false}
-                    transition={Slide}
-                    pauseOnFocusLoss={false}
-                    containerId={'NavigationWrapper'}
-                />
                 <NavigationFrame>
                     <NavigationList
                         socket={this.state.socket}

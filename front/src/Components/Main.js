@@ -5,6 +5,7 @@ import PagesWrapper from "./Wrappers/PagesWrapper";
 import CommunicationManager from "../Utils/CommunicationManager";
 import StepperMotor from "../Utils/StepperMotor";
 import {BOARD_STATUS} from "../Constants/Communication";
+import {toast} from "react-toastify";
 
 const styles = theme => ({
     root: {
@@ -41,6 +42,10 @@ class Main extends React.Component {
             board: {
                 status: null
             }
+        };
+
+        this.showToast = (type, message) => {
+            toast(message, {type: type});
         }
     }
 
@@ -69,7 +74,7 @@ class Main extends React.Component {
         const {classes} = this.props;
         return (
             <div className={classes.root}>
-                <NavigationWrapper communicationManager={this.communicationManager}/>
+                <NavigationWrapper communicationManager={this.communicationManager} toastCallback={this.showToast}/>
                 <main className={classes.content}>
                     <div className={classes.toolbar}/>
                     <PagesWrapper
@@ -77,6 +82,7 @@ class Main extends React.Component {
                         axisMotor={this.axisMotor}
                         tableMotor={this.tableMotor}
                         board={this.state.board}
+                        toastCallback={this.showToast}
                     />
                 </main>
             </div>
