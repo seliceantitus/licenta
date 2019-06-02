@@ -49,6 +49,7 @@ class Main extends React.Component {
         }
     }
 
+    //TODO reset motors values on disconnects
     componentDidMount() {
         this.communicationManager.addSocketConnectHandler(
             () => this.setState({socket: {connected: true}})

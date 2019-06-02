@@ -1,6 +1,13 @@
 import React from "react";
 import PropTypes from 'prop-types';
-import {DEFAULT_MD_COL_WIDTH, DEFAULT_XS_COL_WIDTH, TOAST_ERROR, TOAST_SUCCESS} from "../../Constants/UI";
+import {
+    AXIS_OPTIONS,
+    DEFAULT_MD_COL_WIDTH,
+    DEFAULT_XS_COL_WIDTH,
+    TABLE_OPTIONS,
+    TOAST_ERROR,
+    TOAST_SUCCESS
+} from "../../Constants/UI";
 import {
     Avatar,
     Card,
@@ -27,6 +34,7 @@ import {
     CONFIG_NO_RESPONSE,
     CONFIG_TURNTABLE_SUCCESS
 } from "../../Constants/Messages";
+import DropdownMenu from "../../Components/Dashboard/DropdownMenu";
 
 const styles = theme => ({
     paper: {
@@ -177,6 +185,7 @@ class Dashboard extends React.Component {
     };
 
     handleConfigDataChanged = name => (event) => {
+        console.log(event);
         this.setState({
             [name]: {
                 ...this.state[name],
@@ -230,12 +239,12 @@ class Dashboard extends React.Component {
             </div>
             <div>
                 <form style={{display: 'flex', alignItems: 'center', marginTop: 20}}>
-                    <TextField
+                    <DropdownMenu
+                        id={'axisMotor'}
                         disabled={!this.state.pageEnabled}
-                        className={classes.textField}
-                        label="Step increment"
-                        value={this.state.axisMotor.stepSize}
-                        onChange={this.handleConfigDataChanged('axisMotor')}
+                        initialValue={this.state.axisMotor.stepSize}
+                        options={AXIS_OPTIONS}
+                        changeHandler={this.handleConfigDataChanged}
                     />
                     <Button
                         disabled={!this.state.pageEnabled}
@@ -251,6 +260,7 @@ class Dashboard extends React.Component {
                             <SaveOutlined/>
                         }
                     </Button>
+
                 </form>
             </div>
         </div>
@@ -268,12 +278,12 @@ class Dashboard extends React.Component {
             </div>
             <div>
                 <form style={{display: 'flex', alignItems: 'center'}}>
-                    <TextField
+                    <DropdownMenu
+                        id={'tableMotor'}
                         disabled={!this.state.pageEnabled}
-                        className={classes.textField}
-                        label="Step increment"
-                        value={this.state.tableMotor.stepSize}
-                        onChange={this.handleConfigDataChanged('tableMotor')}
+                        initialValue={this.state.tableMotor.stepSize}
+                        options={TABLE_OPTIONS}
+                        changeHandler={this.handleConfigDataChanged}
                     />
                     <Button
                         component={'button'}
@@ -290,6 +300,7 @@ class Dashboard extends React.Component {
                             <SaveOutlined/>
                         }
                     </Button>
+
                 </form>
             </div>
         </div>
