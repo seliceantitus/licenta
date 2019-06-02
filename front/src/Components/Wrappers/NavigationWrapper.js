@@ -25,7 +25,6 @@ import {
     SOCKET_DISCONNECT,
     SOCKET_NOT_CONNECTED
 } from "../../Constants/Messages";
-import {Slide, toast, ToastContainer} from "react-toastify/index";
 import {CssBaseline,} from "@material-ui/core";
 import NavigationList from "../Navigation/NavigationList";
 
@@ -50,8 +49,8 @@ class NavigationWrapper extends React.Component {
         };
 
         // this.showToast = (type, message) => {
-            // toast(message, {type: type, containerId: 'NavigationWrapper'})
-            // toast(message, {type: type});
+        // toast(message, {type: type, containerId: 'NavigationWrapper'})
+        // toast(message, {type: type});
         // };
 
         this.showToast = toastCallback;

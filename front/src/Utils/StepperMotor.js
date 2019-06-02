@@ -23,7 +23,7 @@ class StepperMotor {
     }
 
     getSteps() {
-        return this.fullRotationSteps/this.stepIncrement;
+        return this.fullRotationSteps / this.stepIncrement;
     }
 
     getAngle() {

@@ -4,12 +4,10 @@ import Chart from 'react-apexcharts';
 import {Button, CircularProgress, Grid, Paper, withStyles} from "@material-ui/core";
 import {DEFAULT_MD_COL_WIDTH, DEFAULT_XS_COL_WIDTH, TOAST_ERROR, TOAST_SUCCESS} from "../../Constants/UI";
 import {BOARD_STATUS, REQUEST, RESPONSE, SCAN_STATUS} from "../../Constants/Communication";
-import {CloudUpload, Delete, Pause, PlayArrow, SaveOutlined, Stop} from "@material-ui/icons";
+import {CloudUpload, Delete, Pause, PlayArrow, Stop} from "@material-ui/icons";
 import {API} from "../../Constants/URL";
-import {Slide, toast, ToastContainer} from "react-toastify";
 import {SCAN_DATA_SAVED, SCANNING_PAUSE, SCANNING_START, SCANNING_STOP} from "../../Constants/Messages";
 import Divider from "@material-ui/core/Divider";
-import Dashboard from "../Dashboard/Dashboard";
 
 const styles = theme => ({
     margin: {
@@ -92,8 +90,8 @@ class Scan extends React.Component {
         this.deleteScan = this.deleteScan.bind(this);
 
         // this.showToast = (type, message) => {
-            // toast(message, {type: type, containerId: 'Scan'})
-            // toast(message, {type: type});
+        // toast(message, {type: type, containerId: 'Scan'})
+        // toast(message, {type: type});
         // };
         this.showToast = toastCallback;
     }
@@ -119,9 +117,6 @@ class Scan extends React.Component {
             this.socket.on(RESPONSE.FINISHED_SCAN, (data) => this.handleInboundData(RESPONSE.FINISHED_SCAN, data));
             this.socket.on(RESPONSE.SENSOR, (data) => this.handleInboundData(RESPONSE.SENSOR, data));
             this.socket.on(RESPONSE.ERROR, (data) => this.handleInboundData(RESPONSE.ERROR, data));
-
-            console.log(this.counter);
-            console.log(this.layerSteps);
         }
     }
 
@@ -214,7 +209,7 @@ class Scan extends React.Component {
         const distances = [];
         let startIndex = 0;
         this.layers.distances.forEach((distance, index) => {
-            if (distance === -1){
+            if (distance === -1) {
                 distances.push(this.layers.distances.slice(startIndex, index));
                 startIndex = index + 1;
             }

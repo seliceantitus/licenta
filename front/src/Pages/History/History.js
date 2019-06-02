@@ -54,7 +54,7 @@ class History extends React.Component {
     }
 
     render() {
-        if (!this.state.dataLoaded) return <CircularProgress/>
+        if (!this.state.dataLoaded) return <CircularProgress/>;
         return (
             <Grid container justify={"center"} alignItems={"flex-start"} spacing={2} direction={"row"}>
                 <Paper>

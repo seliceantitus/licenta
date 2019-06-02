@@ -1,6 +1,5 @@
 import React from "react";
 import PropTypes from 'prop-types';
-import {Slide, toast, ToastContainer} from 'react-toastify';
 import {DEFAULT_MD_COL_WIDTH, DEFAULT_XS_COL_WIDTH, TOAST_ERROR, TOAST_SUCCESS} from "../../Constants/UI";
 import {
     Avatar,
@@ -110,7 +109,7 @@ class Dashboard extends React.Component {
         this.socket = this.communicationManager.getSocket();
 
         this.state = {
-            enabled: false,
+            pageEnabled: false,
             axisMotor: {
                 configWaiting: false,
                 stepDegree: 0,
@@ -125,7 +124,7 @@ class Dashboard extends React.Component {
 
         // this.showToast = (type, message) => {
         //     toast(message, {type: type, containerId: 'Dashboard'})
-            // toast(message, {type: type});
+        // toast(message, {type: type});
         // };
 
         this.showToast = toastCallback;
