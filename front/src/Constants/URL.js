@@ -13,6 +13,10 @@ export const API = {
         URL: `http://localhost:3001/scan`,
         METHOD: 'POST'
     },
+    SCAN_DELETE: {
+        URL: (scan_id) => `http://localhost:3001/scan/${scan_id}`,
+        METHOD: 'DELETE',
+    },
     LAYER_INDEX: {
         URL: `http://localhost:3001/layer`,
         METHOD: 'GET'

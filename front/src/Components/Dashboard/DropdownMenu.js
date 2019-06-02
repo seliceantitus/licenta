@@ -13,7 +13,7 @@ const styles = theme => ({
     },
     formControl: {
         margin: theme.spacing(1),
-        minWidth: 120,
+        minWidth: 140,
     },
     selectEmpty: {
         marginTop: theme.spacing(2),
@@ -30,15 +30,16 @@ class DropdownMenu extends React.Component {
         const {classes, id, initialValue, options, disabled, changeHandler} = this.props;
         return (
             <FormControl className={classes.formControl} disabled={disabled}>
-                <InputLabel shrink htmlFor="age-label-placeholder">
+                <InputLabel htmlFor="step-size-select">
                     Step increment
                 </InputLabel>
                 <Select
-                    value={initialValue}
+                    value={initialValue ? initialValue : ''}
                     onChange={changeHandler(id)}
-                    input={<Input name="age" id="age-label-placeholder"/>}
-                    displayEmpty
-                    name="age"
+                    inputProps={{
+                        name: 'step-size',
+                        id: 'step-size-select',
+                    }}
                     className={classes.selectEmpty}
                 >
                     {this.renderMenuList(id, options)}

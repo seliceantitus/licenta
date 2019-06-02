@@ -6,7 +6,14 @@ import {DEFAULT_MD_COL_WIDTH, DEFAULT_XS_COL_WIDTH, TOAST_ERROR, TOAST_SUCCESS} 
 import {BOARD_STATUS, REQUEST, RESPONSE, SCAN_STATUS} from "../../Constants/Communication";
 import {CloudUpload, Delete, Pause, PlayArrow, Stop} from "@material-ui/icons";
 import {API} from "../../Constants/URL";
-import {SCAN_DATA_SAVED, SCANNING_PAUSE, SCANNING_START, SCANNING_STOP} from "../../Constants/Messages";
+import {
+    SCAN_DATA_DELETED,
+    SCAN_DATA_SAVED,
+    SCANNING_FINISHED,
+    SCANNING_PAUSE,
+    SCANNING_START,
+    SCANNING_STOP
+} from "../../Constants/Messages";
 import Divider from "@material-ui/core/Divider";
 
 const styles = theme => ({
@@ -89,10 +96,6 @@ class Scan extends React.Component {
         this.uploadScan = this.uploadScan.bind(this);
         this.deleteScan = this.deleteScan.bind(this);
 
-        // this.showToast = (type, message) => {
-        // toast(message, {type: type, containerId: 'Scan'})
-        // toast(message, {type: type});
-        // };
         this.showToast = toastCallback;
     }
 
@@ -129,6 +132,14 @@ class Scan extends React.Component {
         this.socket.removeAllListeners(RESPONSE.ERROR);
     }
 
+    resetVariables = () => {
+        this.counter = 0;
+        this.sessionId = 0;
+        this.layerCounter = 0;
+        this.layers.distances = [];
+        this.layers.points = [];
+    };
+
     handleInboundData(event, json) {
         switch (event) {
             case RESPONSE.START_SCAN:
@@ -138,11 +149,22 @@ class Scan extends React.Component {
                 this.setState({scanStatus: SCAN_STATUS.PAUSED});
                 break;
             case RESPONSE.STOP_SCAN:
-                // The data is lost because the component is reconstructed by the BOARD_BUSY flag
+                //TODO The data is lost because the component is reconstructed by the BOARD_BUSY flag
+                // prompt the user with a warning message before - Dialog
+
+                // this.resetVariables();
                 this.setState({scanStatus: SCAN_STATUS.STOPPED});
                 break;
             case RESPONSE.FINISHED_SCAN:
-                this.setState({scanStatus: SCAN_STATUS.FINISHED});
+                this.showToast(TOAST_SUCCESS, SCANNING_FINISHED);
+                this.resetVariables();
+                this.setState({
+                    scanStatus: SCAN_STATUS.FINISHED,
+                    series: [{
+                        name: 'Distance',
+                        data: new Array(this.tableMotor.getRadarLabels().length).fill(0),
+                    }]
+                });
                 break;
             case RESPONSE.SENSOR:
                 this.handleSensorData(json);
@@ -199,8 +221,8 @@ class Scan extends React.Component {
         this.showToast(TOAST_SUCCESS, SCANNING_STOP);
     }
 
+    //TODO Show dialog before doing the upload, where the user can name the scan
     uploadScan() {
-        console.log("Uploading");
         this.setState({scanStatus: SCAN_STATUS.UPLOADING});
         let z = 0.0;
         let angle = 0;
@@ -238,9 +260,7 @@ class Scan extends React.Component {
                 .then(response => response.json())
                 .then(
                     data => {
-                        //TODO
-
-                        // console.log(data);
+                        //TODO Do smth here
                     },
                     err => {
                         console.log(err)
@@ -252,18 +272,38 @@ class Scan extends React.Component {
             console.log(points);
         });
         this.showToast(TOAST_SUCCESS, SCAN_DATA_SAVED);
-        this.setState({scanStatus: SCAN_STATUS.IDLE});
-        console.log("Done uploading");
-
+        this.setState({
+            scanStatus: SCAN_STATUS.IDLE,
+            series: [{
+                name: 'Distance',
+                data: new Array(this.tableMotor.getRadarLabels().length).fill(0),
+            }]
+        });
     };
 
     deleteScan() {
-        console.log("Deleting");
         this.setState({scanStatus: SCAN_STATUS.DELETING});
-        //TODO Implement DELETE API call
-        console.log("Done deleting");
+        fetch(
+            API.SCAN_DELETE.URL(this.sessionId),
+            {
+                method: API.SCAN_DELETE.METHOD,
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(
+                data => {
+                    this.showToast(TOAST_SUCCESS, SCAN_DATA_DELETED);
+                    this.setState({scanStatus: SCAN_STATUS.IDLE});
+                },
+                err => {
+                    console.log(err);
+                })
+            .catch(err => console.log(err));
     };
 
+    //TODO Create login for each button's disabled state
     renderSideMenu = (classes) => (
         <Paper className={classes.paper}>
             <Button
@@ -298,7 +338,7 @@ class Scan extends React.Component {
                 color={"primary"}
                 className={classes.button}
                 onClick={this.uploadScan}
-                disabled={!this.state.pageEnabled}
+                disabled={!this.state.pageEnabled || !(this.state.scanStatus === SCAN_STATUS.FINISHED)}
             >
                 {this.state.scanStatus === SCAN_STATUS.UPLOADING ?
                     <CircularProgress variant={"indeterminate"} style={{width: 24, height: 24, color: 'white'}}/>
@@ -311,7 +351,7 @@ class Scan extends React.Component {
                 color={"secondary"}
                 className={classes.button}
                 onClick={this.deleteScan}
-                disabled={!this.state.pageEnabled}
+                disabled={!this.state.pageEnabled || !(this.state.scanStatus === SCAN_STATUS.FINISHED)}
             >
                 {this.state.scanStatus === SCAN_STATUS.DELETING ?
                     <CircularProgress variant={"indeterminate"} style={{width: 24, height: 24, color: 'white'}}/>

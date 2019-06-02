@@ -37,3 +37,4 @@ export const SCANNING_STOP = "Stopping the scan.";
 export const SCANNING_FINISHED = "Scan has finished.";
 
 export const SCAN_DATA_SAVED = "Saved scan data.";
+export const SCAN_DATA_DELETED = "Deleted scan data.";

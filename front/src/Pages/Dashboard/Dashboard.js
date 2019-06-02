@@ -35,6 +35,7 @@ import {
     CONFIG_TURNTABLE_SUCCESS
 } from "../../Constants/Messages";
 import DropdownMenu from "../../Components/Dashboard/DropdownMenu";
+import MotorChart from "../../Components/Dashboard/MotorChart";
 
 const styles = theme => ({
     paper: {
@@ -78,15 +79,6 @@ const styles = theme => ({
         marginLeft: '2rem',
         textTransform: 'uppercase',
     },
-    configForm: {
-        display: 'flex',
-        alignItems: 'center',
-        flexWrap: 'wrap',
-        marginTop: theme.spacing(1),
-    },
-    textField: {
-        marginRight: theme.spacing(1),
-    },
     button: {
         margin: theme.spacing(1),
     },
@@ -129,11 +121,6 @@ class Dashboard extends React.Component {
                 stepSize: 0
             },
         };
-
-        // this.showToast = (type, message) => {
-        //     toast(message, {type: type, containerId: 'Dashboard'})
-        // toast(message, {type: type});
-        // };
 
         this.showToast = toastCallback;
     }
@@ -185,7 +172,6 @@ class Dashboard extends React.Component {
     };
 
     handleConfigDataChanged = name => (event) => {
-        console.log(event);
         this.setState({
             [name]: {
                 ...this.state[name],
@@ -260,8 +246,12 @@ class Dashboard extends React.Component {
                             <SaveOutlined/>
                         }
                     </Button>
-
                 </form>
+                {this.state.pageEnabled ?
+                    <MotorChart value={this.state.axisMotor.stepSize} visible={!this.state.pageEnabled}/>
+                    :
+                    null
+                }
             </div>
         </div>
     );
@@ -300,7 +290,11 @@ class Dashboard extends React.Component {
                             <SaveOutlined/>
                         }
                     </Button>
-
+                    {this.state.pageEnabled ?
+                        <MotorChart value={this.state.tableMotor.stepSize} visible={!this.state.pageEnabled}/>
+                        :
+                        null
+                    }
                 </form>
             </div>
         </div>
@@ -386,7 +380,7 @@ class Dashboard extends React.Component {
     );
 
     render() {
-        const {classes, board} = this.props;
+        const {classes} = this.props;
         return (
             <Grid container justify={"center"} alignItems={"flex-start"} spacing={2}>
                 <Grid container item justify={"flex-start"} alignItems={"flex-start"}

@@ -84,7 +84,7 @@ class CommunicationController {
                         io.sockets.emit(RESPONSE.STOP_SCAN, jsonData);
                         break;
                     case ARDUINO_RESPONSE.AR_FINISHED_SCAN:
-                        io.sockets.emit(RESPONSE.AR_FINISHED_SCAN, jsonData);
+                        io.sockets.emit(RESPONSE.FINISHED_SCAN, jsonData);
                         break;
                     case ARDUINO_RESPONSE.AR_ERROR:
                         io.sockets.emit(RESPONSE.ERROR, {message: ARDUINO_ERRORS[jsonData.message].MESSAGE});

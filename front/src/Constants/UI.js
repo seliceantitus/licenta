@@ -20,5 +20,5 @@ export const NAV_BUTTON = 'nav_button';
 export const NAV_DIVIDER = 'nav_divider';
 export const NAV_MENU = 'nav_menu';
 
-export const AXIS_OPTIONS = [100, 200, 400, 600, 800, 1000];
+export const AXIS_OPTIONS = [100, 200, 300, 400, 500, 600, 700, 800];
 export const TABLE_OPTIONS = [1, 2, 4, 5, 8, 10, 20, 25];
