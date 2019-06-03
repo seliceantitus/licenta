@@ -1,13 +1,16 @@
 import React from "react";
 import {CircularProgress, Grid, withStyles} from "@material-ui/core";
-import Paper from "@material-ui/core/Paper";
 import {API} from "../../Constants/URL";
-import {Delete, Edit, Visibility} from "@material-ui/icons";
-import ListItem from "@material-ui/core/ListItem";
+import {Delete, Edit} from "@material-ui/icons";
 import ListItemSecondaryAction from "@material-ui/core/ListItemSecondaryAction";
 import IconButton from "@material-ui/core/IconButton";
-import ListItemText from "@material-ui/core/ListItemText";
-import List from "@material-ui/core/List";
+import {DEFAULT_MD_COL_WIDTH, DEFAULT_XS_COL_WIDTH, TOAST_SUCCESS, TOAST_WARN} from "../../Constants/UI";
+import Paper from "@material-ui/core/Paper";
+import Typography from "@material-ui/core/Typography";
+import MenuList from "@material-ui/core/MenuList";
+import MenuItem from "@material-ui/core/MenuItem";
+import {SCAN_STATUS} from "../../Constants/Communication";
+import {SCAN_DATA_DELETED} from "../../Constants/Messages";
 
 const styles = theme => ({
     listButton: {
@@ -19,12 +22,15 @@ class History extends React.Component {
 
     constructor(props) {
         super(props);
+        const {toastCallback} = this.props;
 
         this.state = {
             scans: {}
         };
 
         this.fetchScanDetails = this.fetchScanDetails.bind(this);
+
+        this.showToast = toastCallback;
     }
 
     componentDidMount() {
@@ -36,7 +42,9 @@ class History extends React.Component {
             .then(response => response.json())
             .then(
                 response => {
-                    this.setState({scans: response.data, dataLoaded: true})
+                    setTimeout(
+                        () => this.setState({scans: response.data, dataLoaded: true}),
+                        500);
                 },
                 err => {
                     console.log(err)
@@ -61,37 +69,72 @@ class History extends React.Component {
             .catch(err => console.log(err));
     }
 
+    deleteScan = (scan_id) => {
+        fetch(
+            API.SCAN_DELETE.URL(scan_id),
+            {
+                method: API.SCAN_DELETE.METHOD,
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(
+                data => {
+                    // this.showToast(TOAST_WARN, 'DELETED');
+                    this.setState(state => {
+                        return {
+                            ...state,
+                            scans: state.scans.filter(scan => scan._id !== scan_id)
+                        }
+                    });
+                },
+                err => {
+                    console.log(err);
+                })
+            .catch(err => console.log(err));
+    };
+
     renderScansList = () => (
         // component={Link} to={`/viewer/${scan._id}`}
         this.state.scans.map((scan, index) =>
-            <ListItem key={`Scan-${index}`}>
-                <ListItemText primary={scan.name}/>
+            <MenuItem key={`Scan-${index}`}>
+                <Typography noWrap>
+                    {scan.name}
+                </Typography>
                 <ListItemSecondaryAction>
-                    <IconButton onClick={() => console.log('View')}>
-                        <Visibility/>
-                    </IconButton>
                     <IconButton onClick={() => console.log('Edit')}>
                         <Edit/>
                     </IconButton>
-                    <IconButton onClick={() => console.log('Delete')}>
-                        <Delete/>
+                    <IconButton onClick={() => this.deleteScan(scan['_id'])}>
+                        <Delete color={"secondary"}/>
                     </IconButton>
-
                 </ListItemSecondaryAction>
-                {/*<Button onClick={() => this.fetchScanDetails(scan._id)}>*/}
-                {/*    View 3D*/}
-                {/*</Button>*/}
-            </ListItem>
+            </MenuItem>
         )
     );
 
     render() {
         if (!this.state.dataLoaded) return <CircularProgress/>;
         return (
-            /*<Grid container justify={"flex-start"} alignItems={"flex-start"} spacing={2} direction={"row"}>*/
-                <List>
-                    {this.renderScansList()}
-                </List>
+            <Grid container justify={"center"} alignItems={"flex-start"} spacing={2}>
+                <Grid container item direction={"column"} justify={"center"} alignItems={"stretch"}
+                      xs={DEFAULT_XS_COL_WIDTH} md={DEFAULT_MD_COL_WIDTH} lg={2} xl={2}
+                >
+                    <Paper>
+                        <MenuList>
+                            {this.renderScansList()}
+                        </MenuList>
+                    </Paper>
+                </Grid>
+                <Grid container item direction={"column"} justify={"center"} alignItems={"stretch"}
+                      xs={DEFAULT_XS_COL_WIDTH} md={DEFAULT_MD_COL_WIDTH} lg={8} xl={8}
+                >
+                    <Paper>
+                        Test
+                    </Paper>
+                </Grid>
+            </Grid>
             // </Grid>
         );
     }

@@ -38,7 +38,13 @@ class PagesWrapper extends React.Component {
                            />
                        }
                 />
-                <Route path={'/history'} component={History}/>
+                <Route path={'/history'}
+                       component={() =>
+                           <History
+                               toastCallback={toastCallback}
+                           />
+                       }
+                />
                 <Route path={'/viewer/:scan_id'} component={Viewer}/>
                 <Route path={'/help'} component={Help}/>
             </Switch>
