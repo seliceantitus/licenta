@@ -1,11 +1,19 @@
 import React from "react";
-import {CircularProgress, Grid} from "@material-ui/core";
+import {CircularProgress, Grid, withStyles} from "@material-ui/core";
 import Paper from "@material-ui/core/Paper";
 import {API} from "../../Constants/URL";
-import {ThreeSixty} from "@material-ui/icons";
-import {Link} from "react-router-dom";
+import {Delete, Edit, Visibility} from "@material-ui/icons";
 import ListItem from "@material-ui/core/ListItem";
-import Divider from "@material-ui/core/Divider";
+import ListItemSecondaryAction from "@material-ui/core/ListItemSecondaryAction";
+import IconButton from "@material-ui/core/IconButton";
+import ListItemText from "@material-ui/core/ListItemText";
+import List from "@material-ui/core/List";
+
+const styles = theme => ({
+    listButton: {
+        focusVisible: false
+    }
+});
 
 class History extends React.Component {
 
@@ -53,26 +61,40 @@ class History extends React.Component {
             .catch(err => console.log(err));
     }
 
+    renderScansList = () => (
+        // component={Link} to={`/viewer/${scan._id}`}
+        this.state.scans.map((scan, index) =>
+            <ListItem key={`Scan-${index}`}>
+                <ListItemText primary={scan.name}/>
+                <ListItemSecondaryAction>
+                    <IconButton onClick={() => console.log('View')}>
+                        <Visibility/>
+                    </IconButton>
+                    <IconButton onClick={() => console.log('Edit')}>
+                        <Edit/>
+                    </IconButton>
+                    <IconButton onClick={() => console.log('Delete')}>
+                        <Delete/>
+                    </IconButton>
+
+                </ListItemSecondaryAction>
+                {/*<Button onClick={() => this.fetchScanDetails(scan._id)}>*/}
+                {/*    View 3D*/}
+                {/*</Button>*/}
+            </ListItem>
+        )
+    );
+
     render() {
         if (!this.state.dataLoaded) return <CircularProgress/>;
         return (
-            <Grid container justify={"center"} alignItems={"flex-start"} spacing={2} direction={"row"}>
-                <Paper>
-                    {
-                        this.state.scans.map((scan, index) =>
-                            <>
-                                <ListItem button component={Link} to={`/viewer/${scan._id}`} key={`Scan-${index}`}>
-                                    {scan.name}
-                                    <ThreeSixty onClick={() => this.fetchScanDetails(scan._id)}/>
-                                </ListItem>
-                                <Divider/>
-                            </>
-                        )
-                    }
-                </Paper>
-            </Grid>
+            /*<Grid container justify={"flex-start"} alignItems={"flex-start"} spacing={2} direction={"row"}>*/
+                <List>
+                    {this.renderScansList()}
+                </List>
+            // </Grid>
         );
     }
 }
 
-export default History;
+export default withStyles(styles)(History);

@@ -239,7 +239,7 @@ bool checkLimits() {
 }
 
 bool checkOverObjectHeight() {
-  if (infinityResults > (0.9 * pointsPerLayer)){
+  if (infinityResults >= pointsPerLayer){
     sendFinishedScan();
     return true;
   }
@@ -256,6 +256,7 @@ void resetComponents() {
   layer = 0;
   sensorAxisTurns = 0;
   turntableTurns = 0;
+  infinityResults = 0;
   delay(1000);
 //  sendBoardReady();
 }
@@ -273,6 +274,7 @@ void loop() {
       } else {
         layer += 1;
         turntableTurns = 0;
+        infinityResults = 0;
         sensorAxis.turn(sensorAxisStep);
         sensorAxisTurns += sensorAxisStep;
       }

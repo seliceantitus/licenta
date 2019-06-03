@@ -9,12 +9,17 @@ import {API} from "../../Constants/URL";
 import {
     SCAN_DATA_DELETED,
     SCAN_DATA_SAVED,
+    SCAN_STOP_DIALOG_BODY,
+    SCAN_STOP_DIALOG_TITLE,
+    SCAN_UPLOAD_DIALOG_TITLE,
     SCANNING_FINISHED,
     SCANNING_PAUSE,
     SCANNING_START,
     SCANNING_STOP
 } from "../../Constants/Messages";
 import Divider from "@material-ui/core/Divider";
+import AgreeDialog from "../../Components/Scan/AgreeDialog";
+import InputDialog from "../../Components/Scan/InputDialog";
 
 const styles = theme => ({
     margin: {
@@ -64,12 +69,16 @@ class Scan extends React.Component {
         const {communicationManager, axisMotor, tableMotor, toastCallback} = this.props;
         this.axisMotor = axisMotor;
         this.tableMotor = tableMotor;
+
         this.communicationManager = communicationManager;
         this.socket = this.communicationManager.getSocket();
 
         this.state = {
             pageEnabled: false,
             scanStatus: null,
+            startDialogOpen: false,
+            stopDialogOpen: false,
+            deleteDialogOpen: false,
             options: {
                 labels: [],
             },
@@ -147,17 +156,29 @@ class Scan extends React.Component {
                 break;
             case RESPONSE.PAUSE_SCAN:
                 this.setState({scanStatus: SCAN_STATUS.PAUSED});
+                this.showToast(TOAST_SUCCESS, SCANNING_PAUSE);
                 break;
             case RESPONSE.STOP_SCAN:
                 //TODO The data is lost because the component is reconstructed by the BOARD_BUSY flag
                 // prompt the user with a warning message before - Dialog
 
-                // this.resetVariables();
-                this.setState({scanStatus: SCAN_STATUS.STOPPED});
+                this.resetVariables();
+                this.setState({
+                        scanStatus: SCAN_STATUS.STOPPED,
+                        stopDialogOpen: false,
+                        options: {
+                            labels: this.tableMotor.getRadarLabels(),
+                        },
+                        series: [{
+                            name: 'Distance',
+                            data: new Array(this.tableMotor.getSteps()).fill(0),
+                        }]
+                    }
+                );
+                this.showToast(TOAST_SUCCESS, SCANNING_STOP);
                 break;
             case RESPONSE.FINISHED_SCAN:
                 this.showToast(TOAST_SUCCESS, SCANNING_FINISHED);
-                this.resetVariables();
                 this.setState({
                     scanStatus: SCAN_STATUS.FINISHED,
                     series: [{
@@ -179,7 +200,7 @@ class Scan extends React.Component {
 
     handleSensorData(json) {
         const {distance} = json.data;
-        console.log(`Distance`, distance);
+        console.log(distance);
         let seriesData = this.state.series[0].data;
         if (this.counter > this.layerSteps - 1) {
             seriesData = seriesData.fill(0);
@@ -192,18 +213,26 @@ class Scan extends React.Component {
         this.setState({series: [{...this.state.series, data: seriesData}]});
     }
 
-    startScan() {
+    startScan(scanName) {
+        let name  = scanName ? scanName : 'Unnamed';
+        let body = {name: name};
         fetch(
             API.SCAN_NEW.URL,
             {
-                method: API.SCAN_NEW.METHOD
+                method: API.SCAN_NEW.METHOD,
+                body: JSON.stringify(body),
+                headers: {
+                    'Content-Type': 'application/json'
+                }
             })
             .then(response => response.json())
             .then(
                 data => {
+                    this.setState({startDialogOpen: false});
                     this.sessionId = data.data._id;
                     this.socket.emit(REQUEST.START_SCAN);
                     this.showToast(TOAST_SUCCESS, SCANNING_START);
+                    console.log(this.sessionId);
                 },
                 err => {
                     console.log(err)
@@ -212,16 +241,17 @@ class Scan extends React.Component {
     }
 
     pauseScan() {
-        this.socket.emit(REQUEST.PAUSE_SCAN);
-        this.showToast(TOAST_SUCCESS, SCANNING_PAUSE);
+        if (this.state.scanStatus !== SCAN_STATUS.PAUSED) {
+            this.socket.emit(REQUEST.PAUSE_SCAN);
+        } else {
+            //TODO create handler for unpause
+        }
     }
 
     stopScan() {
         this.socket.emit(REQUEST.STOP_SCAN);
-        this.showToast(TOAST_SUCCESS, SCANNING_STOP);
     }
 
-    //TODO Show dialog before doing the upload, where the user can name the scan
     uploadScan() {
         this.setState({scanStatus: SCAN_STATUS.UPLOADING});
         let z = 0.0;
@@ -230,20 +260,25 @@ class Scan extends React.Component {
         let turnRadians = (Math.PI / 180.00) * turnAngle;
         const distances = [];
         let startIndex = 0;
+        console.log('Splitting original array', this.layers.distances);
         this.layers.distances.forEach((distance, index) => {
             if (distance === -1) {
                 distances.push(this.layers.distances.slice(startIndex, index));
                 startIndex = index + 1;
             }
         });
+        console.log('Processing local var distances', distances);
         distances.forEach((distanceArray) => {
             let points = [];
+            console.log('For each array', distanceArray);
             distanceArray.forEach((distance) => {
                 const x = Math.sin(angle) * distance;
                 const y = Math.cos(angle) * distance;
                 points.push({x: x, y: y, z: z});
                 angle += turnRadians;
+                console.log('\t', angle);
             });
+            console.log('Fetching');
             fetch(
                 API.LAYER_NEW.URL,
                 {
@@ -260,7 +295,8 @@ class Scan extends React.Component {
                 .then(response => response.json())
                 .then(
                     data => {
-                        //TODO Do smth here
+                        console.log(data);
+                        // this.resetVariables();
                     },
                     err => {
                         console.log(err)
@@ -303,14 +339,13 @@ class Scan extends React.Component {
             .catch(err => console.log(err));
     };
 
-    //TODO Create login for each button's disabled state
     renderSideMenu = (classes) => (
         <Paper className={classes.paper}>
             <Button
                 variant={"contained"}
                 color={"primary"}
                 className={classes.button}
-                onClick={this.startScan}
+                onClick={() => this.setState({startDialogOpen: true})}
                 disabled={!this.state.pageEnabled}
             >
                 <PlayArrow/>
@@ -327,7 +362,7 @@ class Scan extends React.Component {
                 variant={"contained"}
                 color={"secondary"}
                 className={classes.button}
-                onClick={this.stopScan}
+                onClick={() => this.setState({stopDialogOpen: true})}
                 disabled={!this.state.pageEnabled}
             >
                 <Stop/>
@@ -358,7 +393,6 @@ class Scan extends React.Component {
                     :
                     <Delete/>
                 }
-
             </Button>
         </Paper>
     );
@@ -383,6 +417,24 @@ class Scan extends React.Component {
                 >
                     <Grid item>
                         {this.renderSideMenu(classes)}
+                        <AgreeDialog
+                            open={this.state.stopDialogOpen}
+                            title={SCAN_STOP_DIALOG_TITLE}
+                            body={SCAN_STOP_DIALOG_BODY}
+                            okButtonText={'I understand'}
+                            cancelButtonText={'Cancel'}
+                            okHandler={this.stopScan}
+                            cancelHandler={() => this.setState({stopDialogOpen: false})}
+                        />
+                        <InputDialog
+                            open={this.state.startDialogOpen}
+                            title={SCAN_UPLOAD_DIALOG_TITLE}
+                            body={SCAN_STOP_DIALOG_BODY}
+                            okButtonText={'Save'}
+                            cancelButtonText={'Don\'t use a name'}
+                            okHandler={this.startScan}
+                            cancelHandler={this.startScan}
+                        />
                     </Grid>
                 </Grid>
                 <Grid container item spacing={0} direction={"column"} justify={"center"} alignItems={"stretch"}

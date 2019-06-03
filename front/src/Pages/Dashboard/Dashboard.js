@@ -1,9 +1,11 @@
 import React from "react";
 import PropTypes from 'prop-types';
 import {
+    AXIS_MAX,
     AXIS_OPTIONS,
     DEFAULT_MD_COL_WIDTH,
     DEFAULT_XS_COL_WIDTH,
+    TABLE_MAX,
     TABLE_OPTIONS,
     TOAST_ERROR,
     TOAST_SUCCESS
@@ -26,7 +28,6 @@ import {
 
 import {ExpandMore, SaveOutlined} from "@material-ui/icons";
 import Button from "@material-ui/core/Button";
-import TextField from "@material-ui/core/TextField";
 import {BOARD_STATUS, COMPONENTS, REQUEST} from "../../Constants/Communication";
 import {
     CONFIG_AXIS_SUCCESS,
@@ -223,8 +224,8 @@ class Dashboard extends React.Component {
                     The step increment parameter influences the total number of layers the final scan will have.
                 </Typography>
             </div>
-            <div>
-                <form style={{display: 'flex', alignItems: 'center', marginTop: 20}}>
+            <div style={{display: 'flex', alignItems: 'flex-start', justifyContent: 'flex-start', marginTop: 20}}>
+                <form>
                     <DropdownMenu
                         id={'axisMotor'}
                         disabled={!this.state.pageEnabled}
@@ -248,7 +249,11 @@ class Dashboard extends React.Component {
                     </Button>
                 </form>
                 {this.state.pageEnabled ?
-                    <MotorChart value={this.state.axisMotor.stepSize} visible={!this.state.pageEnabled}/>
+                    <MotorChart
+                        value={this.state.axisMotor.stepSize}
+                        visible={!this.state.pageEnabled}
+                        max={AXIS_MAX}
+                    />
                     :
                     null
                 }
@@ -266,8 +271,8 @@ class Dashboard extends React.Component {
                     The step increment parameter influences the total number of points per layer.
                 </Typography>
             </div>
-            <div>
-                <form style={{display: 'flex', alignItems: 'center'}}>
+            <div style={{display: 'flex', alignItems: 'flex-start', justifyContent: 'flex-start', marginTop: 20}}>
+                <form>
                     <DropdownMenu
                         id={'tableMotor'}
                         disabled={!this.state.pageEnabled}
@@ -290,12 +295,16 @@ class Dashboard extends React.Component {
                             <SaveOutlined/>
                         }
                     </Button>
-                    {this.state.pageEnabled ?
-                        <MotorChart value={this.state.tableMotor.stepSize} visible={!this.state.pageEnabled}/>
-                        :
-                        null
-                    }
                 </form>
+                {this.state.pageEnabled ?
+                    <MotorChart
+                        value={this.state.tableMotor.stepSize}
+                        visible={!this.state.pageEnabled}
+                        max={TABLE_MAX}
+                    />
+                    :
+                    null
+                }
             </div>
         </div>
     );
