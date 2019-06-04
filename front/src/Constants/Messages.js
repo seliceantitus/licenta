@@ -42,5 +42,7 @@ export const SCAN_STOP_DIALOG_BODY = "Are you sure you want to stop the scan? Al
 export const SCAN_UPLOAD_DIALOG_TITLE = "Name your scan";
 export const SCAN_UPLOAD_DIALOG_BODY = "You can give your scan a name if you want (it is optional).";
 
+export const SCAN_DELETE = "Scan deleted successfully.";
+
 export const SCAN_DATA_SAVED = "Saved scan data.";
 export const SCAN_DATA_DELETED = "Deleted scan data.";

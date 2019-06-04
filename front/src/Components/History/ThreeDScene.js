@@ -6,7 +6,6 @@ const OrbitControls = require("three-orbit-controls")(THREE);
 class ThreeDScene extends React.Component {
     constructor(props) {
         super(props);
-
         this.initializeCamera = this.initializeCamera.bind(this);
         this.animate = this.animate.bind(this);
     }
@@ -45,6 +44,10 @@ class ThreeDScene extends React.Component {
         this.mesh = new THREE.Points(this.geometry, this.material);
         this.mesh.rotation.x = -1.55;
         this.scene.add(this.mesh);
+
+        this.axesHelper = new THREE.AxesHelper(10);
+        this.scene.add(this.axesHelper);
+
         this.animate();
     }
 
@@ -70,7 +73,7 @@ class ThreeDScene extends React.Component {
         return (
             <div
                 id="boardCanvas"
-                style={{width: "80vw", height: "40vw"}}
+                style={{width: "70vw", height: "40vw"}}
                 ref={mount => {
                     this.mount = mount;
                 }}

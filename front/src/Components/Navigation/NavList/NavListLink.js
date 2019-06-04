@@ -1,8 +1,6 @@
 import React from "react";
-import ListItem from "@material-ui/core/ListItem/index";
 import {Link} from "react-router-dom";
-import {Badge, ListItemIcon, ListItemText} from "@material-ui/core";
-import Tooltip from "@material-ui/core/Tooltip/index";
+import {Badge, ListItem, ListItemIcon, ListItemText, Tooltip} from "@material-ui/core";
 
 class NavListLink extends React.Component {
 

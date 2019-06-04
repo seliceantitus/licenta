@@ -1,7 +1,7 @@
 import React from "react";
 import PropTypes from 'prop-types';
 import Chart from 'react-apexcharts';
-import {Button, CircularProgress, Grid, Paper, withStyles} from "@material-ui/core";
+import {Button, CircularProgress, Divider, Grid, Paper, withStyles} from "@material-ui/core";
 import {DEFAULT_MD_COL_WIDTH, DEFAULT_XS_COL_WIDTH, TOAST_ERROR, TOAST_SUCCESS} from "../../Constants/UI";
 import {BOARD_STATUS, REQUEST, RESPONSE, SCAN_STATUS} from "../../Constants/Communication";
 import {CloudUpload, Delete, Pause, PlayArrow, Stop} from "@material-ui/icons";
@@ -10,14 +10,13 @@ import {
     SCAN_DATA_DELETED,
     SCAN_DATA_SAVED,
     SCAN_STOP_DIALOG_BODY,
-    SCAN_STOP_DIALOG_TITLE,
+    SCAN_STOP_DIALOG_TITLE, SCAN_UPLOAD_DIALOG_BODY,
     SCAN_UPLOAD_DIALOG_TITLE,
     SCANNING_FINISHED,
     SCANNING_PAUSE,
     SCANNING_START,
     SCANNING_STOP
 } from "../../Constants/Messages";
-import Divider from "@material-ui/core/Divider";
 import AgreeDialog from "../../Components/Scan/AgreeDialog";
 import InputDialog from "../../Components/Scan/InputDialog";
 
@@ -237,7 +236,7 @@ class Scan extends React.Component {
                 err => {
                     console.log(err)
                 })
-            .catch(err => console.log(err));
+            .catch(err => this.showToast(TOAST_ERROR, err));
     }
 
     pauseScan() {
@@ -301,7 +300,7 @@ class Scan extends React.Component {
                     err => {
                         console.log(err)
                     })
-                .catch(err => console.log(err));
+                .catch(err => this.showToast(TOAST_ERROR, err));
             z += 0.1;
             angle = 0;
             console.log(distanceArray);
@@ -336,7 +335,7 @@ class Scan extends React.Component {
                 err => {
                     console.log(err);
                 })
-            .catch(err => console.log(err));
+            .catch(err => this.showToast(TOAST_ERROR, err));
     };
 
     renderSideMenu = (classes) => (
@@ -429,7 +428,7 @@ class Scan extends React.Component {
                         <InputDialog
                             open={this.state.startDialogOpen}
                             title={SCAN_UPLOAD_DIALOG_TITLE}
-                            body={SCAN_STOP_DIALOG_BODY}
+                            body={SCAN_UPLOAD_DIALOG_BODY}
                             okButtonText={'Save'}
                             cancelButtonText={'Don\'t use a name'}
                             okHandler={this.startScan}

@@ -1,31 +1,38 @@
 import React from "react";
-import {CircularProgress, Grid, withStyles} from "@material-ui/core";
+import {
+    CircularProgress,
+    Grid,
+    IconButton,
+    ListItemSecondaryAction,
+    MenuItem,
+    Paper,
+    TableBody,
+    TableRow,
+    Typography
+} from "@material-ui/core";
 import {API} from "../../Constants/URL";
-import {Delete, Edit} from "@material-ui/icons";
-import ListItemSecondaryAction from "@material-ui/core/ListItemSecondaryAction";
-import IconButton from "@material-ui/core/IconButton";
-import {DEFAULT_MD_COL_WIDTH, DEFAULT_XS_COL_WIDTH, TOAST_SUCCESS, TOAST_WARN} from "../../Constants/UI";
-import Paper from "@material-ui/core/Paper";
-import Typography from "@material-ui/core/Typography";
+import {ChevronRight, Delete, Edit} from "@material-ui/icons";
+import {DEFAULT_MD_COL_WIDTH, DEFAULT_XS_COL_WIDTH, TOAST_ERROR, TOAST_SUCCESS} from "../../Constants/UI";
+import {SCAN_DELETE} from "../../Constants/Messages";
+import ThreeDScene from "../../Components/History/ThreeDScene";
+import Tooltip from "@material-ui/core/Tooltip";
+import Table from "@material-ui/core/Table";
+import TableCell from "@material-ui/core/TableCell";
+import TableFooter from "@material-ui/core/TableFooter";
 import MenuList from "@material-ui/core/MenuList";
-import MenuItem from "@material-ui/core/MenuItem";
-import {SCAN_STATUS} from "../../Constants/Communication";
-import {SCAN_DATA_DELETED} from "../../Constants/Messages";
-
-const styles = theme => ({
-    listButton: {
-        focusVisible: false
-    }
-});
 
 class History extends React.Component {
 
     constructor(props) {
         super(props);
-        const {toastCallback} = this.props;
-
+        const {communicationManager, toastCallback} = this.props;
+        this.communicationManager = communicationManager;
         this.state = {
-            scans: {}
+            scans: {},
+            selectedScan: {
+                id: null,
+                layers: [],
+            }
         };
 
         this.fetchScanDetails = this.fetchScanDetails.bind(this);
@@ -34,25 +41,26 @@ class History extends React.Component {
     }
 
     componentDidMount() {
-        fetch(
-            API.SCAN_INDEX.URL,
-            {
-                method: API.SCAN_INDEX.METHOD
-            })
-            .then(response => response.json())
-            .then(
-                response => {
-                    setTimeout(
-                        () => this.setState({scans: response.data, dataLoaded: true}),
-                        500);
-                },
-                err => {
-                    console.log(err)
+        if (this.communicationManager.isSocketConnected()) {
+            fetch(
+                API.SCAN_INDEX.URL,
+                {
+                    method: API.SCAN_INDEX.METHOD
                 })
-            .catch(err => console.log(err));
+                .then(response => response.json())
+                .then(
+                    response => {
+                        this.setState({scans: response.data, dataLoaded: true});
+                    },
+                    err => {
+                        this.showToast(TOAST_ERROR, err)
+                    })
+                .catch(err => this.showToast(TOAST_ERROR, err));
+        }
     }
 
     fetchScanDetails(scan_id) {
+        this.setState({selectedScan: {id: null, layers: []}});
         fetch(
             API.SCAN_VIEW.URL(scan_id),
             {
@@ -61,13 +69,18 @@ class History extends React.Component {
             .then(response => response.json())
             .then(
                 response => {
-                    console.log(response);
+                    const {layers} = response.data;
+                    this.setState({selectedScan: {id: scan_id, layers: layers}});
                 },
                 err => {
-                    console.log(err)
+                    this.showToast(TOAST_ERROR, err)
                 })
-            .catch(err => console.log(err));
+            .catch(err => this.showToast(TOAST_ERROR, err));
     }
+
+    editScan = (scan_id) => {
+        //TODO Implement update fetch call
+    };
 
     deleteScan = (scan_id) => {
         fetch(
@@ -81,7 +94,7 @@ class History extends React.Component {
             .then(response => response.json())
             .then(
                 data => {
-                    // this.showToast(TOAST_WARN, 'DELETED');
+                    this.showToast(TOAST_SUCCESS, SCAN_DELETE);
                     this.setState(state => {
                         return {
                             ...state,
@@ -90,22 +103,23 @@ class History extends React.Component {
                     });
                 },
                 err => {
-                    console.log(err);
+                    this.showToast(TOAST_ERROR, err);
                 })
-            .catch(err => console.log(err));
+            .catch(err => this.showToast(TOAST_ERROR, err));
     };
 
     renderScansList = () => (
-        // component={Link} to={`/viewer/${scan._id}`}
         this.state.scans.map((scan, index) =>
-            <MenuItem key={`Scan-${index}`}>
+            <MenuItem key={`Scan-${index}`} onClick={() => this.fetchScanDetails(scan['_id'])}>
                 <Typography noWrap>
                     {scan.name}
                 </Typography>
                 <ListItemSecondaryAction>
-                    <IconButton onClick={() => console.log('Edit')}>
-                        <Edit/>
-                    </IconButton>
+                    <Tooltip title={'Edit'} placement={"left"}>
+                        <IconButton onClick={() => console.log('Edit')}>
+                            <Edit/>
+                        </IconButton>
+                    </Tooltip>
                     <IconButton onClick={() => this.deleteScan(scan['_id'])}>
                         <Delete color={"secondary"}/>
                     </IconButton>
@@ -114,8 +128,48 @@ class History extends React.Component {
         )
     );
 
+    renderScansTable = () => (
+        <Table>
+            <TableBody>
+                {this.state.scans.map((scan, index) => (
+                    <TableRow key={`Scans-Table-${index}`} hover>
+                        <TableCell>
+                            {scan.name}
+                        </TableCell>
+                        <TableCell align={"right"}>
+                            <Tooltip title={'Edit'} placement={"left"}>
+                                <IconButton onClick={() => console.log('Edit')}>
+                                    <Edit/>
+                                </IconButton>
+                            </Tooltip>
+                            <IconButton onClick={() => this.deleteScan(scan['_id'])}>
+                                <Delete color={"secondary"}/>
+                            </IconButton>
+                        </TableCell>
+                    </TableRow>
+                ))}
+                <TableFooter>
+                    <TableRow>
+                        <IconButton>
+                            <ChevronRight/>
+                        </IconButton>
+                    </TableRow>
+                </TableFooter>
+            </TableBody>
+        </Table>
+    );
+
+    renderScene = () => {
+        if (this.state.selectedScan.id) {
+            return <ThreeDScene layers={this.state.selectedScan.layers}/>
+        } else {
+            return <Typography>Select a scan from the list.</Typography>
+        }
+    };
+
     render() {
         if (!this.state.dataLoaded) return <CircularProgress/>;
+        const rows = () => this.renderScansList();
         return (
             <Grid container justify={"center"} alignItems={"flex-start"} spacing={2}>
                 <Grid container item direction={"column"} justify={"center"} alignItems={"stretch"}
@@ -125,19 +179,19 @@ class History extends React.Component {
                         <MenuList>
                             {this.renderScansList()}
                         </MenuList>
+                        {/*{this.renderScansTable()}*/}
                     </Paper>
                 </Grid>
                 <Grid container item direction={"column"} justify={"center"} alignItems={"stretch"}
                       xs={DEFAULT_XS_COL_WIDTH} md={DEFAULT_MD_COL_WIDTH} lg={8} xl={8}
                 >
                     <Paper>
-                        Test
+                        {this.renderScene()}
                     </Paper>
                 </Grid>
             </Grid>
-            // </Grid>
         );
     }
 }
 
-export default withStyles(styles)(History);
+export default History;

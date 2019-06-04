@@ -1,7 +1,5 @@
 import React from "react";
-import {Badge, ListItemIcon, ListItemText} from "@material-ui/core";
-import ListItem from "@material-ui/core/ListItem/index";
-import Tooltip from "@material-ui/core/Tooltip/index";
+import {Badge, ListItem, ListItemIcon, ListItemText, Tooltip} from "@material-ui/core";
 
 class NavListButton extends React.Component {
 

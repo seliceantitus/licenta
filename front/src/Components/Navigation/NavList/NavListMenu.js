@@ -1,6 +1,5 @@
 import React from "react";
-import {Menu} from "@material-ui/core";
-import MenuItem from "@material-ui/core/MenuItem/index";
+import {Menu, MenuItem} from "@material-ui/core";
 import {Check} from "@material-ui/icons/index";
 
 class NavListMenu extends React.Component {

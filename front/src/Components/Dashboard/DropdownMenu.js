@@ -1,10 +1,5 @@
 import React from "react";
-import FormControl from "@material-ui/core/FormControl";
-import InputLabel from "@material-ui/core/InputLabel";
-import Select from "@material-ui/core/Select";
-import MenuItem from "@material-ui/core/MenuItem";
-import {withStyles} from "@material-ui/core";
-import Input from "@material-ui/core/Input";
+import {FormControl, InputLabel, MenuItem, Select, withStyles} from "@material-ui/core";
 
 const styles = theme => ({
     root: {

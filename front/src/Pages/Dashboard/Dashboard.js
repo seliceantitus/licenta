@@ -12,6 +12,7 @@ import {
 } from "../../Constants/UI";
 import {
     Avatar,
+    Button,
     Card,
     CardContent,
     CardHeader,
@@ -27,7 +28,6 @@ import {
 } from "@material-ui/core";
 
 import {ExpandMore, SaveOutlined} from "@material-ui/icons";
-import Button from "@material-ui/core/Button";
 import {BOARD_STATUS, COMPONENTS, REQUEST} from "../../Constants/Communication";
 import {
     CONFIG_AXIS_SUCCESS,
