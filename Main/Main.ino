@@ -14,8 +14,8 @@ LED rLed = LED(RLED);
 Switch limSw1 = Switch(LIMSW1);
 Switch limSw2 = Switch(LIMSW2);
 Sensor sensor = Sensor(IRSENSOR, 1000);
-Motor sensorAxis = Motor(23, 31, 33, 35, 37);
-Motor turntable = Motor(22, 30, 32, 34, 36);
+Motor sensorAxis = Motor(23, 31, 33, 35, 37, 500);
+Motor turntable = Motor(22, 30, 32, 34, 36, 750);
 JsonSerial jSerial = JsonSerial();
 
 bool isRunning = false;
@@ -239,7 +239,7 @@ bool checkLimits() {
 }
 
 bool checkOverObjectHeight() {
-  if (infinityResults >= pointsPerLayer){
+  if (infinityResults >= pointsPerLayer * 0.9) {
     sendFinishedScan();
     return true;
   }
@@ -247,7 +247,7 @@ bool checkOverObjectHeight() {
 }
 
 void resetComponents() {
-//  sendBoardBusy();
+  //  sendBoardBusy();
   sensorAxis.setDirection(LEFT);
   sensorAxis.turn(sensorAxisTurns);
   sensorAxis.setDirection(RIGHT);
@@ -258,7 +258,7 @@ void resetComponents() {
   turntableTurns = 0;
   infinityResults = 0;
   delay(1000);
-//  sendBoardReady();
+  //  sendBoardReady();
 }
 
 void loop() {
@@ -280,9 +280,12 @@ void loop() {
       }
     }
     measure();
+    delay(50);
     turnMotors();
     if (checkLimits()) {
+      sendFinishedScan();
       resetComponents();
+      return;
     }
   }
   long e = millis();

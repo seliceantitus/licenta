@@ -3,25 +3,26 @@
 
 int currentDirection = -1;
 
-Motor::Motor(int dir, int enablePin, int resetPin, int sleepPin, int stepPin, int dirPin) {
-  currentDirection = dir;
-  _stepPin = stepPin;
-  _dirPin = dirPin;
-  _enablePin = enablePin;
-  _sleepPin = sleepPin;
-  _resetPin = resetPin;
-
-  pinMode(_enablePin, OUTPUT);
-  pinMode(_sleepPin, OUTPUT);
-  pinMode(_resetPin, OUTPUT);
-  pinMode(_stepPin, OUTPUT);
-  pinMode(_dirPin, OUTPUT);
-
-  digitalWrite(_enablePin, HIGH);
-  digitalWrite(_sleepPin, LOW);
-  digitalWrite(_resetPin, HIGH);
-  digitalWrite(_stepPin, LOW);
-}
+//Motor::Motor(int dir, int enablePin, int resetPin, int sleepPin, int stepPin, int dirPin) {
+//  currentDirection = dir;
+//  _stepPin = stepPin;
+//  _dirPin = dirPin;
+//  _enablePin = enablePin;
+//  _sleepPin = sleepPin;
+//  _resetPin = resetPin;
+//  _delayAmount = 1500;
+//
+//  pinMode(_enablePin, OUTPUT);
+//  pinMode(_sleepPin, OUTPUT);
+//  pinMode(_resetPin, OUTPUT);
+//  pinMode(_stepPin, OUTPUT);
+//  pinMode(_dirPin, OUTPUT);
+//
+//  digitalWrite(_enablePin, HIGH);
+//  digitalWrite(_sleepPin, LOW);
+//  digitalWrite(_resetPin, HIGH);
+//  digitalWrite(_stepPin, LOW);
+//}
 
 Motor::Motor(int enablePin, int resetPin, int sleepPin, int stepPin, int dirPin) {
   _stepPin = stepPin;
@@ -29,6 +30,27 @@ Motor::Motor(int enablePin, int resetPin, int sleepPin, int stepPin, int dirPin)
   _enablePin = enablePin;
   _sleepPin = sleepPin;
   _resetPin = resetPin;
+  _delayAmount = 1500;
+
+  pinMode(_enablePin, OUTPUT);
+  pinMode(_sleepPin, OUTPUT);
+  pinMode(_resetPin, OUTPUT);
+  pinMode(_stepPin, OUTPUT);
+  pinMode(_dirPin, OUTPUT);
+
+  digitalWrite(_enablePin, LOW);
+  digitalWrite(_sleepPin, LOW);
+  digitalWrite(_resetPin, HIGH);
+  digitalWrite(_stepPin, LOW);
+}
+
+Motor::Motor(int enablePin, int resetPin, int sleepPin, int stepPin, int dirPin, int delayAmount) {
+  _stepPin = stepPin;
+  _dirPin = dirPin;
+  _enablePin = enablePin;
+  _sleepPin = sleepPin;
+  _resetPin = resetPin;
+  _delayAmount = delayAmount;
 
   pinMode(_enablePin, OUTPUT);
   pinMode(_sleepPin, OUTPUT);
@@ -63,9 +85,9 @@ void Motor::turn() {
   delay(50);
   digitalWrite(_enablePin, LOW);
   digitalWrite(_stepPin, HIGH);
-  delayMicroseconds(1000);
+  delayMicroseconds(_delayAmount);
   digitalWrite(_stepPin, LOW);
-  delayMicroseconds(1000);
+  delayMicroseconds(_delayAmount);
   digitalWrite(_enablePin, HIGH);
   digitalWrite(_sleepPin, LOW);
   delay(50);
@@ -77,9 +99,9 @@ void Motor::turn(int numberOfSteps) {
   digitalWrite(_enablePin, LOW);
   for (int rotations = 0; rotations < numberOfSteps; rotations++) {
     digitalWrite(_stepPin, HIGH);
-    delayMicroseconds(1000);
+    delayMicroseconds(_delayAmount);
     digitalWrite(_stepPin, LOW);
-    delayMicroseconds(1000);
+    delayMicroseconds(_delayAmount);
   }
   digitalWrite(_enablePin, HIGH);
   digitalWrite(_sleepPin, LOW);

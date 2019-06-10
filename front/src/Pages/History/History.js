@@ -1,25 +1,64 @@
 import React from "react";
 import {
+    Avatar,
     CircularProgress,
+    createMuiTheme,
     Grid,
     IconButton,
     ListItemSecondaryAction,
     MenuItem,
+    MuiThemeProvider,
     Paper,
     TableBody,
     TableRow,
-    Typography
+    Typography,
+    withStyles
 } from "@material-ui/core";
 import {API} from "../../Constants/URL";
 import {ChevronRight, Delete, Edit} from "@material-ui/icons";
 import {DEFAULT_MD_COL_WIDTH, DEFAULT_XS_COL_WIDTH, TOAST_ERROR, TOAST_SUCCESS} from "../../Constants/UI";
-import {SCAN_DELETE} from "../../Constants/Messages";
+import {HISTORY_SELECT_SCAN, SCAN_DELETE} from "../../Constants/Messages";
 import ThreeDScene from "../../Components/History/ThreeDScene";
 import Tooltip from "@material-ui/core/Tooltip";
 import Table from "@material-ui/core/Table";
 import TableCell from "@material-ui/core/TableCell";
 import TableFooter from "@material-ui/core/TableFooter";
 import MenuList from "@material-ui/core/MenuList";
+
+const avatarTheme = createMuiTheme({
+    typography: {
+        useNextVariants: true,
+    },
+    overrides: {
+        MuiAvatar: {
+            img: {
+                objectFit: "scale-down",
+            }
+        }
+    }
+});
+
+const styles = theme => ({
+    pageHeader: {
+        display: 'flex',
+        alignItems: 'center',
+    },
+    avatar: {
+        width: 100,
+        height: 100,
+        borderRadius: 0,
+        [theme.breakpoints.down('sm')]: {
+            width: 64,
+            height: 64,
+        },
+    },
+    header: {
+        fontWeight: 200,
+        fontSize: '3.6rem',
+        marginLeft: '2rem',
+        textTransform: 'uppercase',
+    },
+});
 
 class History extends React.Component {
 
@@ -108,6 +147,18 @@ class History extends React.Component {
             .catch(err => this.showToast(TOAST_ERROR, err));
     };
 
+    renderPageHeader = (classes) => (
+        <>
+            <MuiThemeProvider theme={avatarTheme}>
+                <Avatar aria-label="Arduino Mega"
+                        src={require('../../assets/img/png/ArduinoMega.png')}
+                        className={classes.avatar}
+                />
+            </MuiThemeProvider>
+            <Typography variant={"h3"} className={classes.header}>History</Typography>
+        </>
+    );
+
     renderScansList = () => (
         this.state.scans.map((scan, index) =>
             <MenuItem key={`Scan-${index}`} onClick={() => this.fetchScanDetails(scan['_id'])}>
@@ -163,35 +214,47 @@ class History extends React.Component {
         if (this.state.selectedScan.id) {
             return <ThreeDScene layers={this.state.selectedScan.layers}/>
         } else {
-            return <Typography>Select a scan from the list.</Typography>
+            return <Typography variant={"subtitle1"} style={{margin: 10, fontWeight: 400}}>
+                {HISTORY_SELECT_SCAN}
+            </Typography>
         }
     };
 
     render() {
+        const {classes} = this.props;
         if (!this.state.dataLoaded) return <CircularProgress/>;
-        const rows = () => this.renderScansList();
         return (
-            <Grid container justify={"center"} alignItems={"flex-start"} spacing={2}>
-                <Grid container item direction={"column"} justify={"center"} alignItems={"stretch"}
-                      xs={DEFAULT_XS_COL_WIDTH} md={DEFAULT_MD_COL_WIDTH} lg={2} xl={2}
-                >
-                    <Paper>
-                        <MenuList>
-                            {this.renderScansList()}
-                        </MenuList>
-                        {/*{this.renderScansTable()}*/}
-                    </Paper>
+            <>
+                <Grid container justify={"center"} alignItems={"flex-start"} spacing={2} direction={"row"}>
+                    <Grid container item justify={"flex-start"} alignItems={"flex-start"}
+                          xs={DEFAULT_XS_COL_WIDTH} md={DEFAULT_MD_COL_WIDTH} lg={10} xl={10}
+                          className={classes.pageHeader}
+                    >
+                        {this.renderPageHeader(classes)}
+                    </Grid>
                 </Grid>
-                <Grid container item direction={"column"} justify={"center"} alignItems={"stretch"}
-                      xs={DEFAULT_XS_COL_WIDTH} md={DEFAULT_MD_COL_WIDTH} lg={8} xl={8}
-                >
-                    <Paper>
-                        {this.renderScene()}
-                    </Paper>
+                <Grid container justify={"center"} alignItems={"flex-start"} spacing={2}>
+                    <Grid container item direction={"column"} justify={"center"} alignItems={"stretch"}
+                          xs={DEFAULT_XS_COL_WIDTH} md={DEFAULT_MD_COL_WIDTH} lg={2} xl={2}
+                    >
+                        <Paper>
+                            <MenuList>
+                                {this.renderScansList()}
+                            </MenuList>
+                            {/*{this.renderScansTable()}*/}
+                        </Paper>
+                    </Grid>
+                    <Grid container item direction={"column"} justify={"center"} alignItems={"stretch"}
+                          xs={DEFAULT_XS_COL_WIDTH} md={DEFAULT_MD_COL_WIDTH} lg={8} xl={8}
+                    >
+                        <Paper>
+                            {this.renderScene()}
+                        </Paper>
+                    </Grid>
                 </Grid>
-            </Grid>
+            </>
         );
     }
 }
 
-export default History;
+export default withStyles(styles)(History);

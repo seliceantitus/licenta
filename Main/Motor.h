@@ -12,8 +12,9 @@
 
 class Motor {
   public:
-    Motor(int dir, int enablePin, int resetPin, int sleepPin, int stepPin, int dirPin);
+//    Motor(int dir, int enablePin, int resetPin, int sleepPin, int stepPin, int dirPin);
     Motor(int enablePin, int resetPin, int sleepPin, int stepPin, int dirPin);
+    Motor(int enablePin, int resetPin, int sleepPin, int stepPin, int dirPin, int delayAmount);
     void enable();
     void resetMotor();
     void setDirection(int dir);
@@ -40,5 +41,6 @@ class Motor {
     int _enablePin;
     int _sleepPin;
     int _resetPin;
+    int _delayAmount;
 };
 #endif

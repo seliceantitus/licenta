@@ -57,6 +57,10 @@ const styles = theme => ({
         height: 'auto',
         backgroundColor: 'transparent'
     },
+    heading: {
+        fontSize: theme.typography.pxToRem(15),
+        fontWeight: theme.typography.fontWeightRegular,
+    },
     avatar: {
         width: 100,
         height: 100,
@@ -65,10 +69,6 @@ const styles = theme => ({
             width: 64,
             height: 64,
         },
-    },
-    heading: {
-        fontSize: theme.typography.pxToRem(15),
-        fontWeight: theme.typography.fontWeightRegular,
     },
     pageHeader: {
         display: 'flex',
@@ -391,24 +391,28 @@ class Dashboard extends React.Component {
     render() {
         const {classes} = this.props;
         return (
-            <Grid container justify={"center"} alignItems={"flex-start"} spacing={2}>
-                <Grid container item justify={"flex-start"} alignItems={"flex-start"}
-                      xs={DEFAULT_XS_COL_WIDTH} md={DEFAULT_MD_COL_WIDTH} lg={10} xl={10}
-                      className={classes.pageHeader}
-                >
-                    {this.renderPageHeader(classes)}
+            <>
+                <Grid container justify={"center"} alignItems={"flex-start"} spacing={2} direction={"row"}>
+                    <Grid container item justify={"flex-start"} alignItems={"flex-start"}
+                          xs={DEFAULT_XS_COL_WIDTH} md={DEFAULT_MD_COL_WIDTH} lg={10} xl={10}
+                          className={classes.pageHeader}
+                    >
+                        {this.renderPageHeader(classes)}
+                    </Grid>
                 </Grid>
-                <Grid container item direction={"column"} justify={"center"} alignItems={"stretch"}
-                      xs={DEFAULT_XS_COL_WIDTH} md={DEFAULT_MD_COL_WIDTH} lg={5} xl={5}
-                >
-                    {this.renderMotorData(classes)}
+                <Grid container justify={"center"} alignItems={"flex-start"} spacing={2}>
+                    <Grid container item direction={"column"} justify={"center"} alignItems={"stretch"}
+                          xs={DEFAULT_XS_COL_WIDTH} md={DEFAULT_MD_COL_WIDTH} lg={5} xl={5}
+                    >
+                        {this.renderMotorData(classes)}
+                    </Grid>
+                    <Grid container item direction={"column"} justify={"center"} alignItems={"stretch"}
+                          xs={DEFAULT_XS_COL_WIDTH} md={DEFAULT_MD_COL_WIDTH} lg={5} xl={5}
+                    >
+                        {this.renderSensorData(classes)}
+                    </Grid>
                 </Grid>
-                <Grid container item direction={"column"} justify={"center"} alignItems={"stretch"}
-                      xs={DEFAULT_XS_COL_WIDTH} md={DEFAULT_MD_COL_WIDTH} lg={5} xl={5}
-                >
-                    {this.renderSensorData(classes)}
-                </Grid>
-            </Grid>
+            </>
         );
     }
 }

@@ -1,16 +1,29 @@
 import React from "react";
 import PropTypes from 'prop-types';
 import Chart from 'react-apexcharts';
-import {Button, CircularProgress, Divider, Grid, Paper, withStyles} from "@material-ui/core";
+import {
+    Avatar,
+    Button,
+    CircularProgress,
+    createMuiTheme,
+    Divider,
+    Grid,
+    MuiThemeProvider,
+    Paper,
+    Typography,
+    withStyles
+} from "@material-ui/core";
 import {DEFAULT_MD_COL_WIDTH, DEFAULT_XS_COL_WIDTH, TOAST_ERROR, TOAST_SUCCESS} from "../../Constants/UI";
 import {BOARD_STATUS, REQUEST, RESPONSE, SCAN_STATUS} from "../../Constants/Communication";
 import {CloudUpload, Delete, Pause, PlayArrow, Stop} from "@material-ui/icons";
 import {API} from "../../Constants/URL";
 import {
+    SCAN_ACTIVE_WARNING,
     SCAN_DATA_DELETED,
     SCAN_DATA_SAVED,
     SCAN_STOP_DIALOG_BODY,
-    SCAN_STOP_DIALOG_TITLE, SCAN_UPLOAD_DIALOG_BODY,
+    SCAN_STOP_DIALOG_TITLE,
+    SCAN_UPLOAD_DIALOG_BODY,
     SCAN_UPLOAD_DIALOG_TITLE,
     SCANNING_FINISHED,
     SCANNING_PAUSE,
@@ -19,6 +32,20 @@ import {
 } from "../../Constants/Messages";
 import AgreeDialog from "../../Components/Scan/AgreeDialog";
 import InputDialog from "../../Components/Scan/InputDialog";
+import Snackbar from "@material-ui/core/Snackbar";
+
+const avatarTheme = createMuiTheme({
+    typography: {
+        useNextVariants: true,
+    },
+    overrides: {
+        MuiAvatar: {
+            img: {
+                objectFit: "scale-down",
+            }
+        }
+    }
+});
 
 const styles = theme => ({
     margin: {
@@ -35,6 +62,25 @@ const styles = theme => ({
     },
     buttonRightIcon: {
         marginLeft: theme.spacing(1),
+    },
+    avatar: {
+        width: 100,
+        height: 100,
+        borderRadius: 0,
+        [theme.breakpoints.down('sm')]: {
+            width: 64,
+            height: 64,
+        },
+    },
+    pageHeader: {
+        display: 'flex',
+        alignItems: 'center',
+    },
+    header: {
+        fontWeight: 200,
+        fontSize: '3.6rem',
+        marginLeft: '2rem',
+        textTransform: 'uppercase',
     },
     //Table style
     table: {
@@ -213,7 +259,7 @@ class Scan extends React.Component {
     }
 
     startScan(scanName) {
-        let name  = scanName ? scanName : 'Unnamed';
+        let name = scanName ? scanName : 'Unnamed';
         let body = {name: name};
         fetch(
             API.SCAN_NEW.URL,
@@ -338,6 +384,18 @@ class Scan extends React.Component {
             .catch(err => this.showToast(TOAST_ERROR, err));
     };
 
+    renderPageHeader = (classes) => (
+        <>
+            <MuiThemeProvider theme={avatarTheme}>
+                <Avatar aria-label="Arduino Mega"
+                        src={require('../../assets/img/png/ArduinoMega.png')}
+                        className={classes.avatar}
+                />
+            </MuiThemeProvider>
+            <Typography variant={"h3"} className={classes.header}>Scan</Typography>
+        </>
+    );
+
     renderSideMenu = (classes) => (
         <Paper className={classes.paper}>
             <Button
@@ -407,43 +465,66 @@ class Scan extends React.Component {
         </Paper>
     );
 
+    renderScanActiveAlert = () => (
+        <Snackbar
+            anchorOrigin={{
+                vertical: 'bottom',
+                horizontal: 'left',
+            }}
+            open={this.state.scanStatus === SCAN_STATUS.RUNNING || this.state.scanStatus === SCAN_STATUS.PAUSED}
+            autoHideDuration={100000000}
+            message={SCAN_ACTIVE_WARNING}
+        />
+    );
+
     render() {
         const {classes} = this.props;
         return (
-            <Grid container justify={"center"} alignItems={"flex-start"} spacing={2} direction={"row"}>
-                <Grid container item spacing={0} direction={"column"} justify={"center"} alignItems={"stretch"}
-                      xs={DEFAULT_XS_COL_WIDTH} md={DEFAULT_MD_COL_WIDTH} lg={1} xl={1}
-                >
-                    <Grid item>
-                        {this.renderSideMenu(classes)}
-                        <AgreeDialog
-                            open={this.state.stopDialogOpen}
-                            title={SCAN_STOP_DIALOG_TITLE}
-                            body={SCAN_STOP_DIALOG_BODY}
-                            okButtonText={'I understand'}
-                            cancelButtonText={'Cancel'}
-                            okHandler={this.stopScan}
-                            cancelHandler={() => this.setState({stopDialogOpen: false})}
-                        />
-                        <InputDialog
-                            open={this.state.startDialogOpen}
-                            title={SCAN_UPLOAD_DIALOG_TITLE}
-                            body={SCAN_UPLOAD_DIALOG_BODY}
-                            okButtonText={'Save'}
-                            cancelButtonText={'Don\'t use a name'}
-                            okHandler={this.startScan}
-                            cancelHandler={this.startScan}
-                        />
+            <>
+                <Grid container justify={"center"} alignItems={"flex-start"} spacing={2} direction={"row"}>
+                    <Grid container item justify={"flex-start"} alignItems={"flex-start"}
+                          xs={DEFAULT_XS_COL_WIDTH} md={DEFAULT_MD_COL_WIDTH} lg={10} xl={10}
+                          className={classes.pageHeader}
+                    >
+                        {this.renderPageHeader(classes)}
                     </Grid>
                 </Grid>
-                <Grid container item spacing={0} direction={"column"} justify={"center"} alignItems={"stretch"}
-                      xs={DEFAULT_XS_COL_WIDTH} md={DEFAULT_MD_COL_WIDTH} lg={9} xl={9}
-                >
-                    <Grid item>
-                        {this.renderChart(classes)}
+                <Grid container justify={"center"} alignItems={"flex-start"} spacing={2} direction={"row"}>
+                    <Grid container item spacing={0} direction={"column"} justify={"center"} alignItems={"stretch"}
+                          xs={DEFAULT_XS_COL_WIDTH} md={DEFAULT_MD_COL_WIDTH} lg={1} xl={1}
+                    >
+                        <Grid item>
+                            {this.renderScanActiveAlert()}
+                            {this.renderSideMenu(classes)}
+                            <AgreeDialog
+                                open={this.state.stopDialogOpen}
+                                title={SCAN_STOP_DIALOG_TITLE}
+                                body={SCAN_STOP_DIALOG_BODY}
+                                okButtonText={'I understand'}
+                                cancelButtonText={'Cancel'}
+                                okHandler={this.stopScan}
+                                cancelHandler={() => this.setState({stopDialogOpen: false})}
+                            />
+                            <InputDialog
+                                open={this.state.startDialogOpen}
+                                title={SCAN_UPLOAD_DIALOG_TITLE}
+                                body={SCAN_UPLOAD_DIALOG_BODY}
+                                okButtonText={'Save'}
+                                cancelButtonText={'Don\'t use a name'}
+                                okHandler={this.startScan}
+                                cancelHandler={this.startScan}
+                            />
+                        </Grid>
+                    </Grid>
+                    <Grid container item spacing={0} direction={"column"} justify={"center"} alignItems={"stretch"}
+                          xs={DEFAULT_XS_COL_WIDTH} md={DEFAULT_MD_COL_WIDTH} lg={9} xl={9}
+                    >
+                        <Grid item>
+                            {this.renderChart(classes)}
+                        </Grid>
                     </Grid>
                 </Grid>
-            </Grid>
+            </>
         );
     }
 }

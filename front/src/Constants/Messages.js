@@ -36,6 +36,8 @@ export const SCANNING_PAUSE = "Pausing the scan.";
 export const SCANNING_STOP = "Stopping the scan.";
 export const SCANNING_FINISHED = "Scan has finished.";
 
+export const SCAN_ACTIVE_WARNING = "Scan session is active! Please do not close or navigate away from this page!";
+
 export const SCAN_STOP_DIALOG_TITLE = "Before you stop";
 export const SCAN_STOP_DIALOG_BODY = "Are you sure you want to stop the scan? All data will be lost!";
 
@@ -46,3 +48,5 @@ export const SCAN_DELETE = "Scan deleted successfully.";
 
 export const SCAN_DATA_SAVED = "Saved scan data.";
 export const SCAN_DATA_DELETED = "Deleted scan data.";
+
+export const HISTORY_SELECT_SCAN = "Select a scan from the list.";
