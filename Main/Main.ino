@@ -15,7 +15,7 @@ Switch limSw1 = Switch(LIMSW1);
 Switch limSw2 = Switch(LIMSW2);
 Sensor sensor = Sensor(IRSENSOR, 1000);
 Motor sensorAxis = Motor(23, 31, 33, 35, 37, 500);
-Motor turntable = Motor(22, 30, 32, 34, 36, 750);
+Motor turntable = Motor(22, 30, 32, 34, 36, 3000);
 JsonSerial jSerial = JsonSerial();
 
 bool isRunning = false;
@@ -27,8 +27,8 @@ int pointsPerLayer = 0;
 int turntableStep = 8;
 int sensorAxisStep = 200;
 
-int turntableTurns = 0;
-int sensorAxisTurns = 0;
+long turntableTurns = 0;
+long sensorAxisTurns = 0;
 
 int infinityResults = 0;
 
@@ -37,7 +37,7 @@ void setup() {
   yLed.on();
   rLed.on();
 
-  Serial.begin(9600);
+  Serial.begin(9600); 
   analogReference(EXTERNAL);
 
   sendBoardBusy();
@@ -230,8 +230,10 @@ void measure() {
 }
 
 void turnMotors() {
+  delay(100);
   turntable.turn(turntableStep);
   turntableTurns += turntableStep;
+  delay(100);
 }
 
 bool checkLimits() {

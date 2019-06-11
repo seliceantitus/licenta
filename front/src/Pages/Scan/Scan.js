@@ -513,6 +513,7 @@ class Scan extends React.Component {
                                 cancelButtonText={'Don\'t use a name'}
                                 okHandler={this.startScan}
                                 cancelHandler={this.startScan}
+                                closeHandler={() => this.setState({startDialogOpen: false})}
                             />
                         </Grid>
                     </Grid>

@@ -52,22 +52,52 @@ class Main extends React.Component {
     //TODO reset motors values on disconnects
     componentDidMount() {
         this.communicationManager.addSocketConnectHandler(
-            () => this.setState({socket: {connected: true}})
+            () => {
+                this.setState({socket: {connected: true}});
+                this.axisMotor.setStepIncrement(200);
+                this.tableMotor.setStepIncrement(8);
+            }
         );
         this.communicationManager.addSocketDisconnectHandler(
-            () => this.setState({socket: {connected: false}, serial: {connected: false}})
+            () => {
+                this.setState({socket: {connected: false}, serial: {connected: false}});
+                this.axisMotor.setStepIncrement(200);
+                this.tableMotor.setStepIncrement(8);
+            }
         );
         this.communicationManager.addSerialConnectHandler(
-            () => this.setState({serial: {connected: true}})
+            () => {
+                this.setState({serial: {connected: true}});
+                this.axisMotor.setStepIncrement(200);
+                this.tableMotor.setStepIncrement(8);
+            }
+        );
+        this.communicationManager.addSerialConnectErrorHandler(
+            () => this.setState({serial: {connected: false}})
         );
         this.communicationManager.addSerialDisconnectHandler(
-            () => this.setState({serial: {connected: false}, board: {status: null}})
+            () => {
+                this.setState({serial: {connected: false}, board: {status: null}});
+                this.axisMotor.setStepIncrement(200);
+                this.tableMotor.setStepIncrement(8);
+            }
+        );
+        this.communicationManager.addSerialDisconnectErrorHandler(
+            () => this.setState({serial: {connected: false}})
         );
         this.communicationManager.addBoardBusyHandler(
-            () => this.setState({board: {status: BOARD_STATUS.BUSY}})
+            () => {
+                this.setState({board: {status: BOARD_STATUS.BUSY}});
+                this.axisMotor.setStepIncrement(200);
+                this.tableMotor.setStepIncrement(8);
+            }
         );
         this.communicationManager.addBoardReadyHandler(
-            () => this.setState({board: {status: BOARD_STATUS.READY}})
+            () => {
+                this.setState({board: {status: BOARD_STATUS.READY}});
+                this.axisMotor.setStepIncrement(200);
+                this.tableMotor.setStepIncrement(8);
+            }
         );
     }
 

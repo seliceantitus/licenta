@@ -7,8 +7,19 @@ import {
     DialogContentText,
     DialogTitle,
     Slide,
-    TextField
+    TextField, withStyles
 } from "@material-ui/core";
+import IconButton from "@material-ui/core/IconButton";
+import {Close} from "@material-ui/icons";
+
+const styles = theme => ({
+    closeButton: {
+        position: 'absolute',
+        right: theme.spacing(1),
+        top: theme.spacing(1),
+        color: theme.palette.grey[500],
+    },
+});
 
 class InputDialog extends React.Component {
 
@@ -21,7 +32,7 @@ class InputDialog extends React.Component {
     };
 
     render() {
-        const {open, title, body, okButtonText, cancelButtonText, okHandler, cancelHandler} = this.props;
+        const {open, title, body, okButtonText, cancelButtonText, okHandler, cancelHandler, closeHandler, classes} = this.props;
         return (
             <Dialog
                 open={open}
@@ -32,6 +43,9 @@ class InputDialog extends React.Component {
             >
                 <DialogTitle id="Dialog-Title">
                     {title}
+                    <IconButton aria-label="Close" onClick={closeHandler} className={classes.closeButton}>
+                        <Close/>
+                    </IconButton>
                 </DialogTitle>
                 <DialogContent>
                     <DialogContentText id="Dialog-Body">
@@ -69,4 +83,4 @@ class InputDialog extends React.Component {
     }
 }
 
-export default InputDialog;
+export default withStyles(styles)(InputDialog);

@@ -28,7 +28,9 @@ class CommunicationManager {
             this.serial.connected = false
         });
         this.socket.component.on(RESPONSE.SERIAL_CONNECT_SUCCESS, () => this.serial.connected = true);
+        this.socket.component.on(RESPONSE.SERIAL_CONNECT_ERROR, () => this.serial.connected = false);
         this.socket.component.on(RESPONSE.SERIAL_DISCONNECT_SUCCESS, () => this.serial.connected = false);
+        this.socket.component.on(RESPONSE.SERIAL_DISCONNECT_ERROR, () => this.serial.connected = false);
     }
 
     getSocket() {

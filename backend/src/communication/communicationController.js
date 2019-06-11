@@ -160,18 +160,17 @@ class CommunicationController {
 
     handleSerialDisconnect(socket) {
         const command = JSON.stringify({command: ARDUINO_REQUEST.AR_RESET});
-        this.serialPort.write(command);
+        if (this.serial.connected) this.serialPort.write(command);
         this.logger(`[SERIAL OUT] ${command}`);
-        setTimeout(() => {
-            this.serialPort.close((err) => {
-                if (err) {
-                    socket.emit(RESPONSE.SERIAL_DISCONNECT_ERROR, err.message);
-                } else {
-                    this.serial.connected = false;
-                    socket.emit(RESPONSE.SERIAL_DISCONNECT_SUCCESS);
-                }
-            })
-        }, 2000);
+        this.serialPort.close((err) => {
+            if (err) {
+                this.serial.connected = false;
+                socket.emit(RESPONSE.SERIAL_DISCONNECT_ERROR, err.message);
+            } else {
+                this.serial.connected = false;
+                socket.emit(RESPONSE.SERIAL_DISCONNECT_SUCCESS);
+            }
+        });
     }
 
     handleConfig(socket, data) {
