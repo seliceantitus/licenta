@@ -13,13 +13,13 @@
 class Motor {
   public:
 //    Motor(int dir, int enablePin, int resetPin, int sleepPin, int stepPin, int dirPin);
-    Motor(int enablePin, int resetPin, int sleepPin, int stepPin, int dirPin);
-    Motor(int enablePin, int resetPin, int sleepPin, int stepPin, int dirPin, int delayAmount);
+    Motor(int enablePin, int ms1, int ms2, int ms3, int resetPin, int sleepPin, int stepPin, int dirPin);
+    Motor(int enablePin, int ms1, int ms2, int ms3, int resetPin, int sleepPin, int stepPin, int dirPin, int delayAmount, int ms1Value, int ms2Value, int ms3Value);
     void enable();
     void resetMotor();
     void setDirection(int dir);
     void turn();
-    void turn(int numberOfSteps);
+    void turn(long numberOfSteps);
     int getStepPin() {
       return _stepPin;
     };
@@ -41,6 +41,9 @@ class Motor {
     int _enablePin;
     int _sleepPin;
     int _resetPin;
+    int _ms1;
+    int _ms2;
+    int _ms3;
     int _delayAmount;
 };
 #endif

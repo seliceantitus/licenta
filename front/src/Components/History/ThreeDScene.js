@@ -45,7 +45,7 @@ class ThreeDScene extends React.Component {
         this.mesh.rotation.x = -1.55;
         this.scene.add(this.mesh);
 
-        this.axesHelper = new THREE.AxesHelper(10);
+        this.axesHelper = new THREE.AxesHelper(6);
         this.scene.add(this.axesHelper);
 
         this.animate();

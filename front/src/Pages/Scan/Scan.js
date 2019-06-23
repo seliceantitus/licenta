@@ -347,7 +347,7 @@ class Scan extends React.Component {
                         console.log(err)
                     })
                 .catch(err => this.showToast(TOAST_ERROR, err));
-            z += 0.1;
+            z += 1;
             angle = 0;
             console.log(distanceArray);
             console.log(points);

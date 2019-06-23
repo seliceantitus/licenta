@@ -57,7 +57,7 @@ class CommunicationController {
 
     createSerialPort(port) {
         if (this.serial.connected) this.handleSerialDisconnect();
-        this.serialPort = new SerialPort(port, {baudRate: 9600, autoOpen: false});
+        this.serialPort = new SerialPort(port, {baudRate: 57600, autoOpen: false});
         this.parser = this.serialPort.pipe(new ReadLine());
         this.parser.on('data', data => {
             try {
