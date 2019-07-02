@@ -15,7 +15,7 @@ Switch limSw1 = Switch(LIMSW1);
 Switch limSw2 = Switch(LIMSW2);
 Sensor sensor = Sensor(IRSENSOR, 1000);
 Motor sensorAxis = Motor(23, 25, 27, 29, 31, 33, 35, 37, 600, LOW, LOW, LOW);
-Motor turntable = Motor(22, 24, 26, 28, 30, 32, 34, 36, 800, HIGH, HIGH, HIGH);
+Motor turntable = Motor(22, 24, 26, 28, 30, 32, 34, 36, 2000, HIGH, HIGH, HIGH);
 JsonSerial jSerial = JsonSerial();
 
 bool isRunning = false;
@@ -24,7 +24,7 @@ bool isPaused = false;
 int layer = 0;
 int pointsPerLayer = 0;
 
-int turntableStep = 8;
+int turntableStep = 4;
 long sensorAxisStep = 200;
 
 long turntableTurns = 0;
@@ -104,7 +104,6 @@ void sendFinishedScan() {
 }
 
 void sendSensorData() {
-  long s = millis();
   JsonSerial::JsonNode component = jSerial.createIntNode("component", RES_SENSOR, false, 0, NULL);
   JsonSerial::JsonNode action = jSerial.createStringNode("action", "measurement", false, 0, NULL);
   JsonSerial::JsonNode data_adc = jSerial.createFloatNode("analog", sensor.getADCValue(), false, 0, NULL);
@@ -116,9 +115,6 @@ void sendSensorData() {
   JsonSerial::JsonNode *list[] = { &component, &action, &data };
 
   jSerial.sendJson(list, 3);
-
-  long e = millis();
-  Serial.println(e - s);
 }
 
 void sendMotorData(int steps, int rotations, char *locationValue) {

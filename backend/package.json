@@ -1,20 +1,23 @@
 {
   "name": "backend",
   "version": "1.0.0",
-  "description": "",
+  "description": "Back end application for the license thesis application",
   "main": "index.js",
   "scripts": {
     "start": "nodemon server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
-  "author": "",
+  "author": "Titus Selicean",
   "license": "ISC",
   "dependencies": {
     "body-parser": "^1.19.0",
+    "chai": "^4.2.0",
+    "chai-http": "^4.3.0",
     "cors": "^2.8.5",
     "express": "^4.16.4",
     "install": "^0.12.2",
+    "mocha": "^6.1.4",
     "mongoose": "^5.5.11",
     "nodemon": "^1.19.1",
     "npm": "^6.9.0",

@@ -40,7 +40,7 @@ class ThreeDScene extends React.Component {
             });
         });
 
-        this.material = new THREE.PointsMaterial({color: 0xFFFFFF, size: 0.25});
+        this.material = new THREE.PointsMaterial({color: 0xFFFFFF, size: 0.15});
         this.mesh = new THREE.Points(this.geometry, this.material);
         this.mesh.rotation.x = -1.55;
         this.scene.add(this.mesh);

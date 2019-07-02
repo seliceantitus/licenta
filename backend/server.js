@@ -6,4 +6,4 @@ const CommunicationController = new communicationController();
 app.set('communicationController', CommunicationController);
 const server = require('http').createServer(app).listen(3001);
 
-
+module.exports = server;

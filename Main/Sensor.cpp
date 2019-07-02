@@ -28,7 +28,7 @@ void Sensor::measure() {
 
   for (int i = 0; i < _sampleSize; i++) {
     float sensorValue = analogRead(_dataPin);
-    float voltage = sensorValue * (3.3 / 1023.0);
+    float voltage = sensorValue * (3.3 / 1024.0);
     //    float distance = 1 / ((0.0002 * sensorValue) - 0.0099);
     //    float distance = 5000 / (sensorValue - 54);
     float distance = 6488 / (sensorValue - 70);

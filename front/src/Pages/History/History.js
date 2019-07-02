@@ -117,10 +117,6 @@ class History extends React.Component {
             .catch(err => this.showToast(TOAST_ERROR, err));
     }
 
-    editScan = (scan_id) => {
-        //TODO Implement update fetch call
-    };
-
     deleteScan = (scan_id) => {
         fetch(
             API.SCAN_DELETE.URL(scan_id),
@@ -166,48 +162,12 @@ class History extends React.Component {
                     {scan.name}
                 </Typography>
                 <ListItemSecondaryAction>
-                    <Tooltip title={'Edit'} placement={"left"}>
-                        <IconButton onClick={() => console.log('Edit')}>
-                            <Edit/>
-                        </IconButton>
-                    </Tooltip>
                     <IconButton onClick={() => this.deleteScan(scan['_id'])}>
                         <Delete color={"secondary"}/>
                     </IconButton>
                 </ListItemSecondaryAction>
             </MenuItem>
         )
-    );
-
-    renderScansTable = () => (
-        <Table>
-            <TableBody>
-                {this.state.scans.map((scan, index) => (
-                    <TableRow key={`Scans-Table-${index}`} hover>
-                        <TableCell>
-                            {scan.name}
-                        </TableCell>
-                        <TableCell align={"right"}>
-                            <Tooltip title={'Edit'} placement={"left"}>
-                                <IconButton onClick={() => console.log('Edit')}>
-                                    <Edit/>
-                                </IconButton>
-                            </Tooltip>
-                            <IconButton onClick={() => this.deleteScan(scan['_id'])}>
-                                <Delete color={"secondary"}/>
-                            </IconButton>
-                        </TableCell>
-                    </TableRow>
-                ))}
-                <TableFooter>
-                    <TableRow>
-                        <IconButton>
-                            <ChevronRight/>
-                        </IconButton>
-                    </TableRow>
-                </TableFooter>
-            </TableBody>
-        </Table>
     );
 
     renderScene = () => {
@@ -241,7 +201,6 @@ class History extends React.Component {
                             <MenuList>
                                 {this.renderScansList()}
                             </MenuList>
-                            {/*{this.renderScansTable()}*/}
                         </Paper>
                     </Grid>
                     <Grid container item direction={"column"} justify={"center"} alignItems={"stretch"}

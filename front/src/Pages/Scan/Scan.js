@@ -236,7 +236,8 @@ class Scan extends React.Component {
                 this.handleSensorData(json);
                 break;
             case RESPONSE.ERROR:
-                this.showToast(TOAST_ERROR, json);
+                console.error(json);
+                // this.showToast(TOAST_ERROR, json);
                 break;
             default:
                 return;
