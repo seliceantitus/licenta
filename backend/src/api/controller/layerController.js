@@ -1,23 +1,82 @@
 const mongoose = require("mongoose");
+const outlier = require("outlier");
 Layer = require('../models/layer.model');
 
-exports.new = (req, res) => {
-    let layer = new Layer({
-        _id: mongoose.Types.ObjectId(),
-        scan: req.body.scan_id,
-        points: req.body.points,
-        distances: req.body.distances,
+function findErrorPositions(originalArray, outliersArray) {
+    let positions = [];
+    outliersArray.forEach((distance) => {
+        let i = -1;
+        let foundPos = [];
+        while ((i = originalArray.indexOf(distance, i + 1)) !== -1) {
+            foundPos.push(i);
+        }
+        positions = [].concat.apply(positions, foundPos)
     });
-    layer.save()
-        .then(result => {
-            if (!result || result.length === 0) {
-                return res.status(500).json({status: "error", error: 'Unknown', data: result});
-            }
-            return res.status(201).json({status: "success", data: result});
-        })
-        .catch(err => {
-            return res.status(500).json({status: 'error', error: err});
+    return positions;
+}
+
+function filterDistances(distances) {
+    const outliers = [...new Set(outlier(distances).findOutliers())];
+    const positions = findErrorPositions(distances, outliers);
+
+    let sum = 0;
+    distances
+        .filter((distance, index) => positions.indexOf(index) === -1)
+        .forEach((distance) => {
+            sum += distance;
         });
+
+    const average = sum / (distances.length - positions.length);
+    return distances.map((distance, index) => {
+        if (positions.indexOf(index) !== -1)
+            return average * Math.random() + 1;
+        else
+            return distance;
+    });
+}
+
+function transformTo3DPoints(distances, turnAngle) {
+    let z = 0.0;
+    let angle = 0;
+    let radians = (Math.PI / 180.00) * turnAngle;
+    let points = [];
+    distances.forEach((distance) => {
+        const x = Math.sin(angle) * distance;
+        const y = Math.cos(angle) * distance;
+        points.push({x: x, y: y, z: z});
+        angle += radians;
+    });
+    return points;
+}
+
+exports.new = (req, res) => {
+    if (!req.body.turnAngle || !req.body.distances) {
+        return res.status(400).json({status: "error", error: 'Payload incomplete'});
+    } else {
+        const turnAngle = req.body.turnAngle;
+        const distances = req.body.distances;
+
+        const filtered = filterDistances(distances);
+        const points = transformTo3DPoints(filtered, turnAngle);
+
+        let layer = new Layer({
+            _id: mongoose.Types.ObjectId(),
+            scan: req.body.scan_id,
+            points: points,
+            distances: filtered,
+        });
+
+        layer.save()
+            .then(result => {
+                if (!result || result.length === 0) {
+                    return res.status(500).json({status: "error", error: 'Unknown', data: result});
+                }
+                return res.status(201).json({status: "success", data: result});
+            })
+            .catch(err => {
+                return res.status(500).json({status: 'error', error: err});
+            });
+    }
 };
 
 exports.index = (req, res) => {

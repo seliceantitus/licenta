@@ -29,10 +29,11 @@ export const CONFIG_INVALID_RANGE = "The number must be between 1 and 200";
 export const CONFIG_NO_RESPONSE = "Did not receive a response from the server. Please try again.";
 export const CONFIG_ERROR = "Config error: ";
 export const CONFIG_AXIS_SUCCESS = "Axis motor configuration saved.";
-export const CONFIG_TURNTABLE_SUCCESS = "Axis motor configuration saved.";
+export const CONFIG_TURNTABLE_SUCCESS = "Turntable motor configuration saved.";
 
 export const SCANNING_START = "Starting to scan.";
 export const SCANNING_PAUSE = "Pausing the scan.";
+export const SCANNING_RESUME = "Resuming the scan.";
 export const SCANNING_STOP = "Stopping the scan.";
 export const SCANNING_FINISHED = "Scan has finished.";
 
@@ -47,6 +48,7 @@ export const SCAN_UPLOAD_DIALOG_BODY = "You can give your scan a name if you wan
 export const SCAN_DELETE = "Scan deleted successfully.";
 
 export const SCAN_DATA_SAVED = "Saved scan data.";
+export const SCAN_DATA_SAVE_FAILED = "An error occurred during upload.";
 export const SCAN_DATA_DELETED = "Deleted scan data.";
 
 export const HISTORY_SELECT_SCAN = "Select a scan from the list.";

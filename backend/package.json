@@ -21,6 +21,7 @@
     "mongoose": "^5.5.11",
     "nodemon": "^1.19.1",
     "npm": "^6.9.0",
+    "outlier": "0.0.1",
     "serialport": "^7.1.4",
     "socket.io": "^2.2.0"
   }

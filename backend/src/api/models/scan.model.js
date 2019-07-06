@@ -6,6 +6,18 @@ const ScanSchema = new mongoose.Schema({
         required: false,
         default: 'Unnamed',
     },
+    sensorStep: {
+        type: Number,
+        required: true,
+    },
+    tableStep: {
+        type: Number,
+        required: true,
+    },
+    takenOn: {
+        type: Date,
+        default: Date.now
+    }
 });
 
 module.exports = mongoose.model('Scan', ScanSchema);

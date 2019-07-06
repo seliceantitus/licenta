@@ -3,27 +3,6 @@
 
 int currentDirection = -1;
 
-//Motor::Motor(int dir, int enablePin, int resetPin, int sleepPin, int stepPin, int dirPin) {
-//  currentDirection = dir;
-//  _stepPin = stepPin;
-//  _dirPin = dirPin;
-//  _enablePin = enablePin;
-//  _sleepPin = sleepPin;
-//  _resetPin = resetPin;
-//  _delayAmount = 1500;
-//
-//  pinMode(_enablePin, OUTPUT);
-//  pinMode(_sleepPin, OUTPUT);
-//  pinMode(_resetPin, OUTPUT);
-//  pinMode(_stepPin, OUTPUT);
-//  pinMode(_dirPin, OUTPUT);
-//
-//  digitalWrite(_enablePin, HIGH);
-//  digitalWrite(_sleepPin, LOW);
-//  digitalWrite(_resetPin, HIGH);
-//  digitalWrite(_stepPin, LOW);
-//}
-
 Motor::Motor(int enablePin, int ms1, int ms2, int ms3, int resetPin, int sleepPin, int stepPin, int dirPin) {
   _stepPin = stepPin;
   _dirPin = dirPin;

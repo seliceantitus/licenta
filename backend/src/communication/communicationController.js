@@ -96,17 +96,22 @@ class CommunicationController {
                         io.sockets.emit(RESPONSE.SENSOR, jsonData);
                         break;
                     default:
-                        io.sockets.emit(RESPONSE.ERROR)
+                        io.sockets.emit(RESPONSE.ERROR, jsonData);
                 }
             } catch (e) {
                 this.logger(e);
-                io.sockets.emit(RESPONSE.ERROR);
+                io.sockets.emit(RESPONSE.ERROR, {message: `Exception occurred: ${e}`});
             }
         });
     }
 
     logger(message) {
         console.log(new Date().toString(), '\n', message);
+    }
+
+    sendSerialCommand(command){
+        this.serialCachedData.outbound.push(command);
+        this.serialPort.write(command);
     }
 
     async getSerialPortsList() {
@@ -137,7 +142,7 @@ class CommunicationController {
         this.connections.splice(this.connections.indexOf(socket), 1);
         if (this.serial.connected) {
             const command = JSON.stringify({command: ARDUINO_REQUEST.AR_RESET});
-            this.serialPort.write(command);
+            this.sendSerialCommand(command);
             this.serialPort.close((err) => {
                 if (!err) {
                     this.serial.connected = false;
@@ -160,16 +165,15 @@ class CommunicationController {
 
     handleSerialDisconnect(socket) {
         const command = JSON.stringify({command: ARDUINO_REQUEST.AR_RESET});
-        if (this.serial.connected) this.serialPort.write(command);
+        if (this.serial.connected) this.sendSerialCommand(command);
         this.logger(`[SERIAL OUT] ${command}`);
         this.serialPort.close((err) => {
             if (err) {
-                this.serial.connected = false;
                 socket.emit(RESPONSE.SERIAL_DISCONNECT_ERROR, err.message);
             } else {
-                this.serial.connected = false;
                 socket.emit(RESPONSE.SERIAL_DISCONNECT_SUCCESS);
             }
+            this.serial.connected = false;
         });
     }
 
@@ -194,7 +198,7 @@ class CommunicationController {
                 }
             );
             this.logger(`[SERIAL OUT] ${command}`);
-            this.serialPort.write(command);
+            this.sendSerialCommand(command);
         } else {
             socket.emit(RESPONSE.CONFIG_ERROR);
         }
@@ -202,17 +206,17 @@ class CommunicationController {
 
     handleStartScan() {
         const command = JSON.stringify({command: ARDUINO_REQUEST.AR_START_SCAN});
-        this.serialPort.write(command);
+        this.sendSerialCommand(command);
     }
 
     handlePauseScan() {
         const command = JSON.stringify({command: ARDUINO_REQUEST.AR_PAUSE_SCAN});
-        this.serialPort.write(command);
+        this.sendSerialCommand(command);
     }
 
     handleStopScan() {
         const command = JSON.stringify({command: ARDUINO_REQUEST.AR_STOP_SCAN});
-        this.serialPort.write(command);
+        this.sendSerialCommand(command);
     }
 
     handleConfigSuccess(jsonData) {

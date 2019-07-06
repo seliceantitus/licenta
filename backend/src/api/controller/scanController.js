@@ -1,5 +1,6 @@
 Scan = require('../models/scan.model');
 Layer = require('../models/layer.model');
+outlier = require('outlier');
 
 exports.new = (req, res) => {
     let scan = new Scan(req.body);
@@ -24,6 +25,7 @@ exports.view = (req, res) => {
             if (err) {
                 return res.status(500).json({status: 'error', error: err});
             }
+
             return res.status(200).json(
                 {
                     status: 'success',

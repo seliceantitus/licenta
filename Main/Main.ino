@@ -14,8 +14,8 @@ LED rLed = LED(RLED);
 Switch limSw1 = Switch(LIMSW1);
 Switch limSw2 = Switch(LIMSW2);
 Sensor sensor = Sensor(IRSENSOR, 1000);
-Motor sensorAxis = Motor(23, 25, 27, 29, 31, 33, 35, 37, 600, LOW, LOW, LOW);
-Motor turntable = Motor(22, 24, 26, 28, 30, 32, 34, 36, 2000, HIGH, HIGH, HIGH);
+Motor sensorAxis = Motor(23, 25, 27, 29, 31, 33, 35, 37, 750, LOW, LOW, LOW);
+Motor turntable = Motor(22, 24, 26, 28, 30, 32, 34, 36, 2500, HIGH, HIGH, HIGH);
 JsonSerial jSerial = JsonSerial();
 
 bool isRunning = false;
@@ -25,6 +25,7 @@ int layer = 0;
 int pointsPerLayer = 0;
 
 int turntableStep = 4;
+int turntableStepMultiplier = 16;
 long sensorAxisStep = 200;
 
 long turntableTurns = 0;
@@ -156,7 +157,7 @@ void startScan() {
 void pauseScan() {
   yLed.on();
   sendPauseScan();
-  isPaused = true;
+  isPaused = !isPaused;
   delay(1000);
   yLed.off();
 }
@@ -230,8 +231,7 @@ void measure() {
 }
 
 void turnMotors() {
-  delay(100);
-  turntable.turn(turntableStep * 16);
+  turntable.turn(turntableStep * turntableStepMultiplier);
   turntableTurns += turntableStep;
   delay(100);
 }
@@ -249,9 +249,10 @@ bool checkOverObjectHeight() {
 }
 
 void resetComponents() {
-  //  sendBoardBusy();
   sensorAxis.setDirection(LEFT);
+  delay(100);
   sensorAxis.turn(sensorAxisTurns);
+  delay(100);
   sensorAxis.setDirection(RIGHT);
   isRunning = false;
   isPaused = false;
@@ -260,7 +261,6 @@ void resetComponents() {
   turntableTurns = 0;
   infinityResults = 0;
   delay(1000);
-  //  sendBoardReady();
 }
 
 void loop() {
@@ -284,6 +284,7 @@ void loop() {
     measure();
     delay(100);
     turnMotors();
+    delay(100);
     if (checkLimits()) {
       sendFinishedScan();
       resetComponents();

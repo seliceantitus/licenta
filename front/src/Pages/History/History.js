@@ -9,20 +9,14 @@ import {
     MenuItem,
     MuiThemeProvider,
     Paper,
-    TableBody,
-    TableRow,
     Typography,
     withStyles
 } from "@material-ui/core";
 import {API} from "../../Constants/URL";
-import {ChevronRight, Delete, Edit} from "@material-ui/icons";
+import {Delete} from "@material-ui/icons";
 import {DEFAULT_MD_COL_WIDTH, DEFAULT_XS_COL_WIDTH, TOAST_ERROR, TOAST_SUCCESS} from "../../Constants/UI";
 import {HISTORY_SELECT_SCAN, SCAN_DELETE} from "../../Constants/Messages";
 import ThreeDScene from "../../Components/History/ThreeDScene";
-import Tooltip from "@material-ui/core/Tooltip";
-import Table from "@material-ui/core/Table";
-import TableCell from "@material-ui/core/TableCell";
-import TableFooter from "@material-ui/core/TableFooter";
 import MenuList from "@material-ui/core/MenuList";
 
 const avatarTheme = createMuiTheme({
@@ -58,6 +52,16 @@ const styles = theme => ({
         marginLeft: '2rem',
         textTransform: 'uppercase',
     },
+    notConnected: {
+        display: 'flex',
+        alignItems: 'center',
+        marginTop: 50,
+    },
+    pageMessage: {
+        fontWeight: 200,
+        fontSize: '1.4rem',
+        color: '#777777',
+    }
 });
 
 class History extends React.Component {
@@ -67,6 +71,7 @@ class History extends React.Component {
         const {communicationManager, toastCallback} = this.props;
         this.communicationManager = communicationManager;
         this.state = {
+            dataLoaded: false,
             scans: {},
             selectedScan: {
                 id: null,
@@ -180,39 +185,77 @@ class History extends React.Component {
         }
     };
 
+    renderConnectingPage = (classes) => (
+        <Grid container justify={"center"} alignItems={"center"} spacing={2} direction={"column"}>
+            <Grid container item justify={"center"} alignItems={"center"} direction={"row"}
+                  xs={DEFAULT_XS_COL_WIDTH} md={DEFAULT_MD_COL_WIDTH} lg={10} xl={10}
+                  className={classes.notConnected}
+            >
+                <CircularProgress/>
+            </Grid>
+
+            <Grid container item justify={"center"} alignItems={"center"} direction={"row"}
+                  xs={DEFAULT_XS_COL_WIDTH} md={DEFAULT_MD_COL_WIDTH} lg={10} xl={10}
+                  className={classes.notConnected}
+            >
+                <Typography variant={"subtitle1"} className={classes.pageMessage}>
+                    Waiting for server...
+                </Typography>
+            </Grid>
+        </Grid>
+    );
+
+    renderServerNotAvailable = (classes) => (
+        <Grid container justify={"center"} alignItems={"center"} spacing={2} direction={"column"}>
+            <Grid container item justify={"center"} alignItems={"center"} direction={"row"}
+                  xs={DEFAULT_XS_COL_WIDTH} md={DEFAULT_MD_COL_WIDTH} lg={10} xl={10}
+                  className={classes.notConnected}
+            >
+                <Typography variant={"subtitle1"} className={classes.pageMessage}>
+                    Could not connect to server!
+                </Typography>
+            </Grid>
+        </Grid>
+    );
+
     render() {
         const {classes} = this.props;
-        if (!this.state.dataLoaded) return <CircularProgress/>;
-        return (
-            <>
-                <Grid container justify={"center"} alignItems={"flex-start"} spacing={2} direction={"row"}>
-                    <Grid container item justify={"flex-start"} alignItems={"flex-start"}
-                          xs={DEFAULT_XS_COL_WIDTH} md={DEFAULT_MD_COL_WIDTH} lg={10} xl={10}
-                          className={classes.pageHeader}
-                    >
-                        {this.renderPageHeader(classes)}
+        if (!this.communicationManager.isSocketConnected()) {
+            return this.renderServerNotAvailable(classes);
+        } else if (!this.state.dataLoaded) {
+            return this.renderConnectingPage(classes);
+        } else {
+            return (
+                <>
+                    <Grid container justify={"center"} alignItems={"flex-start"} spacing={2} direction={"row"}>
+                        <Grid container item justify={"flex-start"} alignItems={"flex-start"}
+                              xs={DEFAULT_XS_COL_WIDTH} md={DEFAULT_MD_COL_WIDTH} lg={10} xl={10}
+                              className={classes.pageHeader}
+                        >
+                            {this.renderPageHeader(classes)}
+                        </Grid>
                     </Grid>
-                </Grid>
-                <Grid container justify={"center"} alignItems={"flex-start"} spacing={2}>
-                    <Grid container item direction={"column"} justify={"center"} alignItems={"stretch"}
-                          xs={DEFAULT_XS_COL_WIDTH} md={DEFAULT_MD_COL_WIDTH} lg={2} xl={2}
-                    >
-                        <Paper>
-                            <MenuList>
-                                {this.renderScansList()}
-                            </MenuList>
-                        </Paper>
+                    <Grid container justify={"center"} alignItems={"flex-start"} spacing={2}>
+                        <Grid container item direction={"column"} justify={"center"} alignItems={"stretch"}
+                              xs={DEFAULT_XS_COL_WIDTH} md={DEFAULT_MD_COL_WIDTH} lg={2} xl={2}
+                        >
+                            <Paper>
+                                <MenuList>
+                                    {this.renderScansList()}
+                                </MenuList>
+                            </Paper>
+                        </Grid>
+                        <Grid container item direction={"column"} justify={"center"} alignItems={"stretch"}
+                              xs={DEFAULT_XS_COL_WIDTH} md={DEFAULT_MD_COL_WIDTH} lg={8} xl={8}
+                        >
+                            <Paper>
+                                {this.renderScene()}
+                            </Paper>
+                        </Grid>
                     </Grid>
-                    <Grid container item direction={"column"} justify={"center"} alignItems={"stretch"}
-                          xs={DEFAULT_XS_COL_WIDTH} md={DEFAULT_MD_COL_WIDTH} lg={8} xl={8}
-                    >
-                        <Paper>
-                            {this.renderScene()}
-                        </Paper>
-                    </Grid>
-                </Grid>
-            </>
-        );
+                </>
+            );
+        }
     }
 }
 

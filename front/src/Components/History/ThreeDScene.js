@@ -28,22 +28,39 @@ class ThreeDScene extends React.Component {
 
         this.geometry = new THREE.Geometry();
 
+        let z = 0.0;
+
         layers.forEach((layer) => {
             const points = layer.points;
             points.forEach((point) => {
                 let vertex = new THREE.Vector3();
                 vertex.x = point.x;
                 vertex.y = point.y;
-                vertex.z = point.z;
+                vertex.z = z;
 
                 this.geometry.vertices.push(vertex);
             });
+            z += 0.5;
         });
 
-        this.material = new THREE.PointsMaterial({color: 0xFFFFFF, size: 0.15});
+        // this.holes = [];
+        // this.triangles = THREE.ShapeUtils.triangulateShape(this.geometry.vertices, this.holes);
+        // for(let i = 0; i < this.triangles.length; i++){
+        //     this.geometry.faces.push(new THREE.Face3(this.triangles[i][0], this.triangles[i][1], this.triangles[i][2]));
+        // }
+        // this.geometry.computeFaceNormals();
+        // this.geometry.computeVertexNormals();
+        // this.material = new THREE.MeshLambertMaterial({color: "purple", wireframe: false});
+        // this.mesh = new THREE.Mesh(this.geometry, this.material);
+
+        this.material = new THREE.PointsMaterial({color: "white", size: 0.15});
         this.mesh = new THREE.Points(this.geometry, this.material);
         this.mesh.rotation.x = -1.55;
         this.scene.add(this.mesh);
+
+        let light = new THREE.DirectionalLight(0xffffff, 1.5);
+        light.position.setScalar(100);
+        this.scene.add(light);
 
         this.axesHelper = new THREE.AxesHelper(6);
         this.scene.add(this.axesHelper);
@@ -73,7 +90,7 @@ class ThreeDScene extends React.Component {
         return (
             <div
                 id="boardCanvas"
-                style={{width: "70vw", height: "40vw"}}
+                style={{width: "66vw", height: "75vh"}}
                 ref={mount => {
                     this.mount = mount;
                 }}

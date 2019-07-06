@@ -49,15 +49,15 @@ class Main extends React.Component {
         }
     }
 
-    //TODO reset motors values on disconnects
     componentDidMount() {
         this.communicationManager.addSocketConnectHandler(
             () => {
                 this.setState({socket: {connected: true}});
-                this.axisMotor.setStepIncrement(200);
-                this.tableMotor.setStepIncrement(8);
+                // this.axisMotor.setStepIncrement(200);
+                // this.tableMotor.setStepIncrement(8);
             }
         );
+
         this.communicationManager.addSocketDisconnectHandler(
             () => {
                 this.setState({socket: {connected: false}, serial: {connected: false}});
@@ -65,6 +65,7 @@ class Main extends React.Component {
                 this.tableMotor.setStepIncrement(8);
             }
         );
+
         this.communicationManager.addSerialConnectHandler(
             () => {
                 this.setState({serial: {connected: true}});
@@ -72,9 +73,11 @@ class Main extends React.Component {
                 this.tableMotor.setStepIncrement(8);
             }
         );
+
         this.communicationManager.addSerialConnectErrorHandler(
             () => this.setState({serial: {connected: false}})
         );
+
         this.communicationManager.addSerialDisconnectHandler(
             () => {
                 this.setState({serial: {connected: false}, board: {status: null}});
@@ -82,9 +85,11 @@ class Main extends React.Component {
                 this.tableMotor.setStepIncrement(8);
             }
         );
+
         this.communicationManager.addSerialDisconnectErrorHandler(
             () => this.setState({serial: {connected: false}})
         );
+
         this.communicationManager.addBoardBusyHandler(
             () => {
                 this.setState({board: {status: BOARD_STATUS.BUSY}});
@@ -92,6 +97,7 @@ class Main extends React.Component {
                 this.tableMotor.setStepIncrement(8);
             }
         );
+
         this.communicationManager.addBoardReadyHandler(
             () => {
                 this.setState({board: {status: BOARD_STATUS.READY}});

@@ -27,6 +27,7 @@ import {
     SCAN_UPLOAD_DIALOG_TITLE,
     SCANNING_FINISHED,
     SCANNING_PAUSE,
+    SCANNING_RESUME,
     SCANNING_START,
     SCANNING_STOP
 } from "../../Constants/Messages";
@@ -130,7 +131,12 @@ class Scan extends React.Component {
             series: [{
                 name: '',
                 data: [],
-            }]
+            }],
+            startButtonActive: false,
+            pauseButtonActive: false,
+            stopButtonActive: false,
+            uploadButtonActive: false,
+            deleteButtonActive: false
         };
 
         this.counter = 0;
@@ -166,7 +172,8 @@ class Scan extends React.Component {
                 series: [{
                     name: 'Distance',
                     data: new Array(this.tableMotor.getRadarLabels().length).fill(0),
-                }]
+                }],
+                startButtonActive: true,
             });
             this.socket.on(RESPONSE.START_SCAN, (data) => this.handleInboundData(RESPONSE.START_SCAN, data));
             this.socket.on(RESPONSE.PAUSE_SCAN, (data) => this.handleInboundData(RESPONSE.PAUSE_SCAN, data));
@@ -174,6 +181,16 @@ class Scan extends React.Component {
             this.socket.on(RESPONSE.FINISHED_SCAN, (data) => this.handleInboundData(RESPONSE.FINISHED_SCAN, data));
             this.socket.on(RESPONSE.SENSOR, (data) => this.handleInboundData(RESPONSE.SENSOR, data));
             this.socket.on(RESPONSE.ERROR, (data) => this.handleInboundData(RESPONSE.ERROR, data));
+
+            // if (enabled) {
+            // setInterval(() => this.layerCounter += 1, 5000);
+            // setTimeout(() =>
+            //         setInterval(() => {
+            //             console.log("StateChange");
+            //             this.setState({series: [{...this.state.series, data: Array(10).fill(5)}]})
+            //         }, 20),
+            //     200);
+            // }
         }
     }
 
@@ -200,13 +217,18 @@ class Scan extends React.Component {
                 this.setState({scanStatus: SCAN_STATUS.RUNNING});
                 break;
             case RESPONSE.PAUSE_SCAN:
-                this.setState({scanStatus: SCAN_STATUS.PAUSED});
-                this.showToast(TOAST_SUCCESS, SCANNING_PAUSE);
+                let newStatus = this.state.scanStatus === SCAN_STATUS.PAUSED ? SCAN_STATUS.RUNNING : SCAN_STATUS.PAUSED;
+                this.setState({
+                    scanStatus: newStatus,
+                    startButtonActive: false,
+                    pauseButtonActive: true,
+                    stopButtonActive: newStatus === SCAN_STATUS.RUNNING,
+                    uploadButtonActive: false,
+                    deleteButtonActive: false
+                });
+                this.showToast(TOAST_SUCCESS, newStatus === SCAN_STATUS.RUNNING ? SCANNING_RESUME : SCANNING_PAUSE);
                 break;
             case RESPONSE.STOP_SCAN:
-                //TODO The data is lost because the component is reconstructed by the BOARD_BUSY flag
-                // prompt the user with a warning message before - Dialog
-
                 this.resetVariables();
                 this.setState({
                         scanStatus: SCAN_STATUS.STOPPED,
@@ -217,7 +239,12 @@ class Scan extends React.Component {
                         series: [{
                             name: 'Distance',
                             data: new Array(this.tableMotor.getSteps()).fill(0),
-                        }]
+                        }],
+                        startButtonActive: true,
+                        pauseButtonActive: false,
+                        stopButtonActive: false,
+                        uploadButtonActive: false,
+                        deleteButtonActive: false
                     }
                 );
                 this.showToast(TOAST_SUCCESS, SCANNING_STOP);
@@ -229,7 +256,12 @@ class Scan extends React.Component {
                     series: [{
                         name: 'Distance',
                         data: new Array(this.tableMotor.getRadarLabels().length).fill(0),
-                    }]
+                    }],
+                    startButtonActive: false,
+                    pauseButtonActive: false,
+                    stopButtonActive: false,
+                    uploadButtonActive: true,
+                    deleteButtonActive: true
                 });
                 break;
             case RESPONSE.SENSOR:
@@ -252,8 +284,9 @@ class Scan extends React.Component {
             seriesData = seriesData.fill(0);
             this.layers.distances.push(-1);
             this.counter = 0;
+            this.layerCounter += 1;
         }
-        this.layers.distances.push(distance);
+        this.layers.distances.push(20 - distance);
         seriesData[this.counter] = distance;
         this.counter += 1;
         this.setState({series: [{...this.state.series, data: seriesData}]});
@@ -261,7 +294,11 @@ class Scan extends React.Component {
 
     startScan(scanName) {
         let name = scanName ? scanName : 'Unnamed';
-        let body = {name: name};
+        let body = {
+            name: name,
+            tableStep: this.tableMotor.getStepIncrement(),
+            sensorStep: this.axisMotor.getStepIncrement(),
+        };
         fetch(
             API.SCAN_NEW.URL,
             {
@@ -274,7 +311,14 @@ class Scan extends React.Component {
             .then(response => response.json())
             .then(
                 data => {
-                    this.setState({startDialogOpen: false});
+                    this.setState({
+                        startDialogOpen: false,
+                        startButtonActive: false,
+                        pauseButtonActive: true,
+                        stopButtonActive: true,
+                        uploadButtonActive: false,
+                        deleteButtonActive: false
+                    });
                     this.sessionId = data.data._id;
                     this.socket.emit(REQUEST.START_SCAN);
                     this.showToast(TOAST_SUCCESS, SCANNING_START);
@@ -287,52 +331,104 @@ class Scan extends React.Component {
     }
 
     pauseScan() {
-        if (this.state.scanStatus !== SCAN_STATUS.PAUSED) {
-            this.socket.emit(REQUEST.PAUSE_SCAN);
-        } else {
-            //TODO create handler for unpause
-        }
+        this.socket.emit(REQUEST.PAUSE_SCAN);
     }
 
     stopScan() {
         this.socket.emit(REQUEST.STOP_SCAN);
     }
 
+    // uploadScan() {
+    //     this.setState({scanStatus: SCAN_STATUS.UPLOADING});
+    //     let z = 0.0;
+    //     let angle = 0;
+    //     const turnAngle = this.tableMotor.getAngle();
+    //     let turnRadians = (Math.PI / 180.00) * turnAngle;
+    //     const distances = [];
+    //     let startIndex = 0;
+    //     console.log('Splitting original array', this.layers.distances);
+    //     this.layers.distances.forEach((distance, index) => {
+    //         if (distance === -1) {
+    //             distances.push(this.layers.distances.slice(startIndex, index));
+    //             startIndex = index + 1;
+    //         }
+    //     });
+    //     console.log('Processing local var distances', distances);
+    //     distances.forEach((distanceArray) => {
+    //         let points = [];
+    //         console.log('For each array', distanceArray);
+    //         distanceArray.forEach((distance) => {
+    //             const x = Math.sin(angle) * distance;
+    //             const y = Math.cos(angle) * distance;
+    //             points.push({x: x, y: y, z: z});
+    //             angle += turnRadians;
+    //             console.log('\t', angle);
+    //         });
+    //         console.log('Fetching');
+    //         fetch(
+    //             API.LAYER_NEW.URL,
+    //             {
+    //                 method: API.LAYER_NEW.METHOD,
+    //                 body: JSON.stringify({
+    //                     scan_id: this.sessionId,
+    //                     points: points,
+    //                     distances: distanceArray
+    //                 }),
+    //                 headers: {
+    //                     'Content-Type': 'application/json'
+    //                 }
+    //             })
+    //             .then(response => response.json())
+    //             .then(
+    //                 data => {
+    //                     console.log(data);
+    //                     // this.resetVariables();
+    //                 },
+    //                 err => {
+    //                     console.log(err)
+    //                 })
+    //             .catch(err => this.showToast(TOAST_ERROR, err));
+    //         z += 1;
+    //         angle = 0;
+    //         console.log(distanceArray);
+    //         console.log(points);
+    //     });
+    //     this.showToast(TOAST_SUCCESS, SCAN_DATA_SAVED);
+    //     this.setState({
+    //         scanStatus: SCAN_STATUS.IDLE,
+    //         series: [{
+    //             name: 'Distance',
+    //             data: new Array(this.tableMotor.getRadarLabels().length).fill(0),
+    //         }],
+    //         startButtonActive: true,
+    //         pauseButtonActive: false,
+    //         stopButtonActive: false,
+    //         uploadButtonActive: false,
+    //         deleteButtonActive: false
+    //     });
+    // };
+
     uploadScan() {
         this.setState({scanStatus: SCAN_STATUS.UPLOADING});
-        let z = 0.0;
-        let angle = 0;
-        const turnAngle = this.tableMotor.getAngle();
-        let turnRadians = (Math.PI / 180.00) * turnAngle;
         const distances = [];
         let startIndex = 0;
-        console.log('Splitting original array', this.layers.distances);
+
         this.layers.distances.forEach((distance, index) => {
             if (distance === -1) {
                 distances.push(this.layers.distances.slice(startIndex, index));
                 startIndex = index + 1;
             }
         });
-        console.log('Processing local var distances', distances);
-        distances.forEach((distanceArray) => {
-            let points = [];
-            console.log('For each array', distanceArray);
-            distanceArray.forEach((distance) => {
-                const x = Math.sin(angle) * distance;
-                const y = Math.cos(angle) * distance;
-                points.push({x: x, y: y, z: z});
-                angle += turnRadians;
-                console.log('\t', angle);
-            });
-            console.log('Fetching');
+
+        distances.forEach((distanceArray, index) => {
             fetch(
                 API.LAYER_NEW.URL,
                 {
                     method: API.LAYER_NEW.METHOD,
                     body: JSON.stringify({
                         scan_id: this.sessionId,
-                        points: points,
-                        distances: distanceArray
+                        distances: distanceArray,
+                        turnAngle: this.tableMotor.getAngle()
                     }),
                     headers: {
                         'Content-Type': 'application/json'
@@ -341,25 +437,26 @@ class Scan extends React.Component {
                 .then(response => response.json())
                 .then(
                     data => {
-                        console.log(data);
-                        // this.resetVariables();
+                        if (index === distances.length - 1){
+                            this.showToast(TOAST_SUCCESS, SCAN_DATA_SAVED);
+                            this.setState({
+                                scanStatus: SCAN_STATUS.IDLE,
+                                series: [{
+                                    name: 'Distance',
+                                    data: new Array(this.tableMotor.getRadarLabels().length).fill(0),
+                                }],
+                                startButtonActive: true,
+                                pauseButtonActive: false,
+                                stopButtonActive: false,
+                                uploadButtonActive: false,
+                                deleteButtonActive: false
+                            });
+                        }
                     },
                     err => {
                         console.log(err)
                     })
                 .catch(err => this.showToast(TOAST_ERROR, err));
-            z += 1;
-            angle = 0;
-            console.log(distanceArray);
-            console.log(points);
-        });
-        this.showToast(TOAST_SUCCESS, SCAN_DATA_SAVED);
-        this.setState({
-            scanStatus: SCAN_STATUS.IDLE,
-            series: [{
-                name: 'Distance',
-                data: new Array(this.tableMotor.getRadarLabels().length).fill(0),
-            }]
         });
     };
 
@@ -383,6 +480,18 @@ class Scan extends React.Component {
                     console.log(err);
                 })
             .catch(err => this.showToast(TOAST_ERROR, err));
+        this.setState({
+            scanStatus: SCAN_STATUS.IDLE,
+            series: [{
+                name: 'Distance',
+                data: new Array(this.tableMotor.getRadarLabels().length).fill(0),
+            }],
+            startButtonActive: true,
+            pauseButtonActive: false,
+            stopButtonActive: false,
+            uploadButtonActive: false,
+            deleteButtonActive: false
+        })
     };
 
     renderPageHeader = (classes) => (
@@ -404,7 +513,7 @@ class Scan extends React.Component {
                 color={"primary"}
                 className={classes.button}
                 onClick={() => this.setState({startDialogOpen: true})}
-                disabled={!this.state.pageEnabled}
+                disabled={!this.state.pageEnabled || !this.state.startButtonActive}
             >
                 <PlayArrow/>
             </Button>
@@ -412,7 +521,7 @@ class Scan extends React.Component {
                 variant={"contained"}
                 className={classes.button}
                 onClick={this.pauseScan}
-                disabled={!this.state.pageEnabled}
+                disabled={!this.state.pageEnabled || !this.state.pauseButtonActive}
             >
                 <Pause/>
             </Button>
@@ -421,7 +530,7 @@ class Scan extends React.Component {
                 color={"secondary"}
                 className={classes.button}
                 onClick={() => this.setState({stopDialogOpen: true})}
-                disabled={!this.state.pageEnabled}
+                disabled={!this.state.pageEnabled || !this.state.stopButtonActive}
             >
                 <Stop/>
             </Button>
@@ -431,7 +540,7 @@ class Scan extends React.Component {
                 color={"primary"}
                 className={classes.button}
                 onClick={this.uploadScan}
-                disabled={!this.state.pageEnabled || !(this.state.scanStatus === SCAN_STATUS.FINISHED)}
+                disabled={!this.state.pageEnabled || !this.state.uploadButtonActive}
             >
                 {this.state.scanStatus === SCAN_STATUS.UPLOADING ?
                     <CircularProgress variant={"indeterminate"} style={{width: 24, height: 24, color: 'white'}}/>
@@ -444,7 +553,7 @@ class Scan extends React.Component {
                 color={"secondary"}
                 className={classes.button}
                 onClick={this.deleteScan}
-                disabled={!this.state.pageEnabled || !(this.state.scanStatus === SCAN_STATUS.FINISHED)}
+                disabled={!this.state.pageEnabled || !this.state.deleteButtonActive}
             >
                 {this.state.scanStatus === SCAN_STATUS.DELETING ?
                     <CircularProgress variant={"indeterminate"} style={{width: 24, height: 24, color: 'white'}}/>
@@ -462,6 +571,7 @@ class Scan extends React.Component {
                 series={this.state.series}
                 type="radar"
                 height={650}
+                key={this.layerCounter}
             />
         </Paper>
     );
@@ -522,7 +632,7 @@ class Scan extends React.Component {
                           xs={DEFAULT_XS_COL_WIDTH} md={DEFAULT_MD_COL_WIDTH} lg={9} xl={9}
                     >
                         <Grid item>
-                            {this.renderChart(classes)}
+                            {/*{this.renderChart(classes)}*/}
                         </Grid>
                     </Grid>
                 </Grid>
