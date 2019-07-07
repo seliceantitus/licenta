@@ -632,7 +632,7 @@ class Scan extends React.Component {
                           xs={DEFAULT_XS_COL_WIDTH} md={DEFAULT_MD_COL_WIDTH} lg={9} xl={9}
                     >
                         <Grid item>
-                            {/*{this.renderChart(classes)}*/}
+                            {this.renderChart(classes)}
                         </Grid>
                     </Grid>
                 </Grid>

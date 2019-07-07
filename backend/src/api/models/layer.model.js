@@ -12,6 +12,12 @@ const LayerSchema = new mongoose.Schema({
         default: [],
     }],
     points: [{}],
+    filteredDistances: [{
+        type: Number,
+        required: true,
+        default: []
+    }],
+    filteredPoints: [{}],
 });
 
 module.exports = mongoose.model('Layer', LayerSchema);

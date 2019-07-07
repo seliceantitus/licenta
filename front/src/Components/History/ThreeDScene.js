@@ -11,7 +11,7 @@ class ThreeDScene extends React.Component {
     }
 
     componentDidMount() {
-        const {layers} = this.props;
+        const {scan, layers, filtered} = this.props;
         const width = this.mount.clientWidth;
         const height = this.mount.clientHeight;
 
@@ -31,7 +31,12 @@ class ThreeDScene extends React.Component {
         let z = 0.0;
 
         layers.forEach((layer) => {
-            const points = layer.points;
+            let points = [];
+            if (!filtered) {
+                points = layer.points;
+            } else {
+                points = layer.filteredPoints;
+            }
             points.forEach((point) => {
                 let vertex = new THREE.Vector3();
                 vertex.x = point.x;
@@ -40,7 +45,7 @@ class ThreeDScene extends React.Component {
 
                 this.geometry.vertices.push(vertex);
             });
-            z += 0.5;
+            z += (scan.sensorStep/1000);
         });
 
         // this.holes = [];

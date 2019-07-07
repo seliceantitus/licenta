@@ -18,21 +18,8 @@ function findErrorPositions(originalArray, outliersArray) {
 function filterDistances(distances) {
     const outliers = [...new Set(outlier(distances).findOutliers())];
     const positions = findErrorPositions(distances, outliers);
-
-    let sum = 0;
-    distances
-        .filter((distance, index) => positions.indexOf(index) === -1)
-        .forEach((distance) => {
-            sum += distance;
-        });
-
-    const average = sum / (distances.length - positions.length);
-    return distances.map((distance, index) => {
-        if (positions.indexOf(index) !== -1)
-            return average * Math.random() + 1;
-        else
-            return distance;
-    });
+    return distances
+        .filter((distance, index) => positions.indexOf(index) === -1);
 }
 
 function transformTo3DPoints(distances, turnAngle) {
@@ -55,15 +42,18 @@ exports.new = (req, res) => {
     } else {
         const turnAngle = req.body.turnAngle;
         const distances = req.body.distances;
+        const points = transformTo3DPoints(distances, turnAngle);
 
         const filtered = filterDistances(distances);
-        const points = transformTo3DPoints(filtered, turnAngle);
+        const filteredPoints = transformTo3DPoints(filtered, turnAngle);
 
         let layer = new Layer({
             _id: mongoose.Types.ObjectId(),
             scan: req.body.scan_id,
             points: points,
-            distances: filtered,
+            distances: distances,
+            filteredDistances: filtered,
+            filteredPoints: filteredPoints
         });
 
         layer.save()
