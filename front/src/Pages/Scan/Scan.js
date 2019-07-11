@@ -181,16 +181,6 @@ class Scan extends React.Component {
             this.socket.on(RESPONSE.FINISHED_SCAN, (data) => this.handleInboundData(RESPONSE.FINISHED_SCAN, data));
             this.socket.on(RESPONSE.SENSOR, (data) => this.handleInboundData(RESPONSE.SENSOR, data));
             this.socket.on(RESPONSE.ERROR, (data) => this.handleInboundData(RESPONSE.ERROR, data));
-
-            // if (enabled) {
-            // setInterval(() => this.layerCounter += 1, 5000);
-            // setTimeout(() =>
-            //         setInterval(() => {
-            //             console.log("StateChange");
-            //             this.setState({series: [{...this.state.series, data: Array(10).fill(5)}]})
-            //         }, 20),
-            //     200);
-            // }
         }
     }
 
@@ -337,76 +327,6 @@ class Scan extends React.Component {
     stopScan() {
         this.socket.emit(REQUEST.STOP_SCAN);
     }
-
-    // uploadScan() {
-    //     this.setState({scanStatus: SCAN_STATUS.UPLOADING});
-    //     let z = 0.0;
-    //     let angle = 0;
-    //     const turnAngle = this.tableMotor.getAngle();
-    //     let turnRadians = (Math.PI / 180.00) * turnAngle;
-    //     const distances = [];
-    //     let startIndex = 0;
-    //     console.log('Splitting original array', this.layers.distances);
-    //     this.layers.distances.forEach((distance, index) => {
-    //         if (distance === -1) {
-    //             distances.push(this.layers.distances.slice(startIndex, index));
-    //             startIndex = index + 1;
-    //         }
-    //     });
-    //     console.log('Processing local var distances', distances);
-    //     distances.forEach((distanceArray) => {
-    //         let points = [];
-    //         console.log('For each array', distanceArray);
-    //         distanceArray.forEach((distance) => {
-    //             const x = Math.sin(angle) * distance;
-    //             const y = Math.cos(angle) * distance;
-    //             points.push({x: x, y: y, z: z});
-    //             angle += turnRadians;
-    //             console.log('\t', angle);
-    //         });
-    //         console.log('Fetching');
-    //         fetch(
-    //             API.LAYER_NEW.URL,
-    //             {
-    //                 method: API.LAYER_NEW.METHOD,
-    //                 body: JSON.stringify({
-    //                     scan_id: this.sessionId,
-    //                     points: points,
-    //                     distances: distanceArray
-    //                 }),
-    //                 headers: {
-    //                     'Content-Type': 'application/json'
-    //                 }
-    //             })
-    //             .then(response => response.json())
-    //             .then(
-    //                 data => {
-    //                     console.log(data);
-    //                     // this.resetVariables();
-    //                 },
-    //                 err => {
-    //                     console.log(err)
-    //                 })
-    //             .catch(err => this.showToast(TOAST_ERROR, err));
-    //         z += 1;
-    //         angle = 0;
-    //         console.log(distanceArray);
-    //         console.log(points);
-    //     });
-    //     this.showToast(TOAST_SUCCESS, SCAN_DATA_SAVED);
-    //     this.setState({
-    //         scanStatus: SCAN_STATUS.IDLE,
-    //         series: [{
-    //             name: 'Distance',
-    //             data: new Array(this.tableMotor.getRadarLabels().length).fill(0),
-    //         }],
-    //         startButtonActive: true,
-    //         pauseButtonActive: false,
-    //         stopButtonActive: false,
-    //         uploadButtonActive: false,
-    //         deleteButtonActive: false
-    //     });
-    // };
 
     uploadScan() {
         this.setState({scanStatus: SCAN_STATUS.UPLOADING});
@@ -632,7 +552,7 @@ class Scan extends React.Component {
                           xs={DEFAULT_XS_COL_WIDTH} md={DEFAULT_MD_COL_WIDTH} lg={9} xl={9}
                     >
                         <Grid item>
-                            {this.renderChart(classes)}
+                            {/*{this.renderChart(classes)}*/}
                         </Grid>
                     </Grid>
                 </Grid>

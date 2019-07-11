@@ -24,7 +24,7 @@ bool isPaused = false;
 int layer = 0;
 int pointsPerLayer = 0;
 
-int turntableStep = 4;
+int turntableStep = 8;
 int turntableStepMultiplier = 16;
 long sensorAxisStep = 200;
 
@@ -233,7 +233,7 @@ void measure() {
 void turnMotors() {
   turntable.turn(turntableStep * turntableStepMultiplier);
   turntableTurns += turntableStep;
-  delay(100);
+  delay(50);
 }
 
 bool checkLimits() {
@@ -282,9 +282,7 @@ void loop() {
       }
     }
     measure();
-    delay(100);
     turnMotors();
-    delay(100);
     if (checkLimits()) {
       sendFinishedScan();
       resetComponents();

@@ -46,6 +46,7 @@ class ThreeDScene extends React.Component {
                 this.geometry.vertices.push(vertex);
             });
             z += (scan.sensorStep/1000);
+            // z += 0.15;
         });
 
         // this.holes = [];

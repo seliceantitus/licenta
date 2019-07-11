@@ -19,6 +19,7 @@ import {DEFAULT_MD_COL_WIDTH, DEFAULT_XS_COL_WIDTH, TOAST_ERROR, TOAST_SUCCESS} 
 import {HISTORY_SELECT_SCAN, SCAN_DELETE} from "../../Constants/Messages";
 import ThreeDScene from "../../Components/History/ThreeDScene";
 import Checkbox from "@material-ui/core/Checkbox";
+import Moment from "react-moment";
 
 const avatarTheme = createMuiTheme({
     typography: {
@@ -208,6 +209,18 @@ class History extends React.Component {
             });
             return (
                 <Paper className={classes.scanDetails}>
+                    <Typography variant={"subtitle2"}>
+                        Name
+                    </Typography>
+                    <Typography variant={"subtitle1"}>
+                        {scan.name}
+                    </Typography>
+                    <Typography variant={"subtitle2"}>
+                        Scanned on
+                    </Typography>
+                    <Typography variant={"subtitle1"}>
+                        <Moment format={"ddd, DD-MM-YYYY HH:mm"}>{scan.takenOn}</Moment>
+                    </Typography>
                     <Typography variant={"subtitle2"}>
                         Sensor increment
                     </Typography>

@@ -22,6 +22,10 @@ mongoose.connect(`mongodb://${ipAddress}:${port}/${name}`, { useNewUrlParser: tr
 app.use(cors());
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
+app.use((req, res, next) => {
+    console.log(req);
+    next();
+});
 app.use('/scan', scan);
 app.use('/layer', layer);
 module.exports = app;
