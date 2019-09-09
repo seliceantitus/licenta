@@ -17,6 +17,4 @@ Three main components
 
 ### Results
 
-![Box](https://github.com/seliceantitus/licenta/blob/master/BoxResult.png?raw=true)
-
-![Vase](https://github.com/seliceantitus/licenta/blob/master/VaseResult.png?raw=true)
+![Scan result](https://github.com/seliceantitus/licenta/blob/master/History.PNG?raw=true)
