@@ -5,9 +5,9 @@ An Arduino based 3D scanner with different scan precisions which composes the po
 
 Three main components
 
-- Front end: React, MaterialUI & Socket.io
-- Back end: Node.js, Express, Socket.io & SerialPort
-- Arduino program: C++ & SerialPort
+- Front end: React & MaterialUI
+- Back end: Node.js & Express
+- Arduino program: C++
 
 ### Homepage
 ![Application homepage](https://github.com/seliceantitus/licenta/blob/master/Homepage.PNG?raw=true)
