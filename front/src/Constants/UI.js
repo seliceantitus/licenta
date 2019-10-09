@@ -21,5 +21,4 @@ export const NAV_MENU = 'nav_menu';
 export const AXIS_OPTIONS = [100, 200, 300, 400, 500, 600, 700, 800, 1000, 1200];
 export const AXIS_MAX = AXIS_OPTIONS[AXIS_OPTIONS.length - 1];
 export const TABLE_OPTIONS = [4, 5, 8, 10, 20, 25];
-// export const TABLE_OPTIONS = [8, 10, 16, 20, 25, 32, 40, 50, 64, 80, 100, 128, 160, 200, 320, 400];
 export const TABLE_MAX = TABLE_OPTIONS[TABLE_OPTIONS.length - 1];

@@ -50,6 +50,7 @@ exports.new = (req, res) => {
         let layer = new Layer({
             _id: mongoose.Types.ObjectId(),
             scan: req.body.scan_id,
+            index: req.body.index,
             points: points,
             distances: distances,
             filteredDistances: filtered,

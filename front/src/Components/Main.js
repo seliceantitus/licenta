@@ -53,8 +53,6 @@ class Main extends React.Component {
         this.communicationManager.addSocketConnectHandler(
             () => {
                 this.setState({socket: {connected: true}});
-                // this.axisMotor.setStepIncrement(200);
-                // this.tableMotor.setStepIncrement(8);
             }
         );
 

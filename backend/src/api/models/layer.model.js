@@ -6,6 +6,10 @@ const LayerSchema = new mongoose.Schema({
         ref: 'Scan',
         required: true
     },
+    index: {
+        type: Number,
+        required: true,
+    },
     distances: [{
         type: Number,
         required: true,

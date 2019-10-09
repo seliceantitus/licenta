@@ -83,7 +83,6 @@ const styles = theme => ({
         marginLeft: '2rem',
         textTransform: 'uppercase',
     },
-    //Table style
     table: {
         fontFamily: theme.typography.fontFamily,
     },
@@ -115,6 +114,7 @@ class Scan extends React.Component {
         const {communicationManager, axisMotor, tableMotor, toastCallback} = this.props;
         this.axisMotor = axisMotor;
         this.tableMotor = tableMotor;
+        this.approxPointCount = (40000 / this.axisMotor.getStepIncrement()) * (200 / this.tableMotor.getStepIncrement());
 
         this.communicationManager = communicationManager;
         this.socket = this.communicationManager.getSocket();
@@ -259,7 +259,6 @@ class Scan extends React.Component {
                 break;
             case RESPONSE.ERROR:
                 console.error(json);
-                // this.showToast(TOAST_ERROR, json);
                 break;
             default:
                 return;
@@ -347,6 +346,7 @@ class Scan extends React.Component {
                     method: API.LAYER_NEW.METHOD,
                     body: JSON.stringify({
                         scan_id: this.sessionId,
+                        index: index,
                         distances: distanceArray,
                         turnAngle: this.tableMotor.getAngle()
                     }),
@@ -552,7 +552,7 @@ class Scan extends React.Component {
                           xs={DEFAULT_XS_COL_WIDTH} md={DEFAULT_MD_COL_WIDTH} lg={9} xl={9}
                     >
                         <Grid item>
-                            {/*{this.renderChart(classes)}*/}
+                            {this.renderChart(classes)}
                         </Grid>
                     </Grid>
                 </Grid>

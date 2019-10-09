@@ -48,11 +48,6 @@ class NavigationWrapper extends React.Component {
             selectedSerialPort: null,
         };
 
-        // this.showToast = (type, message) => {
-        // toast(message, {type: type, containerId: 'NavigationWrapper'})
-        // toast(message, {type: type});
-        // };
-
         this.showToast = toastCallback;
 
         this.socketConnect = () => {

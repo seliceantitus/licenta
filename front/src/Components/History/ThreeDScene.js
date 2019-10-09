@@ -30,6 +30,9 @@ class ThreeDScene extends React.Component {
 
         let z = 0.0;
 
+        if (layers.length && layers[0].index)
+            layers.sort((a, b) => (a.index > b.index) ? 1 : -1);
+
         layers.forEach((layer) => {
             let points = [];
             if (!filtered) {
@@ -45,19 +48,8 @@ class ThreeDScene extends React.Component {
 
                 this.geometry.vertices.push(vertex);
             });
-            z += (scan.sensorStep/1000);
-            // z += 0.15;
+            z += (scan.sensorStep / 1000);
         });
-
-        // this.holes = [];
-        // this.triangles = THREE.ShapeUtils.triangulateShape(this.geometry.vertices, this.holes);
-        // for(let i = 0; i < this.triangles.length; i++){
-        //     this.geometry.faces.push(new THREE.Face3(this.triangles[i][0], this.triangles[i][1], this.triangles[i][2]));
-        // }
-        // this.geometry.computeFaceNormals();
-        // this.geometry.computeVertexNormals();
-        // this.material = new THREE.MeshLambertMaterial({color: "purple", wireframe: false});
-        // this.mesh = new THREE.Mesh(this.geometry, this.material);
 
         this.material = new THREE.PointsMaterial({color: "white", size: 0.15});
         this.mesh = new THREE.Points(this.geometry, this.material);
@@ -89,7 +81,6 @@ class ThreeDScene extends React.Component {
     animate() {
         this.frameId = window.requestAnimationFrame(this.animate);
         this.renderer.render(this.scene, this.camera);
-        // this.mesh.rotation.z += 0.002;
     }
 
     render() {

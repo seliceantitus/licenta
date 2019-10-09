@@ -53,6 +53,7 @@ class CommunicationController {
         this.handleSerialConnect = this.handleSerialConnect.bind(this);
         this.handleSerialDisconnect = this.handleSerialDisconnect.bind(this);
         this.handleConfigSuccess = this.handleConfigSuccess.bind(this);
+        this.shuttingDown = this.shuttingDown.bind(this);
     }
 
     createSerialPort(port) {
@@ -226,6 +227,18 @@ class CommunicationController {
             io.sockets.emit(RESPONSE.CONFIG_SUCCESS, {motor: COMPONENTS.TURNTABLE_MOTOR});
         } else {
             io.sockets.emit(RESPONSE.CONFIG_ERROR, "Invalid motor ID received.");
+        }
+    }
+
+    shuttingDown(){
+        if (this.serial.connected){
+            const command = JSON.stringify({command: ARDUINO_REQUEST.AR_RESET});
+            this.sendSerialCommand(command);
+            this.serialPort.close((err) => {
+                if (!err) {
+                    this.serial.connected = false;
+                }
+            });
         }
     }
 }
