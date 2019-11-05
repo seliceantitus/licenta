@@ -18,7 +18,7 @@
     "express": "^4.16.4",
     "install": "^0.12.2",
     "mocha": "^6.1.4",
-    "mongoose": "^5.5.11",
+    "mongoose": "^5.7.5",
     "nodemon": "^1.19.1",
     "npm": "^6.9.0",
     "outlier": "0.0.1",
